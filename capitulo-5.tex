@@ -1,0 +1,27 @@
+\chapter{DE C\'OMO COMPILAR EL LIBRO}
+Para compilar el libro, siendo \texttt{main.tex} el documento principal, se requieren los siguientes pasos (no siempre son todos necesarios)
+\begin{enumerate}
+\item \verb+~ latex main.tex+
+\item \verb+~ bibtex main.aux+
+\item \verb+~ latex main.tex+
+\item \verb+~ latex main.tex+
+\end{enumerate}
+Si adicionalmente se quiere una salida de \ac{PDF}, entonces los siguiente pasos adicionales son
+necesarios
+\begin{enumerate}
+\item \verb+~ dvips main.dvi+
+\item \verb+~ ps2pdf main.ps+
+\end{enumerate}
+Finalmente, la salida en \ac{PDF} es {\tt main.pdf}
+
+Algunos editores de \LaTeX\ efectuan todos los pasos anterior de manera automatica, sin embargo,
+para que las referencias de hiperv\'inculos dentro del documento final \ac{PDF} funcionen,
+es necesario primero compilar a \ac{PS} primero.
+
+Aternativamente se puede compilar directamente a \ac{PDF} usado \verb+pdflatex+
+\begin{enumerate}
+\item \verb+~ pdflatex main.tex+
+\item \verb+~ bibtex main.aux+
+\item \verb+~ pdflatex main.tex+
+\item \verb+~ pdflatex main.tex+
+\end{enumerate}

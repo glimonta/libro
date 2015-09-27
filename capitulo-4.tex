@@ -1,0 +1,46 @@
+\chapter{SOBRE EL USO DE ACR\'ONIMOS Y LA LISTA DE S\'IMBOLOS}
+\section{Acr\'onimos}
+En este cap\'itulo se describe una forma de crear los acr\'onimos compatiblemente con las normas de los decanatos. Su uso es opcional pero recomendado.  
+
+El uso de los acronimos se hace a trav\'es del paquete {\sl acronym} (que debe ser cargado en el prea\'ambulo) y es habilitado
+con el comando \verb+\useacronyms+ al principio del archivo (luego de los \'indices durante \verb+\frontmatter+). Los
+acr\'onimos se definen {\em todos} en el archivo {\tt acronimos.tex} bajo el ambiente \verb+\begin{acronym}+\verb+\end{acronym}+. Para definir un acr\'onimo se usa el comando \verb+\acro{}[]{}+. La primera entrada es el nombre del acr\'onimo, la segunda entrada es el acr\'onimo propiamente y la tercera entrada es la expansi\'on del acr\'onimo. Por ejemplo, lo siguiente es el contenido del archivo \texttt{acronimos.tex} donde se crean algunas definiciones de acr\'onimos.
+\begin{verbatim}
+\chapter*{LISTA DE ACR\'ONIMOS}
+\begin{acronym}
+\acro{USB}[USB]{Universidad Sim\'on Bol\'ivar}
+\acro{CCE}[Dpto.~CCE]{Departamento de C\'omputo Cient\'ifico 
+     y Estad\'isitica}
+\acro{DEP}[DEP]{Decanato de Estudios Profesionales}
+\acro{PDF}[PDF]{Documento en Formato Portable\copyright}
+\acro{PS}[PS]{PostScript\copyright}
+\end{acronym}
+\end{verbatim}
+Una vez definidos los acr\'onimos se pueden referenciar con el comando \verb+\ac{}+ usando el nombre definido para el acr\'onimo. Por
+ejemplo, \verb+\ac{USB}+ producir\'a \ac{USB}, mientras que \verb+\ac{CCE}+ producir\'a \ac{CCE}.
+
+La clase {\sl tesis-usb} en acorde a las disposiciones del \ac{DEP}, despliega la descripci\'on
+de cada acr\'onimo una sola vez cuando es referenciada la primera vez en cada cap\'itulo. Todo
+los usos sucesivos no son expandidos, por ejemplo:
+
+\noindent \verb+\ac{LI}+$\rightarrow$ \ac{LI}\\
+\verb+\ac{LI}+$\rightarrow$ \ac{LI}\\
+\verb+\ac{LI}+$\rightarrow$ \ac{LI}\\
+\verb+\ac{LI}+$\rightarrow$ \ac{LI}\\
+\verb+\ac{CCE}+$\rightarrow$ \ac{CCE}
+
+Nota: Si el comando \verb+\useacronyms+ est\'a comentado al principio de {\tt main.tex} y se
+usan acr\'onimos a lo largo del libro, estos no van a funcionar resultando en errores de compilación.
+
+\section{Lista de s\'imbolos}
+La lista de s\'imbolos o notaci\'on matem\'atica se recomienda hacer manualmente. Por ejemplo, se puede incluir el siguiente c\'odigo luego de los \'indices.
+\begin{verbatim}
+\chapter*{Notaci\'on matem\'atica}
+\begin{tabular}{ll}
+$\mathbb{R}$ & Conjunto de n\'umeros reales\\
+$M_{m,n}$ & Espacio de las matrices de tama\~no $m$ por 
+     $n$ con entradas reales\\
+$\mathcal{L}$ & Operador de Laplace\\
+$\emptyset$ & Conjunto vac\'io
+\end{tabular}
+\end{verbatim}
