@@ -1,0 +1,1466 @@
+\chapter{Syntax and Semantics}\label{chapter:semantics}
+\lhead{Capítulo 3. \emph{Syntax and Semantics}}
+
+Our imperative language is called Chloe and it represents a subset of the C language.
+A program is a sequence of one or more statements (or commands) written to perform a task in a computer.
+Each of these statements represents an instruction the machine will execute.
+These statements can contain internal components called expressions.
+An expression is a term consisting of values, constants, variables, operators, etc. which can be evaluated in the context of a program state to obtain a value that will be used in a statement.
+In the following sections we will proceed to discuss the syntax and semantics of programs in Chloe in more detail.
+
+
+\section{Expressions}\label{section:expressions}
+
+\subsection{Syntax}\label{subsection:syntax_expressions}
+
+Here we proceed to describe the \textbf{abstract syntax} for the expressions of the Chloe language.
+
+\begin{figure}
+  \begin{lstlisting}[frame=single]
+  type_synonym vname = string
+
+  datatype exp = Const int
+               | Null
+               | V      vname
+               | Plus  exp exp
+               | Subst exp exp
+               | Minus exp
+               | Div   exp exp
+               | Mod   exp exp
+               | Mult  exp exp
+               | Less  exp exp
+               | Not   exp
+               | And   exp exp
+               | Or    exp exp
+               | Eq    exp exp
+               | New   exp
+               | Deref exp
+               | Ref   lexp
+               | Index exp exp
+  and
+  datatype lexp = Deref exp
+                | Indexl exp exp
+  \end{lstlisting}
+
+  \caption{Chloe expressions}
+  \label{fig:chloe_expressions}
+\end{figure}
+
+In figure~\ref{fig:chloe_expressions} we can find the datatype created in Isabelle for the expressions, where \verb|int| is the predefined type for integers and \verb|vname| stands for variable name.
+
+We define two new datatypes, one for expressions and one for left-hand-side expressions.
+It is important to differentiate between these two in the case where we are dealing with pointer expressions.
+For instance, let's take the following C statements:
+
+\begin{lstlisting}[mathescape=true, frame=single]
+foo = *bar;
+*baz = 1;
+\end{lstlisting}
+
+where \verb|foo| and \verb|bar| are variables, \verb|1| is a constant value, ``\verb|=|'' denotes an assignment statement and ``\verb|*|'' corresponds to the dereference operator.
+
+In the first expression \verb|*bar| is on the right-hand-side, in this case we want \verb|*bar| to yield a value we can then assign to \verb|foo|.
+On the other hand, in the second expression \verb|*baz| is on the left-hand-side, in this case we want \verb|*baz| to yield an address to which we can assign the value \verb|1|.
+
+This also occurs with array indexing.
+In order to correctly model the semantics for the Chloe expressions it is necessary to have this distinction between left-hand-side expressions and right-hand-side expressions.
+In future sections we will proceed to refer to right-hand side expressions as simply expressions and we will use LHS instead of left-hand-side when referring to left-hand-side expressions.
+
+Chloe supports constant expressions, null pointer expression, variables as well as the following operations over expressions: addition, subtraction, unary minus, division, modulo, multiplication, less than, not, and, or, equality.
+We also have a \verb|New| expression which corresponds to a \verb|malloc| call in C.
+We have dereferencing, referencing and array subscripting, these are in C the \verb|*|, \verb|&| and \verb|[]| operators, respectively.
+Finally as LHS expressions we have dereferencing and array subscripting.
+
+\subsubsection{Types}
+
+In the Chloe language we have two types, namely integers and addresses.
+We differentiate between values of type integer and addresses in order to correctly define our semantics.
+Next, we will proceed to present the details of the two types in the Chloe language.
+
+\paragraph{Integers}
+
+We define the following type synonyms in Isabelle:
+
+\begin{lstlisting}[frame=single]
+type_synonym int_width = 64
+type_synonym int_val = int_width word
+\end{lstlisting}
+
+
+The term \verb|int_width| refers to the width of the integer value.
+In this case we assume a value of 64 since we are working with a 64 bit architecture.
+This parameter indicates the semantics to assume we are working with a 64 bit architecture where the upper and lower bounds for an integer are defined in figure~\ref{fig:int_bounds}.
+
+\begin{figure}
+  \begin{lstlisting}[frame=single, mathescape=true]
+  abbreviation INT_MIN :: int where INT_MIN $\equiv$ - (2^(int_width - 1))
+  abbreviation INT_MAX :: int where INT_MAX $\equiv$  ((2^(int_width - 1)) - 1)
+  \end{lstlisting}
+
+  \caption{Integer lower and upper bounds}
+  \label{fig:int_bounds}
+\end{figure}
+
+When working with a different architecture this parameter can be changed in order to comply with the requirements of the architecture.
+
+Also our integers are defined as words of length \verb|int_width| (in this case \verb|64|).
+Since we are not using the Isabelle's predefined \verb|int| type, in order to work with words and to support code generation for them we use the Native Word entry in the Archive of Formal Proofs\cite{Native_Word-AFP}.
+
+From now on we will mostly refer to the 64 length words we use to represent integers in our language just as integers.
+Note that, unless explicitly stated so in the text, for simplicity we will use the word `integer' to refer to a 64 length word instead of Isabelle's predefined \verb|int| type.
+
+\paragraph{Addresses}
+
+We define the following \verb|datatype| in Isabelle to represent addresses:
+
+\begin{lstlisting}[frame=single, mathescape=true]
+datatype addr = nat $\times$ int
+\end{lstlisting}
+
+An address will then be a pair composed of a natural number and an integer (which is an Isabelle predefined \verb|int|), these represent a \verb|(block_id, offset)| pair.
+In the following section we will proceed to explain the layout of the memory.
+
+\subsubsection{Values} The values for any expression are defined as follows:
+
+\begin{lstlisting}[frame=single, mathescape=true]
+datatype val = NullVal | I $int\_val$ | A $addr$
+\end{lstlisting}
+
+where \verb|NullVal| corresponds to the null pointer expression, \verb|I| $int\_val$ corresponds to an integer value, and \verb|A| $addr$ corresponds to an address value.
+When evaluating an expression we can obtain any of these three values.
+
+\subsubsection{Memory}
+
+We model dynamic memory in the following way:
+
+\begin{lstlisting}[frame=single, mathescape=true]
+type_synonym mem = val option list option list
+\end{lstlisting}
+
+The memory is represented by a list of allocated blocks, and each of these blocks consists of a list of cells with the values in memory.
+For every block there's two possibilities: an allocated block or an unallocated block, this is modeled by the use of the \verb|option| type, where \verb|Some| $l$ (where $l$ is of type \verb|val option list|) denotes an allocated block and \verb|None| an unallocated one.
+Every block consists of a list of cells that contain the values in memory.
+Each cell can have different values depending on whether it is uninitialized or it holds a value.
+An uninitialized cell in memory is represented by the value \verb|None|.
+Whereas a cell holding a value is represented by the value \verb|Some| $v$, where $v$ is of type \verb|val|.
+This memory model is inspired in the work of Blazy and Leroy\cite{leroy-blazy-memory-model}, it is a simpler model adjusted to satisfy our needs.
+
+There are four main operations that can manage the memory, these are \verb|new_block|, \verb|free|, \verb|load| and \verb|store| and these are specified in figure~\ref{fig:mem_operations}.
+Each of these operations can fail, therefore their return type is $\tau\ \verb|option|$.
+The values of that type are either \verb|None| when the operation fails or $\verb|Some|(v)$ (where $v$ is of type $\tau$).
+
+The functionalities of the memory management operations are the following:
+
+\begin{itemize}
+  \item{\verb|new_block| is the function that allocates a new block of dynamic memory of a given size.
+  This function will fail in the case a size less or equal than zero is given, it can also fail if a value of a different type than an integer is given.
+  Upon successful execution the function will yield the beginning address of the new block along with the modified memory.}
+  \item{\verb|free| is the function that deallocates a block from the dynamic memory.
+  This function will fail in the case where the given address is not a valid one in memory.
+  Upon successful execution the function will yield a new state that includes the updated memory.}
+  \item{\verb|load| is the function that given an address retrieves a value stored in the memory cell denoted by the given address.
+  This function will fail in the case where the given address is not a valid one in memory.
+  Upon successful execution the function will yield the value stored in memory.}
+  \item{\verb|store| is the function that given an address stores a value in the memory cell denoted by the given address.
+  This function will fail in the case where the given address is not a valid one in memory.
+  Upon successful execution the function will yield a new state that includes the updated memory.}
+\end{itemize}
+
+\begin{figure}
+  \begin{lstlisting}[mathescape=true, frame=single]
+  new_block :: val $\Rightarrow$ mem $\Rightarrow$ (val $\times$ mem) option
+  free      :: addr $\Rightarrow$ val  $\Rightarrow$ visible_state $\Rightarrow$ visible_state option
+  load      :: addr $\Rightarrow$ mem $\Rightarrow$ val option
+  store     :: addr $\Rightarrow$ val  $\Rightarrow$ visible_state $\Rightarrow$ visible_state option
+  \end{lstlisting}
+
+  \caption{Memory Management operations}
+  \label{fig:mem_operations}
+\end{figure}
+
+It is important to note that the only reasons why the memory allocation can fail in our semantics are the ones described above.
+Since we assume the memory to be unlimited, there will not be a case where a \verb|new| call fails due to a lack of memory.
+
+However, as the resources in a machine are limited, we cannot use an unlimited amount of memory.
+Here is where we find a discrepancy with what the C semantics describes and this breaks one of our assumptions.
+When performing a malloc call in a C program, there is a possibility that the call yields \verb|NULL|.
+In such case our semantics and the C semantics act differently.
+
+In order to model an allocation function that presents this kind of behavior one would probably have to either say non-deterministically that one's function may return \verb|NULL|, which would make proving any properties about a program complicated because any call to an allocation function might fail, or assume that a fixed amount of memory is available.
+However, modeling this kind of function is not a trivial task and remains out of the scope of this work.
+
+Therefore, we have decided to assume an unlimited amount of memory and later when doing the translation process, we will wrap C's malloc function in an user defined function that will check whether the malloc call is successful or not.
+What we will be able to guarantee about our generated program is that it will either be generated and both the execution of it in the semantics and the execution in the machine will yield final states that are equal or the program will abort when an out of memory error is encountered.
+
+
+\subsection{Semantics}\label{subsection:semantics_expressions}
+
+The semantics of an expression is its value and its effect on the program state.
+For expressions such as $21 + 21$, the evaluation of this expression is trivial ($42$).
+On the other hand when we have expressions with variables, such as $foo + 42$, then we depend on the value of the variable.
+Therefore we need to know the values of a variable at the time of execution.
+These values are stored in the program state.
+
+The program state is a bit more complicated than what we are about to present.
+Although section~\ref{section:states} is dedicated exclusively to discuss states, we will proceed to define in this section the part of the state needed for the semantics of the expressions.
+
+\paragraph{Valuations}\label{paragraph:valuation}
+
+We define the type for a valuation as follows:
+
+\begin{lstlisting}[frame=single, mathescape=true]
+type_synonym valuation = vname $\Rightarrow$ val option option
+\end{lstlisting}
+
+A valuation is a function that maps a variable name to a value.
+The return type is \verb|val option option| to model the following states of a variable's value: undefined, uninitialized and holding a value.
+Therefore, given a variable name, this function can yield one of the following three results:
+
+\begin{itemize}
+  \item{\verb|None|, which represents a variable that is undefined.}
+  \item{\verb|Some None|, which represents a variable that is defined but uninitialized.}
+  \item{\verb|Some| $v$, which represents a defined initialized variable that holds the value $v$.}
+\end{itemize}
+
+\paragraph{Visible States}\label{paragraph:visible_state}
+
+When we execute a command, this command can only \textit{see} certain part of the state.
+The part of the state a command can see is the one consisting of the variables that are local to the function that is being executed, the global variables and the memory.
+This part of the state is precisely what we call a \textit{visible state}.
+We can define a visible state as the part of the state a single command can view and modify.
+The defined type for it is as follows:
+
+\begin{lstlisting}[frame=single, mathescape=true]
+type_synonym visible_state = valuation $\times$ valuation $\times$ mem
+\end{lstlisting}
+
+A visible state is a tuple that contains a valuation function for the local variables, a valuation function for the global variables and the dynamic memory of the program.
+
+\paragraph{}
+Now we can proceed to introduce the semantics for the expressions in Chloe.
+As we said before the semantics of an expression is its value and its effect on a program state, therefore we have defined two evaluation functions, one that computes the value of an expression and one that computes the value of a LHS expression.
+These functions are defined as follows:
+
+\begin{lstlisting}[frame=single, mathescape=true]
+eval   :: exp $\Rightarrow$ visible_state $\Rightarrow$ (val $\times$ visible_state) option
+eval_l :: lexp $\Rightarrow$ visible_state $\Rightarrow$ (addr $\times$ visible_state) option
+\end{lstlisting}
+
+where \verb|eval|, given an expression and a visible state, will yield the value of that expression and the visible state resulting after evaluation of that expression.
+\verb|eval_l|, given a LHS expression and a visible state, will yield the value of that expression (which must be an address) and the state resulting after the evaluation of the LHS expression.
+Notice that the resulting type for these evaluation functions is an \verb|option| type.
+This is because these functions can fail, a failure can happen anywhere in the evaluation of the expression and if a failure is found then it will propagate until the whole expression evaluation returns a \verb|None| value indicating an error in evaluation.
+
+Expression evaluation might fail for several reasons which include, but are not limited to, variable undefinedness, an operation failing because it has some illegal operand, trying to access an invalid part of the memory and overflow.
+Therefore if there is an error early in the expression evaluation semantics, it will be detected and propagated as a \verb|None| value which indicates an error state.
+
+
+The \verb|eval| and \verb|eval_l| functions depend on several other defined functions in order to properly compute the values of expressions.
+A definition of all the auxiliary functions for \verb|eval| and \verb|eval_l| is given in figure~\ref{fig:aux_fun_eval}.
+Except for \verb|div_towards_zero| and \verb|mod_towards_zero|, each of these operations can fail, therefore their return type is $\tau$ \verb|option|.
+The values of that type are either \verb|None| when the operation fails or $\verb|Some|(v)$ where $v$ is of type $\tau$.
+
+\begin{figure}
+  \begin{lstlisting}[mathescape=true, frame=single]
+  detect_overflow  :: int $\Rightarrow$ val option
+  read_var         :: vname $\Rightarrow$ visible_state $\Rightarrow$ val option
+  plus_val         :: val $\Rightarrow$ val $\Rightarrow$ val option
+  subst_val        :: val $\Rightarrow$ val $\Rightarrow$ val option
+  minus_val        :: val $\Rightarrow$ val option
+  div_towards_zero :: int $\Rightarrow$ int $\Rightarrow$ int
+  div_val          :: val $\Rightarrow$ val $\Rightarrow$ val option
+  mod_towards_zero :: int $\Rightarrow$ int $\Rightarrow$ int
+  mod_val          :: val $\Rightarrow$ val $\Rightarrow$ val option
+  mult_val         :: val $\Rightarrow$ val $\Rightarrow$ val option
+  less_val         :: val $\Rightarrow$ val $\Rightarrow$ val option
+  not_val          :: val $\Rightarrow$ val option
+  to_bool          :: val $\Rightarrow$ bool option
+  eq_val           :: val $\Rightarrow$ val $\Rightarrow$ val option
+  new_block        :: val $\Rightarrow$ mem $\Rightarrow$ (val $\times$ mem) option
+  load             :: addr $\Rightarrow$ mem $\Rightarrow$ val option
+  \end{lstlisting}
+
+  \caption{Auxiliary functions for eval and eval\_l}
+  \label{fig:aux_fun_eval}
+\end{figure}
+
+The functionalities of the auxiliary functions are the following:
+
+\begin{itemize}
+\item{The function \verb|detect_overflow| detects integer overflow.
+It takes an Isabelle predefined integer value as a parameter and checks for overflow with the bounds described in figure~\ref{fig:int_bounds}.
+This function will fail whenever overflow is detected.
+Upon successful execution the function will yield the value corresponding to the given integer parameter.}
+
+\item{The function \verb|read_var| computes the value of a variable.
+This function will fail whenever the variable name given as a parameter corresponds to an undefined variable.
+Upon successful execution the function will yield the value of the variable.
+In order to compute the value of said variable this function checks the local valuation in the visible state and proceeds to yield the value of the variable if it is defined there.
+In the case where the variable is not defined in the local scope, the function will proceed to check the global scope and yield the value of the variable.}
+
+\item{The function \verb|plus_val| computes the value of an addition between two values.
+This function will fail whenever overflow is detected or when anything different than two integers or an address and an integer (in that specific order) are given as parameters to the function.
+Upon successful execution with two integer values the function will yield an integer value corresponding to the addition of those operands.
+Upon successful execution with an address and an integer the function will yield an address value corresponding to adding the integer offset to the original address value.}
+
+\item{The function \verb|subst_val| computes the value of a subtraction between two values.
+This function will fail whenever overflow is detected or when anything different than two integers or an address and an integer (in that specific order) are given as parameters to the function.
+Upon successful execution with two integer values the function will yield an integer value corresponding to the subtraction of those operands.
+Upon successful execution with an address and an integer the function will yield an address value corresponding to subtracting the integer offset to the original address value.}
+
+\item{The function \verb|minus_val| computes the value of the unary minus operation over a value.
+This function will fail whenever overflow is detected or a value different from an integer is given as a parameter.
+Upon successful execution the function will yield an integer value corresponding to the result of negating the value given as a parameter.}
+
+\item{The function \verb|div_towards_zero| performs integer division with truncation towards zero.}
+
+\item{The function \verb|div_val| computes the value of division between two values.
+This function will fail whenever either overflow or division by zero are detected or when the parameters given to the function are different from integers.
+Upon successful execution the function will yield an integer value corresponding to the result of performing integer division on the function operands.}
+
+\item{The function \verb|mod_towards_zero| performs the modulo operation with truncation towards zero.}
+
+\item{The function \verb|mod_val| computes the value of performing the modulo operation between two values.
+This function will fail whenever either overflow or modulo by zero are detected or when the parameters given to the function are different from integers.
+Upon successful execution the function will yield an integer value corresponding to the result of performing integer modulo on the function operands.}
+
+\item{The function \verb|mult_val| computes the value of a multiplication between two values.
+This function will fail whenever overflow is detected or when anything different from integers are given as parameters to the function.
+Upon successful execution the function will yield an integer value corresponding to the multiplication of the function operands.}
+
+\item{The function \verb|less_val| computes the value of performing the less than operation between two values.
+This function will fail whenever anything different from integers are given as parameters to the function.
+Upon successful execution the function will yield an integer value of \verb|I| $1$ when the first operand is smaller than the second one, and an integer value of \verb|I| $0$ otherwise.}
+
+\item{The function \verb|not_val| computes the value of performing logical negation over a value.
+This function will fail whenever a parameter different from an integer is given.
+Upon successful execution the function will yield an integer value of \verb|I| $1$ when the operand is an integer of value \verb|I| $0$, and an integer value of \verb|I| $0$ when the given operand is any integer value different from \verb|I| $0$.}
+
+\item{The function \verb|to_bool| yields an Isabelle predefined boolean given a value.
+This function is used to compute short-circuit evaluation on the \verb|And| and \verb|Or| operations.
+This function will fail whenever the parameter is anything different from an integer.
+Upon successful execution the function will yield \verb|False| when the given parameter has a value equal to \verb|I| $0$, it will yield \verb|True| otherwise.}
+
+\item{The function \verb|eq_val| computes the value of equality comparison between to values.
+This function will fail whenever anything different than two integers or two addresses are given as parameters to the function.
+Upon successful execution with two integer values the function will yield an integer value of \verb|I| $1$ if both operands were equal and an integer value of \verb|I| $0$ otherwise.
+Upon successful execution with two address values the function will yield an integer value of \verb|I| $1$ if both addresses were equal and an integer value of \verb|I| $0$ otherwise.
+Two addresses are regarded to as equal whenever both components of the address tuple are equal.}
+
+\item{The functions \verb|new_block| and \verb|load| are the ones explained earlier in section~\ref{subsection:syntax_expressions} that allocate a new block of memory and load a value from memory, respectively.}
+\end{itemize}
+
+
+\section{Commands}\label{section:commands}
+
+In this next section we will discuss in detail the syntax and semantics of Chloe's commands as well as functions and programs written in the language.
+Additionally, we will discuss some restrictions the semantics assumes.
+
+\subsection{Syntax}\label{subsection:syntax_commands}
+
+Chloe contains the following constructs: assignments, sequential composition, conditionals, while loops, SKIP,\footnote{The SKIP command is is equivalent to a noop because it does nothing. We use it in order to be able to express other syntactic constructs such as a conditional without an ELSE branch. } deallocation of memory, return statements and functions.
+The expressions are the ones described in the previous section (~\ref{section:expressions}).
+
+Here we proceed to describe the \textit{abstract syntax} for the commands of the Chloe language.
+
+\begin{figure}
+  \begin{lstlisting}[frame=single, mathescape=true]
+  type_synonym fname = string
+
+  datatype
+    com = SKIP
+        | Assignl lexp exp
+        | Assign  vname exp
+        | Seq     com  com
+        | If      exp com com
+        | While   exp com
+        | Free    lexp
+        | Return exp
+        | Returnv
+        | Callfunl lexp fname "exp list"
+        | Callfun vname fname "exp list"
+        | Callfunv fname "exp list"
+  \end{lstlisting}
+
+  \caption{Chloe commands}
+  \label{fig:chloe_commands}
+\end{figure}
+
+In figure~\ref{fig:chloe_commands} we can find the definition of the datatype created in Isabelle for the commands, where \verb|lexp| and \verb|exp| stand for expressions described in the previous sections (~\ref{section:expressions}), \verb|vname| stands for variable names and \verb|fname| stands for the function names.
+
+For assignment commands we define two different commands, one of them allows assignment to a variable, whereas the other one allows assignment to an address location in memory.
+We need these two commands since our domain for addresses and integer values is disjoint, therefore an address cannot represent an integer value and vice versa.
+
+We also have two return commands, one of them is for returning from functions with a return value, whereas the other one is for returning from a function which has no return value.
+
+Finally we have three different statements for function calling.
+One of them (\verb|Callfunv|) is for functions without a return value.
+The other two depend on what is done with the return value of the function, if the return value should be assigned to a variable we use the \verb|Callfun| command and if the return is to be assigned to a cell in memory we use the \verb|Callfunl| command.
+
+In Isabelle we have defined a concrete infix syntax as well, which facilitates writing and reading commands in Chloe.
+In table~\ref{tab:concrete_syntax} we introduce the concrete syntax supposing we have $x$ that ranges over variable names, $a$ that ranges over expressions, $c$, $c_{1}$ and $c_{2}$ that range over commands, $y$ that ranges over the LHS expressions and $f$ that ranges over function names.
+We will continue to use the concrete syntax throughout the rest of this work to make it more readable.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|}
+  \hline
+  \textbf{Abstract syntax} & \textbf{Concrete syntax} \\ [0.5ex]
+  \hline \hline
+  \verb|Assignl| $y$ $a$ & $y$ \verb|::==| $a$ \\
+  \verb|Assign| $x$ $a$ & $x$ \verb|::=| $a$ \\
+  \verb|If| $a\ c_{1}\ c_{2}$ & \verb|IF| $a$ \verb|THEN| $c_{1}$ \verb|ELSE| $c_{2}$ \\
+  \verb|While a| $c$ & \verb|WHILE| $a$ \verb|DO| $c$ \\
+  \verb|Free| $y$ & \verb|FREE| $y$ \\
+  \verb|Return| $a$ & \verb|RETURN| $a$ \\
+  \verb|Returnv| & \verb|RETURNV| \\
+  \verb|Calllfunl| $y\ f\ [a]$ & $y$ \verb|::==| $f$ \verb|(| $[a]$ \verb|)| \\
+  \verb|Calllfun| $x\ f\ [a]$ & $x$ \verb|::=| $f$ \verb|(| $[a]$ \verb|)| \\
+  \verb|Calllfunv| $f\ [a]$ & \verb|CALL| $f$ \verb|(| $[a]$ \verb|)| \\
+  \hline
+\end{tabular}
+
+\caption{Abstract and concrete syntax equivalence}
+\label{tab:concrete_syntax}
+\end{table}
+
+
+\section{Functions}\label{section:functions_commands}
+
+In Chloe we have both functions that return values and those which do not have a return value.
+For functions that do return a value we needed to figure out what to do with that return value.
+We decided that the return value of every function should either be assigned to a variable or to a destination in a memory cell or ignored whenever a function was returning from a call.
+We will not go into details explaining this design decision now but rather delay it until section~\ref{subsection:cfg} where we will be able to explain the reasoning behind this in a better manner.
+
+As we see in the definition in figure~\ref{fig:fun_def}, a function consists of a name, the formal parameters, the local variables and the body of the function, which is a, potentially big, command in the Chloe language.
+We also define a predicate which checks whether a function declaration is valid or not.
+A function declaration is considered valid if and only if the function parameters and the local variables have different names.
+
+\begin{figure}
+  \begin{lstlisting}[frame=single, mathescape=true]
+  record fun_decl =
+    name :: fname
+    params :: vname list
+    locals :: vname list
+    body :: com
+
+  valid_fun_decl :: fun_decl $\Rightarrow$ bool
+  \end{lstlisting}
+
+  \caption{Function definitions}
+  \label{fig:fun_def}
+\end{figure}
+
+\section{Programs}\label{section:programs_commands}
+
+A program in Chloe consists of a name, a list of global variables and a list of functions as showed in figure~\ref{fig:prog_def}.
+In that same figure we can see a definition that every valid program must comply with.
+
+A program is considered valid if it complies with all the following conditions:
+
+\begin{itemize}
+  \item{The names for the global variables are different from one another.}
+  \item{The names for the functions in the program are different from one another.}
+  \item{Every function declaration for every function in the program must be valid.}
+  \item{The main function must be defined.}
+  \item{None of the variable names or function names in the program must be a reserved keyword from C or a reserved keyword for testing.\footnote{Since we want to generate C code from the Chloe semantics we must guarantee that neither variable nor function names are any of the reserved C keywords or any of the reserved keywords used for testing variables.}}
+  \item{The global variables and the function names in a program cannot be the same.}
+\end{itemize}
+
+
+
+\begin{figure}
+  \begin{lstlisting}[frame=single, mathescape=true]
+  record program =
+    name :: string
+    globals :: vname list
+    procs :: fun_decl list
+
+  reserved_keywords =
+    [''auto'', ''break'', ''case'', ''char'', ''const'', ''continue'',
+     ''default'', ''do'', ''double'', ''else'', ''enum'', ''extern'',
+     ''float'', ''for'', ''goto'', ''if'', ''inline'', ''int'', ''long'',
+     ''register'', ''restrict'', ''return'', ''short'', ''signed'',
+     ''sizeof'', ''static'', ''struct'', ''switch'', ''typedef'',
+     ''union'', ''unsigned'', ''void'', ''volatile'', ''while'',
+     ''_Bool'', ''_Complex'', ''_Imaginary'']
+
+  test_keywords =
+    [''__test_harness_num_tests'', ''__test_harness_passed'',
+     ''__test_harness_failed'', ''__test_harness_discovered'' ]
+
+  definition valid_program :: program $\Rightarrow$ bool where
+  valid_program p $\equiv$
+      distinct (program.globals p)
+    $\bigwedge$ distinct (map fun_decl.name (program.procs p))
+    $\bigwedge$ ($\forall$ fd $\in$ set (progarm.procs p). valid_fun_decl fd)
+    $\bigwedge$ ( let
+         pt = proc_table_of p
+       in
+         ''main'' $\in$ dom pt
+         $\bigwedge$ fun_decl.params (the (pt ''main'')) = [])
+   $\bigwedge$ ( let
+         prog_vars = set ((program.globals p) @
+           collect_locals (program.procs p));
+         proc_names = set (map (fun_decl.name) (program.procs p))
+       in
+         ($\forall$ name $\in$ prog_vars.
+           name $\notin$ set (reserved_keywords @ test_keywords)) $\bigwedge$
+         ($\forall$ name $\in$ proc_names.
+           name $\notin$ set (reserved_keywords @ test_keywords)) $\bigwedge$
+         ($\forall$ fname $\in$ proc_names.
+           ($\forall$ vname $\in$ set (program.globals p). fname $\neq$ vname)))
+  \end{lstlisting}
+
+  \caption{Program definitions}
+  \label{fig:prog_def}
+\end{figure}
+
+
+\section{Restrictions}\label{subsection:restrictions_commands}
+
+This semantics does an assumption regarding the machine where the code is going to be executed.
+This restriction is parameterized and corresponds to the architecture of the machine where our code is going to be ultimately executed.
+As stated earlier, the precision of the integer values can be changed in order to make this semantics compatible with different architectures, e.g.\ 32-bit architectures.
+
+We can change the assumptions this semantics makes by changing the \verb|int_width| parameter, which will automatically change the upper and lower bounds we assume for integers (these bounds are described in figure~\ref{fig:int_bounds}).
+
+In order to guarantee the assumptions our semantics makes, later in the code generation process, we generate assertions that make sure the conditions we assume are met.
+
+Another restriction in our semantics is that it only works for a subset of C where the semantics is deterministic and we consider any undefined behavior to be an error in our semantics.
+We will go to an erroneous state if our semantics encounters behavior that is undefined by the C standard\cite{c99}, an example of undefined behavior is integer overflow.
+
+
+\section{States}\label{section:states}
+
+In simpler languages, which only support a limited set of features such as assignment, sequential composition, conditionals, loops and integer values, the state representation consists of simply a function that maps variables to values.
+In Chloe that is not the case, by including constructs as functions, dynamic memory and pointers to our set of features, the state representation ceases to be a simple function that maps variable names to values.
+In this section we will detail the complete components of the representation of a state.
+Previously, in section~\ref{subsection:semantics_expressions} we began explaining a simplified ``visible state'', here we will clarify the difference between that visible state and a real state, as well as detailing the components of a state in a program.
+
+\subsection{Valuation}\label{subsection:valuation}
+
+As mentioned previously a valuation is simply a function that maps variable names to values.
+The return type for this function is \verb|val option option| which models a variable having one of the following states: undefined, uninitialized or holding a value.
+
+
+\subsection{Stack}\label{subsection:stack}
+
+Chloe supports functions calls, in order to do so an execution stack must be maintained in the state.
+This execution stack (from now on we will refer to it simply as the stack) consists of a list of stack frames.
+Each of these stack frames contains important information about the current function call.
+
+In figure~\ref{fig:stack_def} the type for a stack frame is a tuple containing a Chloe command, a valuation and a return location.
+The Chloe command corresponds to the body of the function to be executed.
+The valuation corresponds to the values of the variables that are local to the function that was called.
+Finally the return location can be one of the following three: an address, a variable or an invalid return location.
+When a function returns a variable several things can happen:
+\begin{itemize}
+  \item{The value will be assigned to a variable.
+  This is indicated by the variable return location}
+  \item{The value will be assigned to a cell in memory.
+  This is indicated by the address return location}
+  \item{The value will be ignored.
+  This is indicated by the invalid return location}
+\end{itemize}
+
+We will also use the invalid return location for functions that do not have a return value.
+
+The return location is set on the caller's stack frame, that is, when returning from a function the stack frame of the caller is the one to be checked to know where to assign the return value or if a value is expected at all.
+To further clarify this we can take the example code from figure~\ref{fig:stack_example}.
+It is a simple program where a function that adds the value of its two parameters is defined and then called from the main function.
+Before the function call, the stack frame belonging to the main function has an $Invalid$ return location and after the function call, the return location changes to the variable $x$.
+Notice that the stack frame that changes its return location is the one belonging to main, this is because the caller is the one saving the return location where it expects to store the value of a returning function.
+An $Invalid$ return value indicates the caller is not expecting to store any results, i.e.\ either the caller has not called any functions yet or the function it has called have no return value.
+
+\begin{figure}
+  \begin{lstlisting}[frame=single, mathescape=true]
+  datatype return_loc = Ar addr | Vr vname | Invalid
+
+  type_synonym stack_frame = com $\times$ valuation $\times$ return_loc
+  \end{lstlisting}
+
+  \caption{Stack definitions}
+  \label{fig:stack_def}
+\end{figure}
+
+\begin{comment}
+\begin{figure}
+  \begin{subfigure}{0.3\textwidth}
+  \begin{lstlisting}[mathescape=true]
+  int sum(int a; int b){
+    return a+b;
+  }
+
+  int main(){
+    int x = 0;
+    x = sum(2,2);
+  }
+  \end{lstlisting}
+  \caption{Example code in C}
+  \label{fig:stack_ex_c_code}
+  \end{subfigure}
+  \begin{subfigure}{0.3\textwidth}
+    \begin{tabular}{|c|}
+      \hline
+      \hline
+      $\vdots$ \\
+      \\
+      \hline
+      $(x = \mathtt{sum}(2,2),$ \\
+      $[x \mapsto 0],$ \\
+      $ Invalid )$ \\
+      \hline \hline
+    \end{tabular}
+  \caption{Stack before function call (Stack grows upwards)}
+  \label{fig:stack_bef_fun_call}
+  \end{subfigure}
+  \begin{subfigure}{0.3\textwidth}
+    \begin{tabular}{|c|}
+      \hline
+      \hline
+      $\vdots$ \\
+      \\
+      \hline
+      $(\mathtt{return}\ a+b,$ \\
+      $[a \mapsto 2, b \mapsto 2],$ \\
+      $ Invalid )$ \\
+      \hline
+      $(x = f(2,2),$ \\
+      $[x \mapsto 0],$ \\
+      $ x )$ \\
+      \hline \hline
+    \end{tabular}
+  \caption{Stack after function call (Stack grows upwards)}
+  \label{fig:stack_aft_fun_call}
+  \end{subfigure}
+
+  \caption{Calling convention code example}
+  \label{fig:stack_example}
+\end{figure}
+\end{comment}
+
+\subsection{Procedure Table}\label{subsection:procedure_table}
+
+Another extension we must add when dealing with functions is a procedure table.
+A procedure table is defined as follows:
+
+\begin{lstlisting}[mathescape=true, frame=single]
+type_synonym proc_table = fname $\rightharpoonup$ fun_decl
+\end{lstlisting}
+
+where ``$\rightharpoonup$ \verb|fun_decl|'' is equivalent to writing ``$\Rightarrow$ \verb|fun_decl option|''.
+This function maps function names to their declaration.
+
+This function is constructed by taking the program definition and pairing every function declaration from the list of functions to its name.
+Every program has its own procedure table.
+
+
+\subsection{State}\label{subsection:state}
+
+A state is defined as a tuple containing the stack, a valuation for the globals and the dynamic memory.
+
+\begin{lstlisting}[mathescape=true, frame=single]
+type_synonym state = stack_frame list $\times$ valuation $\times$ mem
+\end{lstlisting}
+
+\subsection{Initial State}\label{subsection:initial_state}
+
+In order to build an initial state we need to define some components.
+In figure~\ref{fig:prog_def} we find definitions for the initial configuration of the stack, the global variables and the memory.
+The initial configuration for the stack consists of the stack frame for the main function of the program.
+The initial configuration for the global valuation is a function where every possible variable name is mapped to the undefined variable value (\verb|None|).
+The initial configuration for the dynamic memory is the empty memory, since nothing has been allocated.
+
+Having defined all of these components the initial state configuration is given by the tuple consisting of the initial configuration for the stack, global variables and dynamic memory.
+
+
+\begin{figure}
+  \begin{lstlisting}[frame=single, mathescape=true]
+  context fixes $program$ :: program begin
+
+    private definition proc_table $\equiv$ proc_table_of program
+
+    definition main_decl $\equiv$ the (proc_table ''main'')
+    definition main_local_names $\equiv$ fun_decl.locals main_decl
+    definition main_com $\equiv$ fun_decl.body main_decl
+
+    definition initial_stack :: stack_frame list where
+      initial_stack $\equiv$ [(main_com,
+        map_of (map ($\lambda$. (x,None)) main_local_names),Invalid)]
+    definition initial_glob :: valuation where
+      initial_glob $\equiv$ map_of (map ($\lambda$. (x,None)) (program.globals program))
+    definition initial_mem :: mem where initial_mem $\equiv$ []
+
+    definition initial_state :: state where
+      initial_state $\equiv$ (initial_stack, initial_glob, initial_mem)
+
+  end
+  \end{lstlisting}
+
+  \caption{Initial state building}
+  \label{fig:init_state_building}
+\end{figure}
+
+
+
+\subsection{Visible State}\label{subsection:visible_state}
+Additionally, a visible state is defined (as mentioned before in section~\ref{paragraph:visible_state}).
+Executing a transformer function\footnote{we will cover transformer functions further in section~\ref{section:small_step}} over a state, excepting the transformer functions for function calls or returns, will not be able to modify any part of the stack other than the current frame's local variables valuation.
+We define the real transformations in the context of visible states and then lift this function to states.
+Therefore, a transformer function over states, other than the ones for function call or return, cannot tamper with the stack.
+
+The stack frame on the top of the stack corresponds to the current function that is being executed, and the command component of it is the Chloe command (or program) being executed.
+Whenever a command is executed or a step is taken in our small-step semantics this command is updated to contain the command that is to be executed next.
+In order to prove that the small-step semantics is deterministic we must prove that whenever we have a non-empty execution stack the order in which we apply the evaluation transformer\footnote{This is the eval function lifted to work on states instead of visible states, we will discuss it in further detail in section~\ref{section:small_step}} and the function that updates the command is irrelevant to the resulting final state.
+This is why we introduce a separate definition for a visible state apart from the regular state, it is a view of the same state with some limited information.
+
+\section{Small Step Semantics}\label{section:small_step}
+
+\begin{comment}
+add a little summary here.
+\end{comment}
+
+\subsection{CFG}\label{subsection:cfg}
+
+A Control Flow Graph is a graph representation that covers the different paths a program can take during its execution.
+We have the concept of a current location which is a program pointer to a node.
+A command can be executed by following edges from the node pointed to by the program pointer to a new node.
+The nodes in our CFG are commands.
+The edges in our CFG are annotated with two functions that depend on the current program state.
+The first one indicates whether an edge can be followed or not (for example, in the case of a conditional) and the second one indicates how the state is transformed by following the edge i.e.\ the effect that following the edge has on the state.
+We call these two functions \textit{enabled} and \textit{transformer} functions.
+We will now describe in detail the definitions for these functions.
+
+
+\paragraph{Enabled functions}\label{paragraph:enabled}
+
+An enabled function is a partial function as follows:
+
+\begin{lstlisting}[mathescape=true, frame=single]
+type_synonym enabled = state $\rightharpoonup$ bool
+\end{lstlisting}
+
+It indicates whether a state is enabled to continue its execution.
+This is a partial function, therefore its execution might fail.
+The execution of an enabled function will fail whenever an error is encountered when evaluating the function and it yields a \verb|None| value indicating an erroneous state.
+
+This function is useful for the execution of conditional constructs in our language.
+
+Suppose we have the term ``\verb|IF| $b$ \verb|THEN| $c_{1}$ \verb|ELSE| $c_{2}$''.
+When the evaluation of the condition $b$ yields a \verb|True| value we will follow the edge that leads us to the node that contains $c_1$.
+Whereas when the evaluation of $b$ yields a \verb|False| value we will follow the edge that leads us to the node that contains $c_2$.
+Depending on the result of the enabled function we will decide whether the term is enabled to follow one edge or the other.
+The only case where an execution would not be able to continue is when there is no enabled edge to follow.
+Fortunately, this cannot happen in our programs as there is always an enabled edge.
+Except for the conditional construct, for every command supported by Chloe the enabled function will always yield \verb|True|.
+In the case of a conditional construct, the execution can either continue its execution by following the edge to the first command or by following the edge to the second command.
+There will always be an edge that can be followed after a node that contains a conditional
+
+A list of the enabled functions we use is shown in figure~\ref{fig:enabled_def}.
+The function \verb|truth_value_of| maps a value to a boolean value, namely \verb|True| or \verb|False|.
+We also find \verb|en_always| which always yields \verb|True|, the \verb|en_pos| function which only yields \verb|True| when the truth value of the expression given as a parameter evaluates to \verb|True| and the \verb|en_neg| function which only yields \verb|True| when the truth value of the expression given as a parameter evaluates to \verb|False|.
+These functions will be used later in the CFG definition.
+
+\begin{figure}
+  \begin{lstlisting}[frame=single, mathescape=true]
+  fun truth_value_of :: val $\Rightarrow$ bool where
+    truth_value_of NullVal $\longleftrightarrow$ False
+  | truth_value_of (I $i$) $\longleftrightarrow$ $i$ $\neq$ $0$
+  | truth_value_of (A _) $\longleftrightarrow$ True
+
+  abbreviation en_always :: enabled where en_always $\equiv\ \lambda$_. Some True
+
+  definition en_pos :: exp $\Rightarrow$ enabled
+
+  definition en_neg :: exp $\Rightarrow$ enabled
+  \end{lstlisting}
+
+  \caption{Enabled functions}
+  \label{fig:enabled_def}
+\end{figure}
+
+
+\paragraph{Transformer functions}\label{paragraph:transformer}
+
+A transformer function is a partial function as follows:
+
+\begin{lstlisting}[mathescape=true, frame=single]
+type_synonym transformer = state $\rightharpoonup$ state
+\end{lstlisting}
+
+It is a partial function that transforms a state into another.
+Since it is a partial function, its execution might fail.
+The execution of a transformer function will fail whenever an error is encountered at some point of its execution and yield a \verb|None| value indicating an erroneous state.
+
+We define functions that will return a transformer function for each command in Chloe.
+These functions will be used later in the CFG definition and are defined in figure~\ref{fig:transformer_def}
+We define a transformer function \verb|tr_id| that will serve as the id function and simply yields the same state it is given as a parameter.
+
+The definitions listed in figure~\ref{fig:transformer_def} yield a transformer function which we will use when executing a command.
+We proceed to roughly describe the effect the transformer functions yielded will have when applied to a state.
+
+First of all we have the transformer for an assignment yielded by \verb|tr_assign|, it will evaluate the expression we want to assign and then proceed to perform a \verb|write| operation to the state and it yields the state resulting from this evaluation and \verb|write| operation.
+
+The transformer for an assignment to a cell in the dynamic memory yielded by \verb|tr_assignl| will first evaluate the LHS expression to obtain the location in memory where the value will be updated, then it will evaluate the expression to obtain the new value and proceed to store the value in memory, it yields the state resulting from the evaluations and the \verb|store| operation.
+
+The transformer for an evaluation yielded by \verb|tr_eval| will evaluate the expression and yield the state resulting from the evaluation.
+
+The transformer for a free operation yielded by \verb|tr_free| will evaluate the LHS expression it receives as a parameter in order to obtain an address and the block for this address will be deallocated.
+The transformer will yield the state resulting from the evaluation and deallocation of memory.
+
+When performing a function call one must check that the formal parameters and the actual parameters given to the function have the same type and that each formal parameter has a corresponding given parameter.
+Since we do not have a static type system we will only check the second condition mentioned.
+Furthermore, we fix the evaluation order for the parameters given to a function as left to right order.
+The parameters will always be evaluated following a left to right order.
+Finally when calling a function we must also map the formal parameters to the values of the given parameters and regard these as local variables in the scope of our function.
+
+We have a \verb|call_function| which yields a transformer function for any function call, this transformer checks that the number of formal parameters and given parameters is the same, it evaluates the given parameters from left to right, it creates a new stack frame containing the body of the function, the local variables valuation (which includes the parameters mapped to their given values and the local variables mapped to an uninitialized value) and the return location \verb|Invalid|, it yields the state resulting from performing these operations over the state.
+
+When calling a function the caller has to change its stack frame in order to update the return location value in the current stack frame.
+We define different functions that perform that change depending on the type of function call and then proceed to yield a transformer by calling \verb|call_function|.
+
+The different functions we define are \verb|tr_callfunl|, \verb|tr_callfun| and \verb|tr_callfunv|.
+We use \verb|tr_callfunl| when the return location of the function is a cell in memory.
+In this case the function first evaluates the LHS expression to obtain the return address and updates the return location of the stack frame with it before calling \verb|call_function|, the resulting transformer function will yield a state resulting from this evaluation, the update of the stack frame and the operations done by \verb|call_function|.
+It is important here that the evaluation of the LHS expression that yields an address value must be the first one done, this is in order to avoid unwanted behavior since the function could change the state.
+
+We use \verb|tr_callfun| when the return location of the function is a variable.
+In this case the function updates the return location of the stack frame with the variable name before calling \verb|call_function|, the resulting transformer function will yield a state resulting from this update of the stack frame and the operations done by \verb|call_function|.
+
+We use \verb|tr_callfunl| when the function is not expected to return a value.
+In this case the function updates the return location of the stack frame with \verb|Invalid| before calling \verb|call_function|, the resulting transformer function will yield a state resulting from this update of the stack frame and the operations done by \verb|call_function|.
+
+We have a \verb|tr_return| which yields a transformer function for a return call returning an expression in a function, this transformer will pop the last stack frame in the stack belonging to the returning function, evaluate the value corresponding to the expression returned by the function and if the stack is not empty then proceed to retrieve the return location and depending on if it is an address, a variable or an invalid location it will yield the state resulting from storing the value in memory, writing the value to a variable or yield the state as it is, respectively as well as popping the last stack frame of the stack.
+Note that if the function returns a value but its return location is expected to be invalid then the returned value is ignored instead of being considered an erroneous execution.
+
+Finally we have a \verb|tr_return_void| which yields a transformer function for a return call in a function which has no return value.
+This transformer will pop the last stack frame belonging to the returning function.
+Subsequently, if the stack is not empty it will obtain the return location.
+If the return location is anything different from an invalid return location it will return a \verb|None| value which represents an error.
+However, if the return location is, in fact, an invalid one then it will yield the state resulting from the last frame of the stack being popped.
+
+\begin{comment}
+FIXME
+\end{comment}
+
+\begin{figure}
+  \begin{lstlisting}[frame=single, mathescape=true]
+  abbreviation (input) tr_id :: transformer where tr_id $\equiv$ Some
+
+  tr_assign :: vname $\Rightarrow$ exp $\Rightarrow$ transformer
+  tr_assignl :: lexp $\Rightarrow$ exp $\Rightarrow$ transformer
+  tr_eval :: exp $\Rightarrow$ transformer
+  tr_free :: lexp $\Rightarrow$ transformer
+  call_function :: proc_table $\Rightarrow$ fname $\Rightarrow$ exp list $\Rightarrow$ transformer
+  tr_callfunl :: proc_table $\Rightarrow$ lexp $\Rightarrow$ fname $\Rightarrow$ exp list $\Rightarrow$ transformer
+  tr_callfun :: proc_table $\Rightarrow$ vname $\Rightarrow$ fname $\Rightarrow$ exp list $\Rightarrow$ transformer
+  tr_callfunv :: proc_table $\Rightarrow$ fname $\Rightarrow$ exp list $\Rightarrow$ transformer
+  tr_return :: exp $\Rightarrow$ transformer
+  tr_return_void :: transformer
+  \end{lstlisting}
+
+  \caption{Transformer functions}
+  \label{fig:transformer_def}
+\end{figure}
+
+
+\paragraph{CFG}
+
+In order to talk about executions by following edges in the CFG we must introduce yet another concept.
+Taking the definition given at the beginning of this section of what a CFG is we know that in order to talk about an execution of a command by following the edges of the CFG we must have a program pointer that indicates the current node.
+We also need to introduce the concept of a stack.
+We will have a stack of program pointers to accompany our CFG and we will pop a new program pointer from the stack once we have \verb|followed| the current pointer up to a \verb|SKIP| node.
+A program pointer to the command of a function will be pushed to the stack when there is a function call.
+A program pointer will be popped from the stack when there is a return command.
+This concept will become important when talking about function calls and return commands further ahead.
+
+We can see an inductive definition in figure~\ref{fig:cfg_rules} for CFG, where we can see the rules to form edges between commands.
+We can follow an edge in the CFG from an assignment to a variable to \verb|SKIP|.
+This edge is always enabled and has a transformer function to update the state which is given by the result of \verb|tr_assign| called with the parameters specific for the command.
+
+\begin{figure}
+  \begin{lstlisting}[frame=single, mathescape=true]
+  type_synonym cfg_label = enabled $\times$ transformer
+
+  inductive cfg :: com $\Rightarrow$ cfg_label $\Rightarrow$ com $\Rightarrow$ bool where
+
+    Assign: cfg ($x$ ::= $a$) (en_always,tr_assign $x$ $a$) SKIP
+  | Assignl: cfg ($x$ ::==  $a$) (en_always,tr_assignl $x$ $a$) SKIP
+  | Seq1: cfg (SKIP;; $c_{2}$) (en_always, tr_id) $c_{2}$
+  | Seq2: $[\![$cfg $c_{1}$ $a$ $c_{1}'$ $]\!]$ $\Longrightarrow$ cfg ($c_{1}$;; $c_{2}$) $a$ ($c_{1}'$;; $c_{2}$)
+  | IfTrue: cfg (IF $b$ THEN $c_{1}$ ELSE $c_{2}$) (en_pos $b$, tr_eval $b$) $c_{1}$
+  | IfFalse: cfg (IF $b$ THEN $c_{1}$ ELSE $c_{2}$) (en_neg $b$, tr_eval $b$) $c_{2}$
+  | While: cfg (WHILE $b$ DO $c$) (en_always, tr_id)
+      (IF $b$ THEN $c$;; WHILE $b$ DO $c$ ELSE SKIP)
+  | Free: cfg (FREE $x$) (en_always, tr_free $x$) SKIP
+
+  | Return: cfg (Return $a$) (en_always, tr_return $a$) SKIP
+  | Returnv: cfg Returnv (en_always, tr_return_void) SKIP
+
+  | Callfunl: cfg (Callfunl $e$ $f$ params)
+      (en_always, tr_callfunl proc_table $e$ $f$ params) SKIP
+  | Callfun: cfg (Callfun $x$ $f$ params)
+      (en_always, tr_callfun proc_table $x$ $f$ params) SKIP
+  | Callfunv: cfg (Callfunv $f$ params)
+      (en_always, tr_callfunv proc_table $f$ params) SKIP
+  \end{lstlisting}
+
+  \caption{CFG rules}
+  \label{fig:cfg_rules}
+\end{figure}
+
+Likewise, an edge in the CFG can be followed from an assignment to a cell in memory to \verb|SKIP|, this edge is always enabled and the transformer function to update the state is given by the result of \verb|tr_assignl| called with the parameter specific for the command.
+
+The sequential composition has two different edges that can be followed.
+When the first command in the sequential composition is a \verb|SKIP| command we can follow an edge that will lead us from the node with the whole command to a node with only the second command.
+This edge is always enabled and the transformer over the state is the \verb|tr_id|.
+The second case occurs when we have a command of the form \verb|(| $c_{1}$ \verb|;;| $c_{2}$ \verb|)| where $c_{1}$ is not \verb|SKIP|.
+If we follow an edge from $c_{1}$ to some other node $c_{1}'$ (where the edge is labelled $a$), which contains an enabled and a transformer function, then we can follow an edge (also labelled with $a$) from \verb|(| $c_{1}$ \verb|;;| $c_{2}$ \verb|)| to \verb|(| $c_{1}'$ \verb|;;| $c_{2}$ \verb|)|.
+
+We also have two cases when it comes to the case of the conditional.
+We will have the possibility to follow an edge to the first command or an edge to the second command, depending on the value of the guard.
+In the case where we follow the edge that leads us to the first command, we will go from \verb|IF| $b$ \verb|THEN| $c_{1}$ \verb|ELSE| $c_{2}$ to $c_{1}$.
+This edge will be labelled with an enabled function given by \verb|en_pos| which will be enabled only when the condition $b$ evaluates to \verb|True| and with a transformer function given by \verb|tr_eval|.
+In the case where we follow the edge that leads us to the second command, we will go from \verb|IF| $b$ \verb|THEN| $c_{1}$ \verb|ELSE| $c_{2}$ to $c_{2}$.
+This edge will be labelled with an enabled function given by \verb|en_neg| which will be enabled only when the condition $b$ evaluates to \verb|False| and with a transformer function given by \verb|tr_eval|.
+
+In the case of a loop we can always follow an edge that takes us from \verb|WHILE| $b$ \verb|DO| $c$ to \verb|IF| $b$ \verb|THEN| $c$ \verb|;; WHILE| $b$ \verb|DO| $c$ \verb|ELSE SKIP| by unrolling the loop once.
+The edge will have an enabled function that is always enabled and the transformer over the state is the \verb|tr_id|.
+
+We can follow an edge from \verb|FREE| $x$ to \verb|SKIP|.
+This edge is always enabled and a has transformer function given by the result of \verb|tr_free| called with $x$.
+
+We can follow an edge from any of the two existing return commands to \verb|SKIP|.
+This edge is always enabled and has a transformer function given by the result of \verb|tr_return| or \verb|tr_return_void| depending on which return command it is.
+Note that when \textit{executing} this command in the CFG, following the edge from a return node to a \verb|SKIP| node will pop the program pointer pointing to the \verb|SKIP| node and we will continue our ``execution'' in the location pointed by the next program pointer in the stack.
+
+Finally, we can follow an edge from any of the function call nodes to \verb|SKIP|.
+This edge is always enabled and has a transformer function given by the result of either \verb|tr_callfunl|, \verb|tr_callfun| or \verb|tr_callfunv| depending on whether it is a function call that returns to a memory cell, a variable or returns no value.
+Note that, also in this case, when \textit{executing} this command in the CFG, following the edge from a function call node to a \verb|SKIP| node will push a new program pointer to the stack that points to the location of the node that contains the command of the function and we will continue our ``execution'' in the location pointed by this next program pointer.
+
+\subsection{Small Step semantics rules}\label{subsection:rules_small_step}
+
+Finally, we introduce the rules for the small-step semantics for Chloe.
+A small-step semantics is chosen over a big-step definition for the semantics due to the fact that we want a finer grained semantics.
+The big-step semantics has a major drawback, which is that it cannot differentiate between a non-terminating execution and getting stuck in an erroneous configuration.
+This is why we prefer a more detailed semantics that allows us to differentiate between nontermination and getting stuck because it allows us to talk about intermediate states during evaluation.
+
+Usually a configuration in a small step semantics is a pair consisting of a command and a state.
+Since we are working with functions and we have the command that is being executed in the stack frame our small-step definition is defined over states.
+A small, atomic step can be taken from one state to another.
+
+The small-step rules for the semantics are detailed in figure~\ref{fig:small_step_rules}.
+The infix syntax for the small step semantics is written as $s \rightarrow s_{2}$ which means we take a small step from $s$ to $s_{2}$.
+A step can be taken if the following conditions are met:
+
+\begin{itemize}
+  \item{The stack is not empty.}
+  \item{There is a CFG edge between $c_{1}$ and $c_{2}$.}
+  \item{The command at the topmost stack frame in the initial state is $c_{1}$.}
+  \item{Applying the enabled function over the state yields \verb|True|.}
+  \item{Applying the transformer function to the state with the command at the topmost stack frame updated from $c_{1}$ to $c_{2}$ yields a new state $s_{2}$.}
+\end{itemize}
+
+Given that all the previous conditions are fulfilled then a small step can go from state $s$ to $s_{2}$.
+
+A small step can also be taken upon return from a function which returns no value.
+If the command at the top of the stack is \verb|SKIP|, the stack is not empty and applying the transformer function on the initial state $s$ yields a new state $s_{2}$, then we can take a small step from $s$ to $s_{2}$
+
+The type for \verb|small_step| is from \verb|state| to \verb|state option|.
+The second configuration is enclosed in an option type because taking a small step can result in an erroneous state in which we will get stuck.
+
+A small step can fail to be taken in any of the following cases:
+
+\begin{itemize}
+  \item{Either the enabled function or the transformer function yield \verb|None| when evaluated over the initial state.
+  This indicates an erroneous state was reached when evaluating one of those functions.
+  We propagate the erroneous state by taking a small step from state $s$ to \verb|None| and then the execution will get stuck there.}
+  \item{If applying the transformer function \verb|tr_return_void| over the state yields a \verb|None| value, the command at the top of the stack in the initial state is \verb|SKIP| and the stack is not empty, then we also propagate this erroneous \verb|None| state by taking a small step from $s$ to None.
+  This indicates there was an error returning from a function without a return value.}
+\end{itemize}
+
+\begin{figure}
+  \begin{lstlisting}[frame=single, mathescape=true]
+  inductive
+    small_step :: state $\Rightarrow$ state option $\Rightarrow$ bool (infix $\rightarrow$ 55)
+  where
+    Base: $[\![$ $\neg$ is_empty_stack $s$; $c_{1}$=com_of $s$; cfg $c_{1} (en, tr) $c_{2};
+      en $s$ = Some True; tr (upd_com $c_{2}$ $s$) = Some $s_{2}$ $]\!]$ $\Longrightarrow$ s $\rightarrow$ Some $s_{2}$
+  | None: $[\![$ $\neg$ is_empty_stack $s$; $c_{1}$=com_of $s$; cfg $c_{1} (en, tr) $c_{2};
+      en $s$ = None $\vee$ tr (upd_com $c_{2}$ $s$) = None$]\!]$ $\Longrightarrow$ s $\rightarrow$ None
+  | Return_void: $[\![$ $\neg$ is_empty_stack $s$; com_of $s$ = SKIP;
+      tr_return_void $s$ = Some $s'$ $]\!]$ $\Longrightarrow$ $s$ $\rightarrow$ Some $s'$
+  | Return_void_None: $[\![$ $\neg$ is_empty_stack $s$; com_of $s$ = SKIP;
+      tr_return_void $s$ = None $]\!]$ $\Longrightarrow$ $s$ $\rightarrow$ None
+
+  inductive
+    small_step' :: (state) option $\Rightarrow$ (state) option $\Rightarrow$ bool (infix $\rightarrow'$  55)
+  where
+    $s\ \rightarrow\ s'\ \Longrightarrow$ Some $s\ \rightarrow'\ s'$
+
+  abbreviation
+    small_steps :: (state) option $\Rightarrow$ (state) option $\Rightarrow$ bool (infix $\rightarrow*$ 55)
+  where $s_{0}$ $\rightarrow*$ $s_{f}$ ==  star small_step' $s_{0}$ $s_{f}$
+  \end{lstlisting}
+
+  \caption{Small-step rules}
+  \label{fig:small_step_rules}
+\end{figure}
+
+We have defined how to take a single step in our semantics.
+In order to take more than one step and define the execution of a program in our semantics we must lift the definition of \verb|small_step| to \verb|state option| in both the initial and the final state.
+
+We also define (in figure~\ref{fig:small_step_rules}) a new \verb|small_step'| based on our previous definition of \verb|small_step|.
+This definition essentially says that if a small step can be taken from state $s$ to state $s'$ then a small step can be taken from \verb|Some| $s$ to $s'$.
+Note that $s'$ can either be a \verb|None| value or a \verb|Some| $s_{i}$.
+The infix syntax for this new \verb|small_step'| is written as \verb|Some| $s \rightarrow' s'$, which means we take a small step from \verb|Some| $s$ to $s'$.
+
+In this manner, we have lifted our small step definition to the type \verb|state option| and we can define the execution of a program as the reflexive transitive closure of the newly defined \verb|small_step'|, using Isabelle's \verb|star| operator.
+The infix syntax for this is written as $s_{0} \rightarrow* s_{f}$, which means we can go from state $s_{0}$ to $s_{f}$ in zero or more small steps.
+
+
+\subsubsection{Determinism}
+
+To be able to make our semantics executable inside of the Isabelle/HOL environment it must be deterministic.
+This is why we prove the determinism property for the semantics.
+In order to go through with that proof a set of lemmas must be first defined and proved.
+We will proceed to explain such defined lemmas for our semantics in this section.
+
+Whenever we introduce a lemma, next to its number we will have a name in parenthesis.
+This corresponds to the name of the lemma in the Isabelle source files submitted with this work.
+In the case where the reader is interested in the exact proof for a particular lemma he or she can search for the corresponding lemma in the theory files and read the proof.
+
+This first lemma indicates that whenever we have a command different from \verb|SKIP| there is either always an enabled action to take in the CFG or an error occurs when trying to evaluate the enabled function.
+
+\begin{lemma}[cfg\_has\_enabled\_action]
+$\newline$
+$c$ $\neq$ \verb|SKIP| $\Longrightarrow$ $\exists\ c'\ en\ tr$. \verb|cfg| $c\ (en,tr)\ c'\ \wedge\ (en\ s\ =$ \verb|None| $\vee\ en\ s\ =$ \verb|Some True|$)$
+\label{lemma:cfg_enabled_action}
+\end{lemma}
+
+\begin{proof}
+The proof is by induction on the command.
+Except for two cases the proof is solved automatically.
+Those interesting cases are the \verb|Seq| and the \verb|If| cases.
+In the \verb|Seq| case we need to make a further case distinction on the first command of the sequential composition in order to differentiate the cases where it is \verb|SKIP| and when it is not.
+In both cases there is a CFG rule that ensures there is an enabled action and the case is solved automatically.
+
+In the \verb|If| case we need to make a case distinction over the value of $\mathtt{en\_pos}\ b\ s$.
+It can fail and return a None value, then the case is solved.
+If it does not fail then we must check the boolean value returned by the \verb|en_pos| function.
+In the case where it is \verb|True| then the case is solved.
+The challenging case comes when the evaluation of \verb|en_pos| is \verb|False|, semantically, this means the else branch should be taken instead.
+Therefore when $\mathtt{en\_pos}\ b\ s$ is \verb|False|, $\mathtt{en\_neg}\ b\ s$ will always evaluate to \verb|True|, this means that the command will have an enabled action, namely $\mathtt{en\_neg}\ b\ s$ and the proof of this case is complete.
+\end{proof}
+
+Next we want to prove that as long as the stack is not empty the small-step semantics can always take a step.
+We will make use of the previous lemma in the proof for this new lemma.
+This lemma states that the semantics can take a step.
+
+\begin{lemma}[can\_take\_step]
+$\newline$
+$\neg$ \verb|is_empty_stack| $s$ $\Longrightarrow$ $\exists\ x.\ s\ \rightarrow\ x$
+\label{lemma:can_take_step}
+\end{lemma}
+
+\begin{proof}
+From the assumptions we know that the stack is not empty, therefore we can rewrite the state as follows: $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
+We can then do a proof by cases.
+We have the case where $c\ =\ \mathtt{SKIP}$ and the case where $c\\neq\ \mathtt{SKIP}$.
+
+The case where $c\ =\ \mathtt{SKIP}$ is the case where we are returning from the execution of a function.
+We know that the stack is not empty, that $c\ =\ \mathtt{SKIP}$ and that $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
+This case corresponds to the \verb|Return_void| and \verb|Return_void_None| rules in the definition of \verb|small_step|.
+In both these cases the semantics can take a step, either to some new state $s'$ or to \verb|None|.
+This goal is solved automatically by Isabelle indicating the mentioned rules and assumptions.
+
+The second case is where $c\\neq\ \mathtt{SKIP}$.
+This is the case when we are executing any other command and not returning from a function.
+In this case we use the previous lemma~\ref{lemma:cfg_enabled_action} and from that we know that $\mathtt{cfg}\ c\ (en,tr)\ c'$ and either the enabled function fails ($\mathtt{en}\ s\ = \mathtt{None}$) or it is enabled ($\mathtt{en}|\ s\ = \mathtt{Some True}$).
+
+We prove this subgoal by splitting it into cases.
+In the first case we assume $\mathtt{cfg}\ c\ (en,tr)\ c'$ and $\mathtt{en}\ s\ = \mathtt{None}$.
+This is the case where the evaluation function fails, we know this case takes a step to None because of the \verb|None| case of the small step definition.
+Then we have proved that it exists a state so that $s\ \rightarrow\ \mathtt{None}$.
+
+In the next case we assume $\mathtt{cfg}\ c\ (en,tr)\ c'$ and $\mathtt{en}\ s\ = \mathtt{Some True}$.
+This is the case where we are enabled to take a step and we must still check two more cases.
+Applying the transformer function over the state updated with the command ($tr\ (upd\_com\ c'\ s)$) can either fail or not.
+In the case it fails (it returns \verb|None|) we can take a step to \verb|None| and we will have proved that there is a state to which $s$ can take a small step, namely \verb|None|.
+In the case it does not fail, it will return $\mathtt{Some}\ s_{2}$.
+In this case we can take a step to $\mathtt{Some}\ s_{2}$ and we will have proved that there is a state to which $s$ can take a small step, namely $\mathtt{Some}\ s_{2}$.
+\end{proof}
+
+We define several lemmas that will come in handy later on.
+
+The first lemma states that the CFG gets stuck at SKIP:
+\begin{lemma}[cfg\_SKIP\_stuck]
+$\newline$
+$\neg$ \verb|cfg SKIP| $a\ c$
+\label{lemma:stuck_at_skip}
+\end{lemma}
+
+\begin{proof}
+The property is proved automatically.
+\end{proof}
+
+
+\begin{lemma}[ss\_empty\_stack\_stuck]
+$\newline$
+\verb|is_empty_stack| $s$ $\Longrightarrow$ $\neg$ $(s\ \rightarrow\ cs')$
+\label{lemma:ss_empty_stack_stuck}
+\end{lemma}
+
+\begin{proof}
+The property is proved automatically.
+\end{proof}
+
+
+\begin{lemma}[ss'\_SKIP\_stuck]
+$\newline$
+\verb|is_empty_stack| $s$ $\Longrightarrow$ $\neg$ $(Some s\ \rightarrow\ cs')$
+\label{lemma:ss'_empty_stack_stuck}
+\end{lemma}
+
+\begin{proof}
+The property is proved automatically.
+\end{proof}
+
+Lemmas~\ref{lemma:ss_empty_stack_stuck} and~\ref{lemma:ss'_empty_stack_stuck} define the final state in which the semantics will get stuck, the semantics will get stuck when there are no more stack frames in the stack.
+
+
+\begin{lemma}[en\_neg\_by\_pos]
+$\newline$
+\verb|en_neg| $e\ s$ = \verb|map_option (HOL.Not) (en_pos| $e\ s$ \verb|)|
+\label{lemma:en_neg_by_pos}
+\end{lemma}
+
+\begin{proof}
+The property is proved automatically unfolding the definitions of \verb|en_neg| and \verb|en_pos|.
+\end{proof}
+
+Lemma~\ref{lemma:en_neg_by_pos} states that every time the enabled function \verb|en_neg| has a value (different than None) over a state, \verb|en_pos| will have the same but opposite result.
+In the case where one of the functions fails the other one will too, and they will yield \verb|None|.
+If they do not fail their results will be opposite, that is, if one has \verb|Some True| as a result, the other one will have \verb|Some False| as a result.
+This lemma will come in handy when proving determinism.
+
+\begin{lemma}[cfg\_determ]
+$\newline$
+$\mathtt{cfg}$ $c$ $a1$ $c'$ $\wedge$
+$\mathtt{cfg}$ $c$ $a2$ $c''$
+$\newline$
+$\Longrightarrow$
+$a1\ =\ a2$ $\wedge$ $c'\ =\ c''$ $\vee$
+$\newline$
+$\exists\ b.\ a1\ = (\mathtt{en\_pos}\ b,\ \mathtt{tr\_eval}\ b)\ \wedge\ a2\ = (\mathtt{en\_neg}\ b,\ \mathtt{tr\_eval}\ b)\ \vee$
+$\newline$
+$\exists\ b.\ a1\ = (\mathtt{en\_neg}\ b,\ \mathtt{tr\_eval}\ b)\ \wedge\ a2\ = (\mathtt{en\_pos}\ b,\ \mathtt{tr\_eval}\ b)$
+\label{lemma:cfg_determ}
+\end{lemma}
+
+\begin{proof}
+The proof is by induction on the command, with the cases of the \verb|cfg| rules generated by Isabelle all cases are solved automatically.
+\end{proof}
+
+Lemma~\ref{lemma:cfg_determ} states that CFG is deterministic.
+The only case where it is not is in the conditional case, for which we add an extra alternative in the conclusion.
+It can happen that we have a CFG rule starting at an \verb|If| command that has an edge to a $c_{1}$ and also an edge to $c_{2}$.
+This is not really a problem since the enabled functions guarantee that whenever that happens only one of the branches can be taken.
+
+
+\begin{lemma}[lift\_upd\_com]
+$\newline$
+$\neg\ \mathtt{is\_empty\_stack}\ s\ \Longrightarrow$
+$\newline$
+$\mathtt{lift\_transformer\_nr}\ tr\ (\mathtt{upd\_com}\ c\ s)\ =$
+$\newline$
+$\mathtt{map\_option}\ (\mathtt{upd\_com}\ c)\ (\mathtt{lift\_transformer\_nr}\ tr\ s)$
+\label{lemma:lift_upd_com}
+\end{lemma}
+
+\begin{proof}
+It is proved automatically by unfolding the definition of \verb|lift_transformer_nr|.
+\end{proof}
+
+\begin{lemma}[tr\_eval\_upd\_com]
+$\newline$
+$\neg\ \mathtt{is\_empty\_stack}\ s\ \Longrightarrow$
+$\newline$
+$\mathtt{tr\_eval}\ e\ (\mathtt{upd\_com}\ c\ s)\ =$
+$\newline$
+$\mathtt{map\_option}\ (\mathtt{upd\_com}\ c)\ (\mathtt{tr\_eval}\ e\ s)$
+\label{lemma:tr_eval_upd_com}
+\end{lemma}
+
+\begin{proof}
+It is proved automatically by unfolding the definition of \verb|tr_eval|.
+\end{proof}
+
+The \verb|lift_transformer_nr| function lifts to states the definition of a transformer function that operates in the visible state level.
+Lemmas~\ref{lemma:lift_upd_com} states that it does not matter in which order a transformer function is applied over a state and the command in the top of the stack frame is updated, since it will always yield the same result.
+This is because the update command function only modifies the command at the top of the stack and the transformer function cannot access and modify that part of the stack since it only modifies the visible state.
+
+Lemma~\ref{lemma:tr_eval_upd_com} is a more specific version of the previous lemma that states the same fact specifically for the evaluation transformer function.
+
+
+All the previous lemmas and definitions have been building up to this next proof, the determinism of the small step semantics.
+\begin{lemma}[small\_step\_determ]
+$\newline$
+$s\ \rightarrow\ s'\ \wedge\ s\ \rightarrow\ s''\ \Longrightarrow\ s'\ =\ s''$
+\label{lemma:small_step_determ}
+\end{lemma}
+
+\begin{proof}
+The proof is by cases on the small step semantics.
+We obtain 4 cases, each corresponding to each rule in the small step semantics.
+The goals generated by the \verb|Return_void| and \verb|Return_void_None| rules are solved automatically.
+The goals generated by the \verb|Base| and the \verb|None| are solved automatically after adding lemmas~\ref{lemma:en_neg_by_pos} and~\ref{lemma:tr_eval_upd_com}.
+\end{proof}
+
+Then we are only left to show that \verb|small_step'| is also deterministic.
+
+\begin{lemma}[small\_step'\_determ]
+$\newline$
+$s\ \rightarrow'\ s'\ \wedge\ s\ \rightarrow'\ s''\ \Longrightarrow\ s'\ =\ s''$
+\label{lemma:small_step'_determ}
+\end{lemma}
+
+\begin{proof}
+The proof is by cases on the small step semantics.
+It is proved automatically by using lemma~\ref{lemma:small_step_determ}.
+\end{proof}
+
+
+\section{Interpreter}\label{section:interpreter}
+
+\subsection{Single step}\label{subsection:single_step}
+
+\begin{figure}
+  \begin{lstlisting}[frame=single, mathescape=true]
+  datatype cfg_edge = Base $transformer$ $com$
+                    | Cond $enabled$ $transformer$ $com$ $com$
+
+  context fixes proc_table :: proc_table begin
+
+    fun cfg_step :: "com $\Rightarrow$ cfg_edge" where
+      "cfg_step SKIP = undefined"
+    | "cfg_step ($x$ ::= $a$) = Base (tr_assign $x$ $a$) SKIP"
+    | "cfg_step ($x$ ::== $a$) = Base (tr_assignl $x$ $a$) SKIP"
+    | "cfg_step (SKIP;; $c_{2}$) = Base tr_id $c_{2}$"
+    | "cfg_step ($c_{1}$;;$c_{2}$) = (case cfg_step $c_{1}$ of
+        Base $tr$ $c$ $\Rightarrow$ Base tr (c;;c2)
+      | Cond $en\ tr\ ca\ cb$ $\Rightarrow$ Cond $en\ tr\ \mathtt{(}ca\mathtt{;;}c2\mathtt{)}\ \mathtt{(}cb\mathtt{;;}c2\mathtt{)}$
+       )"
+    | "cfg_step (IF $b$ THEN $c_{1}$ ELSE $c_{2}$) = Cond (en_pos $b$) (tr_eval $b$) $c_{1}$ $c_{2}$"
+    | "cfg_step (WHILE $b$ DO $c$) =
+        Base tr_id (IF $b$ THEN $c$;; WHILE $b$ DO $c$ ELSE SKIP)"
+    | "cfg_step (FREE $x$) = Base (tr_free $x$) SKIP"
+    | "cfg_step (Return $a$) = Base (tr_return $a$) SKIP"
+    | "cfg_step Returnv = Base (tr_return_void) SKIP"
+    | "cfg_step (Callfunl $e$ $f$ params) =
+        Base (tr_callfunl proc_table $e$ $f$ params) SKIP"
+    | "cfg_step (Callfun $x$ $f$ params) =
+        Base (tr_callfun proc_table $x$ $f$ params) SKIP"
+    | "cfg_step (Callfunv $f$ params) =
+        Base (tr_callfunv proc_table $f$ params) SKIP"
+
+  end
+  \end{lstlisting}
+
+  \caption{Single step edges}
+  \label{fig:single_step_edges}
+\end{figure}
+
+\begin{figure}
+  \begin{lstlisting}[frame=single, mathescape=true]
+  definition fstep :: proc_table $\Rightarrow$ state $\Rightarrow$ state option where
+    fstep proc_table $s$ $\equiv$
+      if com_of $s$ = SKIP then
+        tr_return_void $s$
+      else
+        case cfg_step proc_table (com_of $s$) of
+            Base $tr\ c'$ $\Rightarrow$ $tr$ (upd_com $c'\ s$)
+          | Cond $en\ tr\ c1\ c2$ $\Rightarrow$ do {
+              $b$ $\leftarrow$ en $s$;
+              if $b$ then
+                tr (upd_com $c1\ s$)
+              else  
+                tr (upd_com $c2\ s$)
+            }
+  \end{lstlisting}
+
+  \caption{Definition of fstep}
+  \label{fig:fstep_def}
+\end{figure}
+
+There are two kinds of edges in the CFG.
+We create a new datatype for representing them.
+
+
+A $Base$ edge that has a transformer function and is always enabled and takes us to a new command and a $Cond$ edge that, apart from the transformer function, also has an enabled function and two commands.
+This enabled function indicates whether we take a step to the first or the second command.
+Also we define a \verb|cfg_step| function that given the starting command returns which kind of edge follows in the CFG.
+
+The function \verb|fstep|, defined in figure~\ref{fig:fstep_def}, is how we take a single step in the execution of the semantics.
+An execution of a step in the semantics will take us from an initial state to a new state which can be an erroneous state (\verb|None|) or a valid one (\verb|Some| $s$).
+To execute a \verb|SKIP| command we call the transformer function for returning without a value from a function \verb|tr_return_void|.
+Otherwise we will check which kind of step we should take by means of the \verb|cfg_Step| function and, based on that, decide what to do.
+If it is a \verb|Base| step we will call the transformer function over the state with the updated command.
+If, on the other hand, it is a \verb|Cond| step we will evaluate the condition and call the transformer function over the state with the updated command.
+
+\subsubsection{Equality between small-step semantics and single-step execution}\label{subsubsection:equality_ss_ss}
+
+We must now prove that the single step execution is semantically equivalent to taking a step in the small-step semantics.
+This is proving that $\neg\ \mathtt{is\_empty\_stack}\ \Longrightarrow\ s\ \rightarrow\ s'\ \longleftrightarrow\ \mathtt{fstep}\ s\ =\ s'$\footnote{fstep has an extra parameter, namely the procedure table, which we will avoid writing here to make it simpler to read}.
+We prove both directions of the equivalence separately: for every step taken in the small-step semantics, there is an equivalent step that can be taken in the execution by \verb|fstep| which will lead to the same final state and vice versa.
+
+
+We start by showing that any step taken in the small-step semantics can be simulated by a step taken with fstep.
+
+\begin{lemma}[fstep1]
+$\newline$
+$s\ \rightarrow\ s'\ \Longrightarrow\ \mathtt{fstep}\ s\ =\ s'$
+\label{lemma:fstep1}
+\end{lemma}
+
+\begin{proof}
+This proof is done by induction over the small-step semantics.
+\end{proof}
+
+Then we consider the other direction:
+
+\begin{lemma}[fstep2]
+$\newline$
+$\neg\ \mathtt{is\_empty\_stack}\ s\ \Longrightarrow\ s\ \rightarrow\ (\mathtt{fstep}\ s)$
+\label{lemma:fstep2}
+\end{lemma}
+
+\begin{proof}
+This proof is done automatically by making a case distinction on the result of ``\verb|tr_return_void| $s$'' and using the lemmas~\ref{lemma:can_take_step} and~\ref{lemma:fstep1}.
+\end{proof}
+
+Both directions together (Lemma~\ref{lemma:fstep1} and lemma~\ref{lemma:fstep2}) let us then show the equivalence we were aiming for originally:
+
+\begin{lemma}[ss\_fstep\_equiv]
+$\newline$
+$\neg\ \mathtt{is\_empty\_stack}\ \Longrightarrow\ s\ \rightarrow\ s'\ \longleftrightarrow\ \mathtt{fstep}\ s\ =\ s'$
+\label{lemma:ss_fstep_equiv}
+\end{lemma}
+
+
+\subsection{Execution and Interpretation}\label{subsection:exec_interp}
+
+In order to execute a program we will define an interpreter for it.
+
+\begin{figure}
+  \begin{lstlisting}[frame=single, mathescape=true]
+  fun is_term :: "state option $\Rightarrow$ bool" where
+    "is_term (Some $s$) = is_empty_stack $s$"
+  | "is_term None = True"
+
+  definition interp :: "proc_table $\Rightarrow$ state $\Rightarrow$ state option" where
+    "interp proc_table $cs$ $\equiv$ (while
+      (HOL.Not $\circ$ is_term)
+      ($\lambda$Some $cs$ $\Rightarrow$ fstep proc_table $cs$)
+      (Some $cs$))"
+  \end{lstlisting}
+
+  \caption{Definition of an interpreter for Chloe}
+  \label{fig:interpreter_def}
+\end{figure}
+
+In figure~\ref{fig:interpreter_def} we find such definition.
+First we define the criteria on which a state is considered final.
+A state will be considered final when its execution stack is empty or when it is \verb|None|.
+
+The interpreter for our semantics works as follows: As long as a final state is not reached we execute \verb|fstep|.
+
+Finally, we show a lemma that states that if a state is final, then it is the result of the interpretation.
+
+\begin{lemma}[interp\_term]
+$\newline$
+$\mathtt{is\_term}\ \mathtt{(Some}\ cs\mathtt{)}\ \Longrightarrow\ \mathtt{interp}\ \mathtt{proc\_table}\ cs\ =\ \mathtt{Some}\ cs$
+\label{lemma:interp_term}
+\end{lemma}
+
+In order to show this we need a lemma that unfolds the loop in the definition of our interpreter:
+
+\begin{lemma}[interp\_unfold]
+$\newline$
+$\mathtt{interp}\ \mathtt{proc\_table}\ cs = ($
+$\newline$
+$\mathtt{if}\ \mathtt{is\_term}\ (\mathtt{Some}\ cs)\ \mathtt{then}\ \mathtt{Some}\ cs$
+$\newline$
+$\mathtt{else}\ \mathtt{do\{}\ cs \leftarrow\ \mathtt{fstep}\ \mathtt{proc\_table}\ cs\mathtt{;}\ \mathtt{interp}\ \mathtt{proc\_table}\ cs$
+$\mathtt{\}})$
+\label{lemma:interp_unfold}
+\end{lemma}
+
+\begin{proof}
+The proof is solved automatically.
+\end{proof}
+
+With lemma~\ref{lemma:interp_unfold} the proof for lemma~\ref{lemma:interp_term} is solved automatically.
+
+Finally, only valid programs can be executed. In figure~\ref{fig:execute_def} we can see the definition for the function that executes a program.
+In order to execute a program we assert that it is valid with the previously defined \verb|valid_program| and then proceed to interpret the initial state of the program p.
+
+\begin{figure}
+  \begin{lstlisting}[frame=single, mathescape=true]
+  definition execute :: "program $\Rightarrow$ state option" where
+    "execute $p$ $\equiv$ do {
+      assert (valid_program $p$);
+      interp (proc_table_of $p$) (initial_state $p$)
+    }"
+  \end{lstlisting}
+
+  \caption{Definition of an interpreter for Chloe}
+  \label{fig:execute_def}
+\end{figure}
+
+
+\subsection{Correctness}\label{subsection:correctness}
+
+Finally we must show our interpreter to be correct.
+In figure~\ref{fig:execution_definitions} we have two definitions regarding execution.
+The first one states that an execution of a state $cs$ \verb|yields| $cs'$ if we can take small steps from $cs$ to $cs'$ and $cs'$ is a final state.
+Secondly, we define an execution of a state to terminate if there exists a state $cs'$ such that the execution of state $cs$ yields it.
+
+\begin{figure}
+  \begin{lstlisting}[frame=single, mathescape=true]
+  definition "yields $\equiv$ $lambda\ cs\ cs'$. Some $cs$ $\rightarrow*$ $cs'$ $/wedge$ is_term cs'"
+
+  definition "terminates $\equiv$ $lambda\ cs$. $\exists\ cs'$. yields $cs\ cs'$"
+  \end{lstlisting}
+
+  \caption{Definitions about program execution}
+  \label{fig:execution_definitions}
+\end{figure}
+
+Before showing the correctness lemma for the correctness of the interpreter we must show that the small steps execution will preserve an erroneous \verb|None| state if it is reached by the path of steps taken.
+Upon erroneous execution we will get stuck in a \verb|None| state.
+
+\begin{lemma}[None\_star\_preserved]
+$\newline$
+$\mathtt{None}\ \rightarrow*\ z\ \longleftrightarrow\ z\ =\ \mathtt{None}$
+\label{lemma:none_star_preserved}
+\end{lemma}
+
+\begin{proof}
+The proof is by induction on the reflexive transitive closure (star).
+The goals are solved automatically.
+\end{proof}
+
+
+Finally we show the correctness property for our interpreter.
+Theorem~\ref{theorem:interp_correct} states that if the execution of $cs$ terminates, then that execution yields $cs'$ if and only if $cs'$ is the result we obtain from executing the program in the interpreter.
+\begin{theorem}[interp\_correct]
+$\newline$
+$\mathtt{terminates}\ cs\ \Longrightarrow\ (\mathtt{yields}\ cs\ cs')\ \longleftrightarrow\ (cs'\ =\ \mathtt{interp}\ \mathtt{proc\_table}\ cs)$
+\label{theorem:interp_correct}
+\end{theorem}
+
+\begin{proof}
+The proof is done by assuming the premise and proving each direction of the equality separately.
+\end{proof}

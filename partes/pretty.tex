@@ -1,0 +1,672 @@
+\chapter{Pretty Printer}\label{chapter:pretty}
+\lhead{Capítulo 4. \emph{Pretty Printer}}
+
+In this chapter we will detail the \textit{pretty printing} (translation) process that happens in the semantics and allows us to export C code.
+To assist us in this translation process we used Sternagel and Thiemann's implementation of Haskell's Show class in Isabelle/HOL\cite{Show-AFP}.
+Sternagel and Thiemann implement a type class for ``to-string'' functions as well as instantiations for Isabelle/HOL's standard types.
+Moreover they allow for deriving show functions for arbitrary user defined datatypes.
+We instantiate this class creating a ``show'' function for each of our defined datatypes progressively until we can print a program.
+The following sections will explain in detail the concrete strings we obtain as a result of our translation.
+
+\section{Words}\label{section:pretty_words}
+The first instantiation of shows we must make is the one for words in order to be able to pretty print values of this type.
+For pretty printing a value of the type word we will simply cast that value to an Isabelle/HOL's predefined int type and use the \verb|show| function for it.
+As a result our words will be pretty printed as signed integers.
+
+\section{Values}\label{section:pretty_values}
+
+Although the datatype \verb|val| and valuations are not used in the code generation process, we find it useful to have a mechanism to pretty print them for debugging purposes.
+
+\subsection{Val type}\label{subsection:pretty_val_type}
+The type \verb|val| is the first user defined type we provide an instantiation for.
+In table~\ref{tab:pretty_val} we find the equivalence between the abstract syntax for the \verb|val| type and the string representation.
+Note that $w$, $base$ and $ofs$ range over words, nats and integers, therefore their show functions will be used to obtain their string representation e.g.\ the string representation for $\mathtt{I}\ 42$ would be $"42"$, the string representation for $\mathtt{A}\ (4,\ 2)$ would be $"4[2]"$.
+A list of values is showed by showing each value in a list notation, i.e.\ $[vname\ =\ value, \dots, vname_n\ =\ value_n]$.
+
+We will enclose parameters in between brackets ($"<\ >"$ ) to indicate that what's enclosed in them is a string representation which results from applying a shows function on the parameter and will continue to use this notation throughout the rest of the document.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|}
+  \hline
+  \textbf{Abstract syntax} & \textbf{String representation} \\ [0.5ex]
+  \hline \hline
+  \verb|NullVal| & null \\
+  \verb|I| $w$ & $<w>$ \\
+  \verb|A| $(base,\ ofs)$ & <$base$>[<$ofs$>] \\
+  \hline
+\end{tabular}
+
+\caption{Translation of val type}
+\label{tab:pretty_val}
+\end{table}
+
+\subsection{Val option type}\label{subsection:pretty_val_option_type}
+
+Now that we know how to represent a \verb|val| type in the form of a string we must also know how to represent a \verb|val option|.
+A \verb|val option| holds the semantic meaning of an initialized and an uninitialized value.
+Table~\ref{tab:pretty_val_option} shows the equivalence between the abstract syntax and the string representation.
+Here an initialized value will simply be the string resulting from showing that value, whereas the string representation of an uninitialized value will be a $''?''$ to represent its value is not yet known.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|}
+  \hline
+  \textbf{Abstract syntax} & \textbf{String representation} \\ [0.5ex]
+  \hline \hline
+  \verb|Some| v & <$v$> \\
+  \verb|None| & ? \\
+  \hline
+\end{tabular}
+
+\caption{Translation of val option type}
+\label{tab:pretty_val_option}
+\end{table}
+
+
+\subsection{Valuations}\label{subsection:pretty_valuations}
+
+It must also be possible to have a string representation of a valuation.
+In order to represent a valuation we need an extra parameter, namely a list of variable names, this list will have the names of the variables for which we want to print their value in the valuation.
+The valuation will be printed in the following format:
+\begin{equation*}
+[<vname_0> = <value_0>, <vname_1> = <value_1>, \dots, <vname_n> = <value_n>]
+\end{equation*}
+
+For instance, if we take the valuation $[foo \mapsto \mathtt{Some}(\mathtt{I}\ 15), bar \mapsto None, baz \mapsto \mathtt{Some}(\mathtt{A}(1,9))]$ and the list of variables $[foo, bar, baz]$ then we would obtain the following as a string representation for the valuation:
+
+\begin{equation*}
+[foo\ =\ 15,\ bar\ =\ ?,\ baz\ =\ 1[9]]
+\end{equation*}
+
+
+\section{Memory}\label{section:pretty_memory}
+
+The memory, same as the values, is not a component we need in order to generate C programs.
+Nevertheless, having a method to pretty print the memory in a determined state is useful in the event of debugging.
+In order to show the memory we must first know how to show a string representation of the content of a block and a string representation of the whole block.
+
+When we access a block in the memory we can obtain either the content of the block or a \verb|None| value indicating a free block of memory.
+Table~\ref{tab:pretty_block_content} shows the string representations for this.
+Notice that in the case of a \verb|None| value we print the \verb|free| string enclosed in brackets, being the brackets part of the string representation and posing an exception to the notation described previously.
+If the content of the block is a list of values then we show the list of values.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|}
+  \hline
+  \textbf{Abstract syntax} & \textbf{String representation} \\ [0.5ex]
+  \hline \hline
+  \verb|Some| content & <$content$> \\
+  \verb|None| & <free> \\
+  \hline
+\end{tabular}
+
+\caption{Translation of Block content}
+\label{tab:pretty_block_content}
+\end{table}
+
+A complete block will be printed as follows:
+\begin{equation*}
+<base>\ :\ <block\_content> 
+\end{equation*}
+
+where $base$ is the first component of an address value that indexes the blocks and $block_content$ is the string representation of the content of block number $base$.
+
+Finally, in order to show the whole memory, we only need to show each block existing in the memory.
+For instance, the string representation of memory state:
+\begin{equation*}
+[\mathtt{Some}\ [\mathtt{I}\ 13,\ \mathtt{None}],\ None,\ \mathtt{Some}\ [\mathtt{A}(2,3),\ None, \mathtt{I}\ 56]]
+\end{equation*}
+would be:
+\begin{align*}
+0\ &:\ [13,\ ?] \\
+1\ &:\ <free> \\
+2\ &:\ [2[3],\ ?,\ 56]
+\end{align*}
+
+
+\section{Expressions}
+In order to print expressions we must be able to print unary and binary operations.
+We must also be able to print casts from and to pointers.
+We use C's \verb|intptr_t| which is big enough to hold the value of an integer as well as the value of a pointer, we do so due to the fact that we only have integer values in our language and we separate address values from them in the semantics level.
+
+At the C level we must be able to tell the compiler when some value is meant to be an address and cast it as such.
+We allow this casting between addresses and integers during the translation process because we know for sure when a value should be interpreted as an address and when it should be interpreted as an integer, whereas C does not.
+
+\paragraph{Unary and binary operations}
+When pretty printing binary operations we will use parenthesis around every expression pretty printed.
+This will naturally generate more parenthesis than needed but we are willing to make this choice to ensure the evaluation order remains the same as intended and we do not obtain different evaluation orders because of operator precedence.
+
+A binary operator is pretty printed in an infix way:
+\begin{equation*}
+(<operand_1> <operator> <operand_2>)
+\end{equation*}
+
+Examples of this are shown in table~\ref{tab:pretty_bin_op}.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|}
+  \hline
+  \textbf{Abstract syntax} & \textbf{String representation} \\ [0.5ex]
+  \hline \hline
+  \verb|Plus| (\verb|Const| $11$) (\verb|Const| $11$) & ($11\ +\ 11$) \\
+  \verb|Subst| (\verb|Const| $9$) (\verb|Const| $5$) & ($9\ -\ 5$) \\
+  \verb|Mult| (\verb|Const| $2$) (\verb|Const| $3$) & ($2\ *\ 3$) \\
+  \hline
+\end{tabular}
+
+\caption{Examples of binary operators' pretty printing}
+\label{tab:pretty_bin_op}
+\end{table}
+
+An unary operator is pretty printed in a prefix way:
+\begin{equation*}
+<operator> (<operand>)
+\end{equation*}
+
+Notice we enclose the operand in parenthesis in order to guarantee correct precedence in the operations.
+
+Examples of this are shown in table~\ref{tab:pretty_un_op}.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|}
+  \hline
+  \textbf{Abstract syntax} & \textbf{String representation} \\ [0.5ex]
+  \hline \hline
+  \verb|Minus| (\verb|Const| $11$) & $-\ (11)$ \\
+  \verb|Not| (\verb|Const| $0$) & $!\ (0)$ \\
+  \hline
+\end{tabular}
+
+\caption{Examples of unary operators' pretty printing}
+\label{tab:pretty_un_op}
+\end{table}
+
+\paragraph{Casts}
+Since the values we are working with must be interpreted in C sometimes as integers and sometimes as pointers we must be able to pretty print an explicit cast between those two types in our generated program.
+We include casts to pointers when dealing with referencing, dereferencing and indexing.
+We will want to cast to integers in the case of a memory allocation.
+A memory allocation returns a pointer but in order to assign that to a variable we must cast it to an integer.
+Due to the fact that all our variables are declared with the \verb|intptr_t| type and not \verb|intptr_t *|, we can do this and we know that when working with addresses these will be interpreted the right way since we will add a cast back to pointer.
+
+
+A cast to an address value will be pretty printed in the following way:
+\begin{equation*}
+(\mathtt{intptr\_t}\ *) <expression>
+\end{equation*}
+
+A cast to an integer value will be pretty printed in the following way:
+\begin{equation*}
+(\mathtt{intptr\_t}) <expression>
+\end{equation*}
+
+In table~\ref{tab:pretty_casts} we can find examples of the pretty printing of casts.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|}
+  \hline
+  \textbf{Abstract syntax} & \textbf{String representation} \\ [0.5ex]
+  \hline \hline
+  \verb|Deref| (\verb|V| $foo$) & $*((\mathtt{intptr\_t}\ *)\ $foo$)$ \\
+  \verb|Ref| (\verb|V| $foo$)   & $((\mathtt{intptr\_t}\ *)\ \&($foo$))$ \\
+  \verb|New| (\verb|Const| $9$) & $(\mathtt{intptr\_t})\ \mathtt{\_\_MALLOC}(\mathtt{sizeof}(\mathtt{intptr\_t)}\ *\ ($9$))$ \\
+  \hline
+\end{tabular}
+
+\caption{Examples of casts' pretty printing}
+\label{tab:pretty_casts}
+\end{table}
+
+
+\paragraph{Memory allocations}
+
+As we mentioned in chapter~\ref{chapter:semantics} the behavior of our allocation function and C's allocation function differ due to the fact that we assume that the memory is unlimited.
+Therefore we cannot simply translate our memory allocation function to a \verb|malloc| call in C.
+
+We must wrap C's \verb|malloc| function in another function that will abort the program in the case a program runs out of memory.
+We define a function ``\verb|__MALLOC|'' that takes the size of the new block of memory to be allocated with \verb|malloc|, does the malloc call and returns the pointer to the new block of memory in case it succeeds and upon failure of the \verb|malloc| function it aborts the program with the exit code 3.
+We define exit code 3 as an erroneous exit code that means there was a failure when allocating memory in order to be able to catch this error later in the testing process.
+
+
+
+
+\paragraph{Expressions}
+Finally we present in table~\ref{tab:pretty_expressions} the string representation for each of the expressions.
+We use simple expressions as operands such as variables or constant values for simplicity, but the expressions can be made up of more complicated expressions.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|}
+  \hline
+  \textbf{Abstract syntax} & \textbf{String representation} \\ [0.5ex]
+  \hline \hline
+  \verb|Const| $42$ & $42$ \\
+  \verb|Null| & (\verb|intptr_t| *) $0$ \\
+  \verb|V| $x$ & $x$ \\
+  \verb|Plus| $(\mathtt{Const}\ 2)\ (\mathtt{Const}5)$ & $(2\ +\ 5)$ \\
+  \verb|Subst| $(\mathtt{Const}\ 9\ (\mathtt{Const}5)$ & $(9\ -\ 5)$ \\
+  \verb|Minus| $(\mathtt{Const}\ 9)$ & ($-9$) \\
+  \verb|Div| $(\mathtt{Const}\ 8)\ (\mathtt{Const}\ 4)$ & $(8\ /\ 4)$ \\
+  \verb|Mod| $(\mathtt{Const}\ 8)\ (\mathtt{Const}\ 4)$ & $(8\ \%\ 4)$ \\
+  \verb|Mult| $(\mathtt{Const}\ 9)\ (\mathtt{Const}\ 3)$ & $(9\ *\ 3)$ \\
+  \verb|Less| $(\mathtt{Const}\ 7)\ (\mathtt{Const}\ 9)$ & $(7\ <\ 9)$ \\
+  \verb|Not| $(\mathtt{Const}\ 0)$ & $!\ (0)$ \\
+  \verb|And| $(\mathtt{Const}\ 1)\ (\mathtt{Const}\ 1)$ & $(1\ \&\&\ 1)$ \\
+  \verb|Or| $(\mathtt{Const}\ 1)\ (\mathtt{Const}\ 0)$ & $(1\ || 0)$ \\
+  \verb|Eq| $(\mathtt{Const}\ 6)\ (\mathtt{Const}\ 4)$ & $(6\ == 4)$ \\
+  \verb|New| $(\mathtt{Const}\ 9)$ & $(\mathtt{intptr\_t})\ \mathtt{\_\_MALLOC}(\mathtt{sizeof}(\mathtt{intptr\_t)}\ *\ ($9$))$ \\
+  \verb|Deref| $(\mathtt{V}\ foo)$ & $*((\mathtt{intptr\_t}\ *)\ foo)$ \\
+  \verb|Ref| $(\mathtt{V}\ foo)$ & $((\mathtt{intptr\_t}\ *)\ \&(foo))$ \\
+  \verb|Index| $(\mathtt{V}\ bar)\ (\mathtt{Const}\ 3)$ & $((\mathtt{intptr\_t}\ *)\ bar[3])$ \\
+  \verb|Derefl| $(\mathtt{V}\ foo)$ & $(*((\mathtt{intptr\_t}\ *)\ foo))$ \\
+  \verb|Indexl| $(\mathtt{V}\ bar)\ (\mathtt{Const}\ 3)$ & $((\mathtt{intptr\_t}\ *)\ bar[3])$ \\
+  \hline
+\end{tabular}
+
+\caption{Examples of Expressions' pretty printing}
+\label{tab:pretty_expressions}
+\end{table}
+
+
+\section{Commands}
+First, we need a method for printing indented commands to facilitate the generated code.
+We define two auxiliary abbreviations that will pretty print white spaces for indentation at the beginning of a construct.
+The reason why two abbreviations are defined is because one of them will also pretty print a $";"$ terminator after the construct whereas the other will not.
+
+We also define a way of pretty printing function calls.
+Function calls will be pretty printed according to the following format:
+\begin{equation*}
+<function\_name>\ ([<argument_0, argument_1, \dots, <argument_n>])
+\end{equation*}
+
+where the brackets ($[]$) indicate that the arguments are optional.
+
+Finally the commands in Chloe are pretty printed as the examples in table~\ref{tab:pretty_commands} shows.
+We use $''$ to indicate an empty string.
+The correct level of indentation is indicated in the function parameters that are responsible for the pretty printing, we will omit those here and instead list where the indentation will increase.
+Indentation will increase when printing commands that are within a block, e.g.\ the branches of a conditional, the body of a loop.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|l|}
+  \hline
+  \textbf{Abstract syntax} & \textbf{String representation} \\ [0.5ex]
+  \hline \hline
+  \verb|SKIP| & $''$ \\
+  \hline
+  $\mathtt{Derefl}\ foo\ ::==\ \mathtt{Const}\ 4$                            & $*((\mathtt{intptr\_t}\ *)\ foo)\ =\ 4;$ \\
+  \hline
+  $foo\ ::=\ \mathtt{Const}\ 4$                                              & $foo\ =\ 4;$ \\
+  \hline
+  $c_1;;\ c_2$                                                               & $<c_1> <c_2>$ \\
+  \hline
+  $\mathtt{IF}\ (\mathtt{V}\ b)\ \mathtt{THEN}$                              & $\mathtt{if}\ (b)\ \{$\\
+  $foo\ ::=\ \mathtt{Const}\ 4$                                              & $\ \ foo\ =\ 4;$ \\
+  $\mathtt{ELSE}$                                                            &  $\}$ \\
+  $\mathtt{SKIP}$                                                            & \\
+  \hline
+  $\mathtt{If}\ (\mathtt{V}\ b)\ \mathtt{THEN}$                              & $\mathtt{if}\ (b)\ \{$\\
+  $foo\ ::=\ \mathtt{Const}\ 4)$                                             & $\ \ foo\ =\ 4;$ \\
+  $\mathtt{ELSE}$                                                            & $\}\ else\ \{$ \\
+  $bar\ ::=\ \mathtt{Const}\ 3)$                                             & $\ \ bar\ =\ 3;$ \\
+                                                                             & $\}$ \\
+  \hline
+  $\mathtt{While}\ (\mathtt{V}\ b)\ \mathtt{DO}$                             & $\mathtt{while}\ (b)\ \{$\\
+  $foo\ ::=\ \mathtt{Const}\ 4$                                              & $\ \ foo\ =\ 4;$ \\
+                                                                             & $\}$ \\
+  \hline
+  \verb|FREE| $(\mathtt{Derefl}\ foo)$                                       & $\mathtt{free}\ (\&\ (*((\mathtt{intptr\_t}\ *)\ foo));$ \\
+  \hline
+  \verb|RETURN| $(\mathtt{V}\ foo)$                                          & $\mathtt{return}\ (foo));$ \\
+  \hline
+  \verb|RETURNV|                                                             & $\mathtt{return};$ \\
+  \hline
+  $(\mathtt{Derefl}\ foo)\ ::==\ bar\ ([\mathtt{V}\ baz,\mathtt{Const}\ 4])$ & $*((\mathtt{intptr\_t}\ *)\ foo)\ =\ bar(baz,\ 4);$ \\
+  \hline
+  $foo\ ::=\ bar\ ([\mathtt{Const}\ 65])$                                    & $foo =\ bar(65);$ \\
+  \hline
+  \verb|CALL| $bar\ ([])$                                                    & $bar();$ \\
+  \hline
+\end{tabular}
+
+\caption{Examples of Commands' pretty printing}
+\label{tab:pretty_commands}
+\end{table}
+
+
+\section{Function declarations}
+
+Now we must define how declarations are pretty printed.
+In order to do so, we will pretty print a function definition according to the following string format:
+\begin{equation*}
+\begin{split}
+&\mathtt{intptr\_t} \ <function\_name>(\mathtt{intptr\_t}\ <arg\_name_0>,\ \dots,\ \mathtt{intptr\_t}\ <arg\_name_n)\ \{ \\
+&\ \ \mathtt{intptr\_t}\ <local\_var_0> \\
+&\vdots \\
+&\ \ \mathtt{intptr\_t}\ <local\_var_n> \\
+&<body> \\
+&\} \\
+\end{split}
+\end{equation*}
+
+The return, argument and local variable's type is \verb|intptr_t| since, as mentioned previously, we only have one type in our translation process and we cast to and from pointers when necessary.
+
+An example of a function declaration translation for a factorial function is available in table~\ref{tab:pretty_function_fact}.
+In this example we avoid the use of $''\ ''$ for string representations in Isabelle and simply write the string without the quotation marks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|}
+  \hline
+  \textbf{Abstract syntax} & \textbf{String representation} \\ [0.5ex]
+  \hline \hline
+  \verb|definition factorial_decl| $::$ \verb|fun_decl|  & \verb|intptr_t fact(intptr_t n) {| \\
+  \verb|where "factorial_decl| $\equiv$                  & \verb|  intptr_t r;| \\
+  \verb|  ( fun_decl.name = fact,|                       & \verb|  intptr_t i;| \\
+  \verb|    fun_decl.params = [n],|                      & \verb|  r = (1);| \\
+  \verb|    fun_decl.locals = [r, i],|                   & \verb|  i = (1);| \\
+  \verb|    fun_decl.body =|                             & \verb|  while ((i) < ((n) + (1))) {| \\
+  \verb|      r ::= (Const 1);;|                         & \verb|    r = ((r) * (i));| \\
+  \verb|      i ::= (Const 1);;|                         & \verb|    i = ((i) + (1));| \\
+  \verb|      (WHILE|                                    & \verb|  }| \\
+  \verb|         (Less (V i) (Plus (V n) (Const 1)))|    & \verb|  return(r);| \\
+  \verb|      DO|                                        & \verb|}| \\
+  \verb|        (r ::= (Mult (V r) (V i));;|             & \\
+  \verb|        i ::= (Plus (V i) (Const 1)))|           & \\
+  \verb|      );;|                                       & \\
+  \verb|    RETURN (V r)|                                & \\
+  \verb|  )"|                                            & \\
+  \hline
+\end{tabular}
+
+\caption{Pretty printing of a factorial function declaration}
+\label{tab:pretty_function_fact}
+\end{table}
+
+
+\section{States}
+
+When executing a program inside the Isabelle/HOL environment we will often want to inspect the states.
+In this section we define an easy way to inspect the states by having a string representation for them.
+That is precisely what we define in this section.
+
+First we describe how a return location is pretty printed.
+We instantiate the show class for the type \verb|return_loc|.
+In table~\ref{tab:pretty_rloc} we find the equivalence between the abstract syntax for the \verb|return_loc| type and the string representation.
+Where $<base>$ and $<ofs>$ are the result of applying the show function over $base$ and $ofs$ and $<invalid>$ is a literal string including the arrow heads.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|}
+  \hline
+  \textbf{Abstract syntax} & \textbf{String representation} \\ [0.5ex]
+  \hline \hline
+  \verb|Ar| $(base,\ ofs)$ & <$base$>[<$ofs$>] \\
+  \verb|Vr| $w$ & $w$ \\
+  \verb|Invalid| & <invalid> \\
+  \hline
+\end{tabular}
+
+\caption{Translation of return location type}
+\label{tab:pretty_rloc}
+\end{table}
+
+Now we describe how the stack is pretty printed.
+A single stack frame is pretty printed by printing the command, the list of local variables and the return location expected with the following format: $rloc\ =\ <rloc>$ separated by a line break.
+In order to pretty print the whole stack, we will print each stack frame separated by ``\verb|---------------|''.
+
+
+In order to pretty print a state we must give the show function a list of variable names, which will be used to print the valuation for the globals and the locals in the stack frame.
+A state is pretty printed by printing the stack, the values of the global variables and finally the memory, separated by ``\verb|=================|''
+
+An example of pretty printing for a simple state is shown in table~\ref{tab:pretty_simp_state}.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|}
+  \hline
+  \textbf{Abstract syntax} & \textbf{String representation} \\ [0.5ex]
+  \hline \hline
+  $(\ [\ (x\ ::=\ \mathtt{Const}\ 4;;\ y\ ::=\ \mathtt{Const}\ 25,$                                            & \verb|x = (4);| \\
+  $\ \ \ \ \ \ [z\ \mapsto\ \mathtt{Some}\ (\mathtt{I}\ 0)],\ \mathtt{Invalid}),$                              & \verb|y = (25);| \\
+  $\ \ [\ (x\ ::=\ \mathtt{Const}\ 3;;\ y\ ::=\ \mathtt{Const}\ 43,$                                           & \verb|---------------| \\
+  $\ \ \ \ \ \ [z\ \mapsto\ \mathtt{Some}\ (\mathtt{I}\ 6)],\ \mathtt{Vr} foo)],$                              & \verb|[z = 0]| \\
+  $\ \ [x\ \mapsto\ \mathtt{Some}\ (\mathtt{I}\ 3),\ y\ \mapsto\ \mathtt{Some}\ (\mathtt{I}\ 8),$              & \verb|---------------| \\
+  $\ \ foo\ \mapsto\ \mathtt{Some}\ (\mathtt{I}\ 0)],$                                                         & \verb|rloc = <invalid>| \\
+  $\ \ [\mathtt{None},\ \mathtt{Some}\ [\mathtt{Some}\ (\mathtt{I}\ 44), \mathtt{Some}\ (\mathtt{A}\ (2,0))],$ & \verb|x = (5);| \\
+  $\ \ \mathtt{Some}\ [\mathtt{Some}\ (\mathtt{I}\ 78)]$                                                       & \verb|y = (43);| \\
+                                                                                                               & \verb|---------------| \\
+                                                                                                               & \verb|[z = 6]| \\
+                                                                                                               & \verb|---------------| \\
+                                                                                                               & \verb|rloc = foo| \\
+                                                                                                               & \verb|=================| \\
+                                                                                                               & \verb|[x = 3, y = 8, foo = 0]| \\
+                                                                                                               & \verb|=================| \\
+                                                                                                               & \verb|1: <free>| \\
+                                                                                                               & \verb|2: [44, *2[0]]| \\
+                                                                                                               & \verb|3: [78]| \\
+  \hline
+\end{tabular}
+
+\caption{Pretty printing example of a state}
+\label{tab:pretty_simp_state}
+\end{table}
+
+
+\section{Programs}
+
+In this section we can now talk about translating a complete program.
+
+\paragraph{Header files and bound checks}
+In the exported C code we will want to include the header files for the C standard libraries (\verb|stdlib.h| and \verb|stdio.h|).
+Also we include two more header files that allow the use of \verb|intptr_t| type and a header where the macro definitions that specify limits of integer types are defined.
+These are \verb|limits.h| and \verb|stdint.h|, respectively.
+We also want to include the header file that defines some macros used by our test harness for testing purposes, this will be addressed in more detail in chapter~\ref{chapter:testing}.
+Finally we include the header file that contains the function for handling malloc calls.
+Before pretty printing any part of our program we will want to pretty print the directive to include the header files mentioned before.
+
+
+Additionally, our translation process generates a program that will be compilable and executable.
+This is true for architectures that support at least the same range of integer types as our abstraction does.
+This means that, any architecture where the program will be compiled and executed must comply with the restrictions for integer values that we assume.
+Therefore, we use C's preprocessor to our advantage and pretty print an integer bounds check that will assert that the macros with the lower and upper bound definition are in fact defined.
+In our case we must check that the macros \verb|INTPTR_MIN| and \verb|INTPTR_MAX| are both defined.
+Next, we proceed to assert that the bounds defined in those macros are in fact the same as the bounds we assume (the bounds we assume are \verb|INT_MIN| and \verb|INT_MAX| and they are defined in figure~\ref{fig:int_bounds}).
+
+
+The type we use for our translation as well as the precision of the integers can be changed.
+We define values and proceed to use them in the semantics and the pretty printing process.
+The definitions for the type used for translation are as follows:
+
+\begin{lstlisting}[frame=single, mathescape=true]
+definition "dflt_type $\equiv$ ''intptr_t''"
+definition "dflt_type_bound_name $\equiv$ ''INTPTR''"
+
+definition "dflt_type_min_bound_name $\equiv$ dflt_type_bound_name $@$ ''_MIN''"
+definition "dflt_type_max_bound_name $\equiv$ dflt_type_bound_name $@$ ''_MAX''"
+\end{lstlisting}
+
+where $@$ stands for the append operation between strings.
+It is important to note that the precision of the type used as \verb|dflt_type| must match the precision of \verb|int_width|.
+
+\paragraph{Global variables}
+
+The only other thing we must know how to pretty print before defining the string representation of a program is a global variable definition.
+It is done the same way as the pretty printing of local variables, following this string format:
+
+\begin{equation*}
+\begin{split}
+& \mathtt{intptr\_t}\ <variable\_name_0>; \\
+& \vdots \\
+& \mathtt{intptr\_t}\ <variable\_name_n>; \\
+\end{split}
+\end{equation*}
+
+\paragraph{Program}
+
+The pretty printing of a program is done by printing the include directives of the header files, then the integer bound checks, the global variable declarations and finally, we pretty print each function in the program separated by a line break character.
+In figures~\ref{fig:factorial_isabelle} we can find the Isabelle definition of a factorial program and in figure~\ref{fig:factorial_c} we find the generated C code for it.
+
+The integer bound check for the lower bound has a workaround because the absolute value of \verb|INTPTR_MIN| overflows the upper bound for integers of the preprocessor and causes a warning.\footnote{It interprets the negative number as $-(number)$ and yields a warning that it cannot represent the $number$.}
+To eliminate that warning we instead compare the \verb|INTPTR_MIN + 1| value to \verb|INT_MIN + 1|.
+
+
+\begin{figure}
+\begin{lstlisting}[mathescape=true]
+  definition factorial_decl :: fun_decl
+    where "factorial_decl $\equiv$
+      ( fun_decl.name = fact,
+        fun_decl.params = [n],
+        fun_decl.locals = [r, i],
+        fun_decl.body =
+          r ::= (Const 1);;
+          i ::= (Const 1);;
+          (WHILE (Less (V i) (Plus (V n) (Const 1))) DO
+            (r ::= (Mult (V r) (V i));;
+            i ::= (Plus (V i) (Const 1)))
+          );;
+          RETURN (V r)
+      )"
+
+  definition main_decl :: fun_decl
+    where "main_decl $\equiv$
+      ( fun_decl.name = main,
+        fun_decl.params = [],
+        fun_decl.locals = [],
+        fun_decl.body =
+          n ::= Const 5;;
+          r ::= fact ([V n])
+      )"
+
+  definition p :: program
+    where "p $\equiv$
+      ( program.name = fact,
+        program.globals = [n, r],
+        program.procs = [factorial_decl, main_decl]
+      )"
+\end{lstlisting}
+\caption{Factorial definition in Isabelle}
+\label{fig:factorial_isabelle}
+\end{figure}
+
+
+\begin{figure}
+\begin{lstlisting}[mathescape=true]
+  #include <stdlib.h>
+  #include <stdio.h>
+  #include <limits.h>
+  #include <stdint.h>
+  #include "../test_harness.h"
+  #include "../malloc_lib.h"
+  #ifndef INTPTR_MIN
+    #error ("Macro INTPTR_MIN undefined")
+  #endif
+  #ifndef INTPTR_MAX
+    #error ("Macro INTPTR_MAX undefined")
+  #endif
+  #if ( INTPTR_MIN + 1 != -9223372036854775807 )
+    #error ("Assertion INTPTR_MIN + 1 == -9223372036854775807 failed")
+  #endif
+  #if ( INTPTR_MAX != 9223372036854775807 )
+    #error ("Assertion INTPTR_MAX == 9223372036854775807 failed")
+  #endif
+
+
+  intptr_t n;
+  intptr_t r;
+
+  intptr_t fact(intptr_t n) {
+    intptr_t r;
+    intptr_t i;
+    r = (1);
+    i = (1);
+    while ((i) < ((n) + (1))) {
+      r = ((r) * (i));
+      i = ((i) + (1));
+    }
+    return(r);
+  }
+
+  intptr_t main() {
+    n = (5);
+    (r) = (fact(n));
+  }
+\end{lstlisting}
+\caption{Translated C program}
+\label{fig:factorial_c}
+\end{figure}
+
+\section{Exporting C code}\label{section:exporting_c_code}
+
+Now that we know how to translate a complete program from the semantics to C code we are almost ready to export our generated C code.
+
+We only export code for valid programs.
+To guarantee this we define a function that prepares a program for exporting:
+
+\begin{lstlisting}[mathescape=true]
+  definition prepare_export :: "program $\Rightarrow$ string option" where
+    "prepare_export prog $\equiv$ do {
+      assert (valid_program prog);
+      Some (shows_prog prog '''')
+    }"
+\end{lstlisting}
+
+
+This function takes a program and asserts that it is valid, according to the definition of a valid program given in~\ref{section:programs_commands}.
+If it is not valid we return a \verb|None| value, if it is valid we proceed to generate the string containing the C program with the function \verb|shows_prog|\footnote{We do not include the code for the show functions in this document but rather explain how they work. The Isabelle theories can be checked for implementation details}.
+
+We export C code to external files.
+The name of the files is given by the program name in its definitions.
+We define an ML function inside Isabelle that exports the C code of a program:
+
+
+\begin{lstlisting}
+  fun export_c_code (SOME code) rel_path name thy =
+    let
+      val str = code |> String.implode;
+    in
+      if rel_path="" orelse name="" then
+        (writeln str; thy)
+      else let
+        val base_path = Resources.master_directory thy
+        val rel_path = Path.explode rel_path
+        val name_path = Path.basic name |> Path.ext "c"
+
+        val abs_path = Path.appends [base_path, rel_path, name_path]
+        val abs_path = Path.implode abs_path
+
+        val _ = writeln ("Writing to file " ^ abs_path)
+
+        val os = TextIO.openOut abs_path;
+        val _ = TextIO.output (os, str);
+        val _ = TextIO.flushOut os;
+        val _ = TextIO.closeOut os;
+        in thy end
+      end
+  | export_c_code NONE _ _ thy =
+      (error "Invalid program, no code is generated."; thy)
+\end{lstlisting}
+
+The first parameter of the function \verb|export_c_code| is a \verb|string option| this corresponds to the string representation of the program in C code.
+If it receives a \verb|None| value this means the \verb|prepare_export| function failed and we do not want to generate a C program for it.
+The second parameter is the path to the directory where we want the program to be exported, this parameter is a relative path to the directory where the theory containing the pretty printing directives is.
+The third parameter is the name of the program.
+The last parameter is the theory context we are in.
+
+If the path given is an empty string the generated C code will be pretty printed to Isabelle's output view.
+This function will create a new file with the name indicated in the parameters with an extra "\verb|.c|" (i.e.\ $<name>\mathtt{.c}$) added in the directory indicated by the path parameter.
+The user will then be able to find the generated code in the directory indicated.
+
+We also have defined a function in ML that we use when we write an erroneous program on purpose and we expect its execution and translation to C fail:
+
+\begin{lstlisting}
+fun expect_failed_export (SOME _) = error ``Expected failed export''
+  | expect_failed_export NONE = ()
+\end{lstlisting}
+
+The function \verb|expect_failed_export| will then generate an error in Isabelle if code is generated for the program when we expect it to fail and it will do nothing when no code is generated.
+Having this kind of function is useful later for testing purposes.

@@ -1,0 +1,290 @@
+\chapter{Introduction}\label{chapter:introduction}
+\lhead{Capítulo 1. \emph{Introduction}}
+
+In this chapter we will firstly discuss the motivation behind this work.
+Followed by theoretical background on concepts related to semantics and Isabelle/HOL.
+
+Then we will describe the features of the language used in this work.
+
+Finally we will proceed to outline the contents of the rest of this work.
+
+\section{Motivation}
+
+The goal of this work is to formalize the semantics of an imperative language (including pointers and arrays) that represents a subset of the C language and then generate executable C code from it.
+
+C is a language that is very widely used.
+It is particularly popular in the implementation of operating systems and embedded system applications.
+Since C is closer to the machine as opposed to other higher level languages and has a low overhead, it allows for efficient implementation of algorithms and data structures.
+Due to its efficiency it is also often used in the development of compilers, libraries and interpreters for other programming languages.
+
+Unfortunately, some of the semantics for the C language described in the standard\cite{c99} are prone to ambiguities due to the use of the English language to describe program behavior.
+The use of formal mathematical constructs would rip it away from these ambiguities, although formalizing the semantics for the complete C language is no easy task and it is indeed one that has been subject to much research in the semantics area.
+
+Even though the semantics defined by our work covers a limited subset of C, it is expressive enough to allow the implementation of algorithms such as sorting, depth-first search, etc.
+
+Another goal of this work is to make these semantics executable in the Isabelle/HOL environment.
+The formalized semantics are deterministic, which allows us to define an interpreter that can, effectively, execute the semantics.
+This interpreter will return the final state resulting from executing our semantics.
+
+The generation of executable C code is among the goals pursued in this work.
+Our formal semantics corresponds to the semantics of the C language implemented by a compiler.
+We provide a mechanism to translate programs written in our semantics to C code that can be compiled and executed in a machine.
+The generated code will have the same behavior when compiled and executed in a machine as it does when interpreting the program within Isabelle/HOL.
+This allows for implementation of some verified algorithms using our semantics and generation of efficient C code from it that can be compiled and executed.
+
+Finally we also want to test that our semantics is compatible with an actual C compiler.
+For this purpose we define a test harness and a test suite that is meant to increase trust in our translation process i.e.\ the semantics of our program is not changed by the process of translation to C.
+The testing process attempts to verify that the final state of a program executed in our semantics and the final state of the generated program, that is compiled and executed outside of the Isabelle/HOL environment, will be the same (except for the case where we are in the presence of a failure while allocating memory).
+To ensure this, we write a test harness library in C that we will use to perform automatically generated tests for our programs that will compare the final state of the executed semantics with that of the compiled program.
+
+
+\section{Theoretical Background}
+
+\subsection{Semantics of a programming language}
+
+In this section we will give a short introduction to the concepts regarding semantics we want the reader to be familiar with beforehand.
+
+\subsubsection{Definition}
+
+The semantics of a programming language is the intended meaning of constructs in that language.
+According to Tennent\cite{tennent}, in order to support and define these meanings for a construct in a programming language a rigorous mathematical theory of the semantics of programming languages is needed.
+
+As noted by Nielson and Nielson\cite{nielson}, the rigorous nature of this study is due to the fact that it can reveal ambiguities or underlying complexities in documents defined using natural language, and also that this mathematical rigor is necessary for correctness proofs.
+Many big programming languages, e.g.\ the C language, have their reference document, where the semantics of the language is explained, written in natural language.
+Due to the ambiguity present in natural languages, it may lead to difficulties when one attempts to reason about programs written in those programming languages.
+
+The lack of a rigorous mathematically defined semantics makes it harder for developers of tools for that programming language, i.e.\ compilers, to write accurate tools for it.
+Due to the ambiguities, some part of the language is subject to the interpretation of the reader.
+By using formally defined terms we can eliminate this possible ambiguity.
+If every term is described mathematically then we can ensure that the meaning defined in the semantics of a language can only be that one and it is not subject to different interpretations.
+
+In order to further clarify the definition and the different types of semantics we are going to use an example we consider relevant from Nielson and Nielson\cite{nielson}.
+We take the following construct
+\begin{equation*}
+z:=x; x:=y; y:=z
+\end{equation*}
+where ``$:=$'' is an assignment to a variable and ``$;$'' is sequential composition.
+Syntactically this is three statements separated by ``$;$'', where each statement consists of a variable, the symbol ``$:=$'' and a second variable.
+
+The \textit{semantics} of this construct is the meaning of this program.
+Semantically, this program exchanges the values of $x$ and $y$ (using $z$ as a temporary variable).
+
+\subsubsection{Types of semantics}
+
+In the last section, we introduced an example and a rough explanation of its meaning using natural language.
+This explanation could have been done with more clarity and rigour by formally explaining the meaning of the constructs, specifically the meaning of both the assignment and the sequencing statements.
+
+There are many different approaches on how to formalize the semantics of a programming language, depending on the purpose.
+The most widely used approaches are:
+
+
+\subsubsection{Operational semantics}
+
+A semantics is defined using the operational approach when the focus is turned to \textit{how} a construct is executed.
+It can be thought of as an abstraction of the execution of the program in a machine\cite{nielson}.
+Given a construct, its operational explanation represents how that construct is executed given an initial state.
+
+Returning to our example, to give an operational semantic interpretation for our construct is reduced to define how assignments and sequencing statements are executed.
+From our first intuitive approach, we can discern two basic rules:
+
+\begin{itemize}
+\item{To execute a sequence of statements, each statement is executed in a left-to-right order.}
+\item{To execute an assignment statement between two variables, the value of the right-hand-side variables is determined and assigned to the left-hand-side variable.}
+\end{itemize}
+
+There are two different kinds of operational semantics: \textit{small-step semantics} (or structural operational semantics) and \textit{big-step semantics} (or natural semantics).
+We will introduce both of them and build an interpretation for our example using them.
+
+
+\paragraph{Big-step semantics}
+
+This kind of semantics represents the execution of a program from an initial state to a final state in one single step, therefore it does not allow for explicit inspection of intermediate execution states\cite{nipkow}.
+
+Supposing we have a state where the variable $x$ has the value $5$, the variable $y$ has the value $7$ and the variable $z$ the value $0$ and the construct from our example, the execution of the whole program will look as follows:
+
+\begin{equation*}
+\langle z:=x; x:=y; y:=z, s_{0} \rangle \rightarrow s_{3}
+\end{equation*}
+
+where the following abbreviations were used:
+\begin{align*}
+s_{0} &= [x\mapsto5, y\mapsto7, z\mapsto0]\\
+s_{3} &= [x\mapsto7, y\mapsto5, z\mapsto5]
+\end{align*}
+
+However we can obtain the following ``derivation sequence'' for the previous construct:
+
+\begin{equation*}
+\cfrac{
+  \cfrac{\langle z:=x, s_{0}\rangle \rightarrow s_{1} \qquad \langle x:=y, s_{1} \rangle \rightarrow s_{2}}
+    {\langle z:=x; x:=y, s_{0} \rangle \rightarrow s_{2}}
+  \qquad
+  \langle y:=z, s_{2} \rangle \rightarrow s_{3}
+  }
+  {\langle z:=x; x:=y; y:=z, s_{0} \rangle \rightarrow s_{3}}
+\end{equation*}
+
+where the following abbreviations were used:
+\begin{align*}
+s_{0} &= [x\mapsto5, y\mapsto7, z\mapsto0]\\
+s_{1} &= [x\mapsto5, y\mapsto7, z\mapsto5]\\
+s_{2} &= [x\mapsto7, y\mapsto7, z\mapsto5]\\
+s_{3} &= [x\mapsto7, y\mapsto5, z\mapsto5]
+\end{align*}
+
+Executing $z:=x$ in the state $s_{0}$ will yield the state $s_{1}$ and executing $x:=y$ in the state $s_{1}$ will yield the state $s_{2}$.
+Therefore executing $z:=x; x:=y$ in state $s_{0}$ will yield the state $s_{2}$.
+Also, executing $y:=z$ in the state $s_{2}$ will yield the state $s_{3}$.
+Finally, executing the whole program $z:=x; x:=y; y:=z$ in state $s_{0}$ will yield the state $s_{3}$.
+
+\paragraph{Small-step semantics}
+
+Sometimes we want to have slightly more information regarding intermediate states, that is why small-step semantics exists.
+
+This kind of semantics represents small, atomic execution steps in a program and allows for reasoning about how far a program has been executed and to explicitly inspect partial executions\cite{nipkow}.
+
+In this example we will go from the complete construct and take small-steps (denoted by ``$\Rightarrow$'') that yields the remaining of the construct after executing a step and the state resulting from it, until the whole construct is executed.
+
+Supposing we have a state where the variable $x$ has the value $5$, the variable $y$ has the value $7$ and the variable $z$ the value $0$ and the construct from our example we would obtain the following ``derivation sequence'':
+
+\begin{equation*}
+\begin{split}
+& \phantom{\Rightarrow} \phantom{=} \langle z:=x; x:=y; y:=z, [x\mapsto5, y\mapsto7, z\mapsto0]\rangle\\
+& \Rightarrow \phantom{=} \phantom{z:=x} \langle x:=y; y:=z [x\mapsto5, y\mapsto7, z\mapsto5]\rangle\\
+& \Rightarrow \phantom{=} \phantom{z:=x; x:=y} \langle y:=z [x\mapsto7, y\mapsto7, z\mapsto5]\rangle\\
+& \Rightarrow \phantom{=} \phantom{z:=x; x:=y; y:=z} [x\mapsto7, y\mapsto5, z\mapsto5]
+\end{split}
+\end{equation*}
+
+What happened here is that in the first step the statement $z:=x$ is executed and the value of the variable $z$ changes to $5$, $x$ and $y$ remain unchanged.
+After executing the first statement, the program we are left with is $x:=y; y:=z$.
+We execute the second statement $x:=y$ and the value of $x$ changes to $7$, $y$ and $z$ remain unchanged.
+We are then left with the program $y:=z$, after executing this final statement the value of $y$ changes to $5$, $x$ and $z$ remain unchanged.
+
+Finally, we have that the behavior of this program was to change the values of $x$ and $y$ using $z$ as a temporary variable.
+
+
+\subsubsection{Denotational semantics}
+In the denotational semantics we stop focusing on \textit{how} a construct is executed and redirect our focus to the \textit{effect} of executing the construct.
+This approach assists us by giving a \textit{meaning} to the constructs in a language\cite{nipkow}.
+We model this approach by mathematical functions.
+We will have a function for each construct that defines the meaning of it and these functions operate over states, taking the initial state and yielding the state resulting from applying the effect of the construct.
+
+Taking the previous example we can define the effects of the different constructs we have: sequencing and assignment statements.
+
+\begin{itemize}
+\item{The effect of functional composition of each individual statement will define the effect of a sequence of statements.}
+\item{The effect of assignment between two variables is defined by a function that takes a state and yields the same state where the current value of the left-hand-side variable is updated with the new value of the right-hand-side variable.}
+\end{itemize}
+
+For this particular example construct we would obtain functions of the form $S [\![ z:=x ]\!]$, $S [\![ x:=y ]\!]$ and $S [\![ y:=z ]\!]$ for each individual statement.
+On the other hand for the complete compound statement that is the whole program we will obtain the following function:
+
+\begin{equation*}
+S [\![ z:=x; x:=y; y:=z ]\!] = S [\![ y:=z ]\!] \circ S [\![ x:=y ]\!] \circ S [\![ z:=x ]\!]
+\end{equation*}
+
+Executing the complete program $z:=x; x:=y, y:=z$ on a particular step would have the effect of \textit{applying} the function $S [\![ z:=x; x:=y; y:=z ]\!]$ to the initial state $[x\mapsto5, y\mapsto7, z\mapsto0]$:
+
+\begin{align*}
+S [\![ z:=x; & x:=y; y:=z ]\!]([x\mapsto5, y\mapsto7, z\mapsto0])\\
+&= (S [\![ y:=z ]\!] \circ S [\![ x:=y ]\!] \circ S [\![ z:=x ]\!])([x\mapsto5, y\mapsto7, z\mapsto0])\\
+&= S [\![ y:=z ]\!](S [\![ x:=y ]\!] (S [\![ z:=x ]\!]))([x\mapsto5, y\mapsto7, z\mapsto0])\\
+&= S [\![ x:=y ]\!] (S [\![ z:=x ]\!])([x\mapsto5, y\mapsto7, z\mapsto5])\\
+&= S [\![ z:=x ]\!]([x\mapsto7, y\mapsto7, z\mapsto5])\\
+&= [x\mapsto7, y\mapsto5, z\mapsto5]
+\end{align*}
+
+We focus on the resulting state that represents the effect the program had in the initial state.
+It is easier to reason about programs using this approach since it is similar to reasoning about mathematical objects.
+Although it is important to note that establishing a firm mathematical basis to do so is not a trivial task.
+The denotational approach can easily be adapted to represent some properties of programs.
+Examples of this are variable initialization, constant folding and reachability\cite{nielson}.
+
+
+\subsubsection{Axiomatic semantics}
+
+Also known as Hoare Logic, this final approach is used when one is interested in proving properties of programs.
+We can talk about \textit{partial correctness} of a program with regard to a construct, a precondition and a postcondition whenever the following implication holds:
+
+\begin{displayquote}
+If the precondition holds before the construct is executed and the execution of the construct terminates then the postcondition holds for the final state.
+\end{displayquote}
+
+We can also talk about \textit{total correctness} of a program with regard to a construct, a precondition and a postcondition whenever the following implication holds:
+
+\begin{displayquote}
+If the precondition holds before the construct is executed then the execution of the construct terminates and the postcondition holds for the final state.
+\end{displayquote}
+
+It is usually easier to talk about the concept of partial correctness\cite{nipkow}.
+
+
+The following partial correctness property is defined for the construct of our example:
+
+\begin{equation*}
+\lbrace x=n \land y=m \rbrace z:=x; x:=y; y:=z \lbrace x=m \land y=n \rbrace
+\end{equation*}
+
+where $\lbrace x=n \land y=m \rbrace $ and $\lbrace x=m \land y=n \rbrace $ are the precondition and postcondition, respectively.
+$n$ and $m$ indicate the initial values of $x$ and $y$.
+The state $[x\mapsto5, y\mapsto7, z\mapsto0]$ fulfills the precondition if $n=5$ and $m=7$ are taken.
+After the partial correctness property is \textit{proved} then it can be deduced that \textit{if} the program terminates \textit{then} it will do so in a state where $x$ is $7$ and $y$ is $5$.
+
+This approach relies on a \textit{proof system} or inference rules for deriving and proving partial correctness properties\cite{nipkow}.
+The following ``proof tree'' can express a proof for the above partial correctness property:
+
+\begin{equation*}
+\cfrac{
+  \cfrac{ \lbrace p_{0} \rbrace z:=x \lbrace p_{1} \rbrace \qquad \lbrace p_{1} \rbrace x:=y \lbrace p_{2} \rbrace }
+    { \lbrace p_{0} \rbrace z:=x; x:=y \lbrace p_{2} \rbrace }
+  \qquad
+ \lbrace p_{2} \rbrace y:=z \lbrace p_{3} \rbrace
+  }
+  { \lbrace p_{0} \rbrace z:=x; x:=y; y:=z \lbrace p_{3} \rbrace }
+\end{equation*}
+
+where the following abbreviations were used:
+\begin{align*}
+p_{0} &= x=n \land y=m\\
+p_{1} &= y=m \land z=n\\
+p_{2} &= x=m \land z=n\\
+p_{3} &= x=m \land y=n
+\end{align*}
+
+The benefit of using this approach is that we are provided with an easy way to prove program properties by the proof system.
+
+
+\subsection{Isabelle/HOL}\label{section:isabelle/hol}
+
+Nowadays we have mechanized theorem provers that assist on the formalization and proving of different constructs.
+Pen and paper proofs are prone to errors and humans are easier to fool than a machine.
+Therefore we should take advantage of the resources of a machine to let it work for us.
+Reasoning about the semantics of a programming language without using mechanized tools becomes a great task and, as said before, prone to errors, not to mention that the certainty on the correctness of proofs diminishes.
+
+By using a theorem prover, in our case Isabelle/HOL\cite{isabelle-tutorial}, one can be certain that the results proved are correct.
+In the environment of Isabelle/HOL we can make logical definitions and prove lemmas and theorems about those constructs in a sound way.
+The semantics for the language used in this work is formalized in Isabelle/HOL, as well as the proofs that accompany those definitions.
+The definitions for the formal semantics and proofs that accompany it are written in this Isabelle/HOL.
+We won't specify the details from Isabelle/HOL in this section but rather refer the reader to \textit{Concrete Semantics with Isabelle/HOL}\cite{nipkow} which shows an introduction to Isabelle/HOL and theorem proving.
+
+On the other hand, Isabelle/HOL has also code generation facilities\cite{isabelle-codegen} that allow us to generate executable SML code from the HOL specification of our semantics.
+This generated code will later on enable us to execute the semantics we define.
+Also Isabelle/HOL allows for Isabelle/ML code to be embedded in the theories\cite{isabelle-implementation}, this facilitates the final translation to C process.
+
+\subsection{Chloe}\label{subsection:chloe}
+
+In this work we formalize the semantics for a small programming language called Chloe.
+It is a subset of the C programming language.
+The syntax and semantics of this programming language are discussed in further detail later in chapter~\ref{chapter:semantics}.
+
+This language has the following features: variables, arrays, pointer arithmetic, while loop construct, if-then-else conditional construct, functions and dynamic memory.
+The scope of this project was limited to the features mentioned previously and there are several features that are currently not supported by the language.
+These features are a proven sound and correct static type system, concurrency, I/O operations, goto, labels, break and continue.
+
+While it will be convenient in the future to have the features not covered by the scope of this work, the current set of features supported by Chloe is enough to show some relevant program examples and it has enough expressive power to be Turing-complete.
+
+
+\section{Document Structure}\label{section:document_structure}
+
+The rest of this document is divided as follows: Chapter~\ref{chapter:previous} covers the previous and related work, chapter~\ref{chapter:semantics} covers the details for the syntax and the small-step semantics we define for Chloe, chapter~\ref{chapter:pretty} covers the translation process from a program in the semantics to a C program, this process is called \textit{pretty printing}, chapter~\ref{chapter:conclusion} encapsulates the result of the work and final conclusions from it, as well as detailing future work that can be done from ours.

@@ -1,14 +1,8 @@
-FILE := libro
-OUT  := build
-
-pdf:
-	# Also see .latexmkrc
-	latexmk -outdir=$(OUT) -pdf $(FILE)
+all:
+	pdflatex tesis.tex
+	bibtex tesis.aux
+	pdflatex tesis.tex
+	pdflatex tesis.tex
 
 clean:
-	rm -rf $(filter-out $(OUT)/$(FILE).pdf, $(wildcard $(OUT)/*))
-
-purge:
-	rm -rf $(OUT)
-
-.PHONY: latexmk clean purge
+	rm -f *.aux *.l* *.toc *.out *.blg *.bbl tesis.pdf

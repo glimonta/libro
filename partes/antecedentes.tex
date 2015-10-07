@@ -1,0 +1,73 @@
+\chapter{Antecedentes y trabajos relacionados}\label{chapter:previous}
+\lhead{Capítulo 2. \emph{Antecedentes y trabajos relacionados}}
+
+
+Hay una amplia variedad de trabajos relacionados a la formalización de la semántica del lenguaje C.
+Limitaremos esta sección a aquellos trabajos que son directamente relevantes al nuestro.
+
+En este capítulo se procederá a presentar la lista de trabajos previos relacionados a este trabajo.
+
+Primero, se hablará de la formalización de C en HOL de Michael Norrish.\cite{norrish}.
+Este trabajo está relacionado al presente porque formaliza la semántica de un subconjunto de C utilizando HOL y el subconjunto de C para el cual se formaliza la semántica es mas grande que el presentado en este trabajo.
+
+Luego, se discutirá el modelo de memoria utilizado en la verificación formal del compilador CompCert.\cite{leroy-blazy-memory-model}
+En el presente trabajo se adopta el modelo de memoria utilizado por el compilador verificado de C del proyecto CompCert.
+
+Finalmente, se mencionará el proyecto Autocorres\cite{autocorres}, el cual tiene como fin el abstraer la semántica de bajo nivel de C a una representación de más alto nivel.
+Este proyecto traduce código de lenguaje C a la lógica de un probador de teoremas con el fin de poder probar propiedades del código fuente en C.
+
+\section{Formalización de C en HOL}
+
+El trabajo de Michael Norrish\cite{norrish} es uno muy importante y que es necesario tomar en cuenta cuando se habla de la semántica de C.
+En el mismo, Norrish, formaliza la semántica operacional para el subconjunto llamado Cholera del lenguaje C.
+Esta semántica está formalizada en el probador de teoremas HOL\cite{hol-doc}.
+
+Una de las características mas importantes de su formalización de la semántica de C es el hecho de que considera cada posible orden de evaluación para efectos de borde.
+Norrish prueba que expresiones \textit{puras}\footnote{Las expresiones puras están definidas como expresiones que no contienen llamadas a funciones, asignaciones, incrementos o decrementos postfijos.} en su lenguaje son determinísticas.
+\begin{comment}
+deterministic != determinístico
+\end{comment}
+Por otra parte, define expresiones \textit{libres de puntos de secuencia}\footnote{Las expresiones libres de puntos de secuencia están definidas como aquellas expresiones que no contienen la evaluación de alguno de los operadores lógicos $\&\&$, $||$ o $?:$, un operador coma o una llamada a funcion.}, las cuales están solapadas con el conjunto de expresiones puras pero ningún conjunto contiene al otro, y prueba que son determinísticas.
+
+Norrish presenta una lógica de programación, la cual permite el razonamiento sobre programas a nivel de instrucciones.
+Para esto se presenta una derivación de una lógica de Hoare ara programas en C y luego se presenta un sistema para analizar los cuerpos de un ciclo y generar postcondiciones correctas a partir de ellos considerando la existencia de instrucciones \verb|break|, \verb|continue| y \verb|return| en el cuerpo del ciclo.
+
+Este trabajo es relevante al presente dado que también se formaliza la semántica de un subconjunto mas pequeño del lenguaje C.
+Sin embargo, el trabajo de Norrish tiene ciertas diferencias en comparación al presente trabajo.
+Una de ellas es que la semántica operacional definida por Norrish para las instrucciones es una semántica de pasos largos, mientras que la semántica definida en este trabajo es una semántica de pasos cortos.
+Por otra parte, el trabajo de Norrish se orienta a presentar la lógica de programación y al razonamiento sobre programas a nivel del probador de teoremas, mientras que este trabajo se enfoca en la generación de código y el proceso de traducción de la semántica a código ejecutable.
+
+\section{CompCert Compiler's Memory Model}
+
+The CompCert compiler is a moderately optimizing compiler that translates code from the Clight subset of the C programming language\cite{clight} to PowerPC assembly code.
+A description of the CompCert compiler can be found in chapter 4 of\cite{compcert-float-point}.
+It compiles source code from the Clight semantics to assembly code preserving the semantics of the original language.
+For doing this translation several languages are necessary, as well as a memory model that allows for reasoning about memory states.
+
+Memory models are usually either too concrete or too abstract.
+When they are too abstract they can fail to represent things such as aliasing or partial overlap making the semantics incorrect.
+A memory model that is too concrete can make the proof process more difficult e.g\ failing to validate algebraic properties that are indeed valid in the language.
+The memory model used in the CompCert compiler\cite{leroy-blazy-memory-model} is somewhere between a low-level model and a high-level model.
+The memory has a set of memory states which are indexed by a block reference.
+Each block behaves like an array of bytes and can be addressed by using byte offsets.
+Leroy and Blazy give an abstract and a concrete description of their memory model and have a formalized and proved properties on memory operations on the Coq proof assistant\cite{coq-doc}
+One of those properties is that separation between two blocks obtained from two different malloc calls is guaranteed.
+
+We model the memory of our semantics taking this model as inspiration.
+Our model differs from it by being simpler.
+One of the differences is that Leroy and Blazy's model support lower and upper bounds for accessing a block whereas all blocks in our semantics are accessible from index $0$ up to the length of the block.
+Furthermore, each memory cell in Leroy and Blazy's model represents a byte, whereas each of our memory cells can hold an integer value or a pointer.
+The fundamental idea behind this memory model is taken and adapted to our needs in this work.
+
+
+\section{From C code to semantics}
+
+Our work has a top-down approach where we intend to generate C code from a formal specification.
+The other direction of this approach is worth mentioning.
+The AutoCorres project\cite{autocorres} parses C code and generates a high-level monadic representation that makes it easier to reason about a program.
+This work allows users to reason about C programs at a higher level.
+It generates an Isabelle/HOL specification as well as a proof of correctness in Isabelle/HOL for the translation it makes.
+It features a heap abstraction that allows for reasoning about memory for type-safe functions as well as a word abstraction that allows machine words to be abstracted into natural numbers and integers so they can be reasoned about at this level.
+
+It is relevant to consider this bottom-up approach as a different approach at formal verification of programs.
+AutoCorres is used in several C verification projects such as the verification of a complex large-scale graph library, the verification of a file system and the verification of a real-time operating system for high-assurance systems.
