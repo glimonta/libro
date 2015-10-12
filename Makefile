@@ -1,8 +1,5 @@
 all:
-	pdflatex tesis.tex
-	bibtex tesis.aux
-	pdflatex tesis.tex
-	pdflatex tesis.tex
+	latexmk -outdir=build -pdf tesis.tex
 
 clean:
-	rm -f *.aux *.l* *.toc *.out *.blg *.bbl tesis.pdf
+	rm -rf $(filter-out build/tesis.pdf, $(wildcard build/*))
