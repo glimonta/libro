@@ -1,19 +1,19 @@
-\chapter{Syntax and Semantics}\label{chapter:semantics}
-\lhead{Capítulo 3. \emph{Syntax and Semantics}}
+\chapter{Sintaxis y Semántica}\label{chapter:semantics}
+\lhead{Capítulo 3. \emph{Sintaxis y Semántica}}
 
-Our imperative language is called Chloe and it represents a subset of the C language.
-A program is a sequence of one or more statements (or commands) written to perform a task in a computer.
-Each of these statements represents an instruction the machine will execute.
-These statements can contain internal components called expressions.
-An expression is a term consisting of values, constants, variables, operators, etc. which can be evaluated in the context of a program state to obtain a value that will be used in a statement.
-In the following sections we will proceed to discuss the syntax and semantics of programs in Chloe in more detail.
+El lenguaje imperativo de este trabajo se llama Chloe y representa un subconjunto del lenguaje C.
+Un programa es una secuencia de una o más instrucciones (o comandos) escritos para llevar a cabo una tarea en una computadora.
+Cada una de estas instrucciones representa una instrucción que la máquina ejecutará.
+Estas instrucciones pueden contener componentes internos llamados expresiones.
+Una expresión es un termino que consta de valores, constantes, variables, operadores, etc. que puede ser evaluado en el contexto de un estado del programa para obtener un valor que puede ser luego utilizado en una instrucción.
+En las secciones siguientes se procederá a describir la sintaxis y la semántica de los programas en Chloe con más detalle.
 
 
-\section{Expressions}\label{section:expressions}
+\section{Expresiones}\label{section:expressions}
 
-\subsection{Syntax}\label{subsection:syntax_expressions}
+\subsection{Sintaxis}\label{subsection:syntax_expressions}
 
-Here we proceed to describe the \textbf{abstract syntax} for the expressions of the Chloe language.
+En esta sección se describe la \textbf{sintaxis abstracta} de las expressiones en el lenguaje Chloe.
 
 \begin{figure}
   \begin{lstlisting}[frame=single]
@@ -23,7 +23,7 @@ Here we proceed to describe the \textbf{abstract syntax} for the expressions of 
                | Null
                | V      vname
                | Plus  exp exp
-               | Subst exp exp
+               | Subt  exp exp
                | Minus exp
                | Div   exp exp
                | Mod   exp exp
@@ -46,40 +46,46 @@ Here we proceed to describe the \textbf{abstract syntax} for the expressions of 
   \label{fig:chloe_expressions}
 \end{figure}
 
-In figure~\ref{fig:chloe_expressions} we can find the datatype created in Isabelle for the expressions, where \verb|int| is the predefined type for integers and \verb|vname| stands for variable name.
+En la figura~\ref{fig:chloe_expressions} se encuentra el tipo de datos creado en isabelle para las expresiones, donde \verb|int| es el tipo predefinido para los enteros y \verb|vname| significa nombre de la variable.
 
-We define two new datatypes, one for expressions and one for left-hand-side expressions.
-It is important to differentiate between these two in the case where we are dealing with pointer expressions.
-For instance, let's take the following C statements:
+Se definen dos nuevos tipos de datos, uno para las expresiones y otro para las expresiones del lado izquierdo.
+Es importante diferenciar entre estos dos tipos en el caso en que se trabaja con expresiones que contienen apuntadores.
+Por ejemplo, suponiendo que se tienen las siguientes instrucciones en C:
 
 \begin{lstlisting}[mathescape=true, frame=single]
 foo = *bar;
 *baz = 1;
 \end{lstlisting}
 
-where \verb|foo| and \verb|bar| are variables, \verb|1| is a constant value, ``\verb|=|'' denotes an assignment statement and ``\verb|*|'' corresponds to the dereference operator.
+donde \verb|foo| y \verb|bar| son variables, \verb|1| es un valor constante, ``\verb|=|'' indica una instrucción de asignación y ``\verb|*|'' corresponde al operador de ``desreferencia''.
 
-In the first expression \verb|*bar| is on the right-hand-side, in this case we want \verb|*bar| to yield a value we can then assign to \verb|foo|.
-On the other hand, in the second expression \verb|*baz| is on the left-hand-side, in this case we want \verb|*baz| to yield an address to which we can assign the value \verb|1|.
+En la primera expresión \verb|*bar| se encuentra del lado derecho de la asignación, en este caso se quiere que \verb|*bar| produzca un valor que pueda ser luego asignado a \verb|foo|.
+Por otra parte, en la segunda expresión \verb|*baz| se encuentra del lado izquierdo de la asignación, en este caso se quiere que \verb|*baz| produzca una dirección a la cual se le pueda asignar el valor \verb|1|.
 
-This also occurs with array indexing.
-In order to correctly model the semantics for the Chloe expressions it is necessary to have this distinction between left-hand-side expressions and right-hand-side expressions.
-In future sections we will proceed to refer to right-hand side expressions as simply expressions and we will use LHS instead of left-hand-side when referring to left-hand-side expressions.
+Esto también ocurre con el acceso a arreglos.
+Para modelar correctamente la semántica de las expresiones en Chloe, es necesario contar con esta distinción entre expresiones del lado izquierdo y expresioness del lado derecho.
+En las siguientes secciones al referirse a expresiones del lado derecho se utilizará simplemente el nombre expresiones y se utilizará expresion LHS (por sus siglas en ingles \textit{left-hand-side}) en lugar de expresiones del lado izquierdo al referirse a dichas expresiones.
+\begin{comment}
+FIXME mosca! esto está mal traducido!
+\end{comment}
 
-Chloe supports constant expressions, null pointer expression, variables as well as the following operations over expressions: addition, subtraction, unary minus, division, modulo, multiplication, less than, not, and, or, equality.
-We also have a \verb|New| expression which corresponds to a \verb|malloc| call in C.
-We have dereferencing, referencing and array subscripting, these are in C the \verb|*|, \verb|&| and \verb|[]| operators, respectively.
-Finally as LHS expressions we have dereferencing and array subscripting.
+Chloe soporta expresiones constantes, apuntadores a \textit{null} y variables, así como las siguientes operaciones sobre expresiones: suma, resta, menos unario, división, módulo, multiplicación, menor que, negación, conjunción, disyunción e igualdad.
+También cuenta con una expresión \verb|New| que corresponde a una llamada a \verb|malloc| en C.
+Tiene ``dereferencing'', ``referencing'' y acceso a arreglos, estos son, en C, los operadores \verb|*|, \verb|&| y \verb|[]|, respectivamente.
+Finalmente, como expresiones LHS se tienen ``dereferencing'' y accesso a arreglos.
+\begin{comment}
+FIXME mosca! esto está mal traducido!
+\end{comment}
 
-\subsubsection{Types}
+\subsubsection*{Tipos}
 
-In the Chloe language we have two types, namely integers and addresses.
-We differentiate between values of type integer and addresses in order to correctly define our semantics.
-Next, we will proceed to present the details of the two types in the Chloe language.
+En el lenguaje Chloe se tienen dos tipos; enteros y direcciones.
+Se diferencia entre los valores de tipo entero y las direcciones con el fin de definir correctamente la semántica.
+A continuación, se presentan los detalles de los dos tipos en el lenguaje Chloe.
 
-\paragraph{Integers}
+\paragraph*{Enteros}
 
-We define the following type synonyms in Isabelle:
+Se establecen los siguientes sinónimos entre tipos en Isabelle:
 
 \begin{lstlisting}[frame=single]
 type_synonym int_width = 64
@@ -87,9 +93,9 @@ type_synonym int_val = int_width word
 \end{lstlisting}
 
 
-The term \verb|int_width| refers to the width of the integer value.
-In this case we assume a value of 64 since we are working with a 64 bit architecture.
-This parameter indicates the semantics to assume we are working with a 64 bit architecture where the upper and lower bounds for an integer are defined in figure~\ref{fig:int_bounds}.
+El termino \verb|int_width| se refiere a la precisión del valor entero.
+En el caso de este trabajo se supone un valor de 64 ya que se trabaja con una arquitectura de 64 bits.
+Este parametro le indica a la semántica que debe suponer que se trabaja con una arquitectura de 64 bits donde los límites inferiores y superiores para un entero se definen en la figura~\ref{fig:int_bounds}.
 
 \begin{figure}
   \begin{lstlisting}[frame=single, mathescape=true]
@@ -101,69 +107,74 @@ This parameter indicates the semantics to assume we are working with a 64 bit ar
   \label{fig:int_bounds}
 \end{figure}
 
-When working with a different architecture this parameter can be changed in order to comply with the requirements of the architecture.
+Cuando se trabaja con una arquitectura diferente, este parametro puede ser cambiado con el fin de cumplir con los requerimientos de la arquitectura.
 
-Also our integers are defined as words of length \verb|int_width| (in this case \verb|64|).
-Since we are not using the Isabelle's predefined \verb|int| type, in order to work with words and to support code generation for them we use the Native Word entry in the Archive of Formal Proofs\cite{Native_Word-AFP}.
+Tambien, los enteros se definen como palabras de longitud \verb|int_width| (en este caso \verb|64|).
+Debido a que no se utiliza el tipo predefinido \verb|int| en Isabelle, para poder trabajar con palabras y soportar la generación de código para las mismas se utiliza la entrada \textit{Native Word} en el \textit{Archive of Formal Proofs}~\cite{Native_Word-AFP}.
 
-From now on we will mostly refer to the 64 length words we use to represent integers in our language just as integers.
-Note that, unless explicitly stated so in the text, for simplicity we will use the word `integer' to refer to a 64 length word instead of Isabelle's predefined \verb|int| type.
+De ahora en adelante se referirá a las palabras de longitud 64 que se utilizan para representar a los enteros en Chloe como simplemente enteros.
+Es importante notar que, a menos de que sea explícitamente mencionado en el texto, por simplicidad se utilizará la palabra `entero' para referirse a las palabras de longitud 64 en lugar del tipo predefinido \verb|int| en Isabelle.
 
-\paragraph{Addresses}
+\paragraph*{Direcciones}
 
-We define the following \verb|datatype| in Isabelle to represent addresses:
+Se define el siguiente tipo de datos en Isabelle para representar direcciones:
 
 \begin{lstlisting}[frame=single, mathescape=true]
 datatype addr = nat $\times$ int
 \end{lstlisting}
 
-An address will then be a pair composed of a natural number and an integer (which is an Isabelle predefined \verb|int|), these represent a \verb|(block_id, offset)| pair.
-In the following section we will proceed to explain the layout of the memory.
+\begin{comment}
+FIXME block_id, offset
+\end{comment}
+Una dirección es entonces un par compuesto por un número natural y un entero (el cual es de tipo \verb|int| predefinido en Isabelle), estos representan un par \verb|(block_id, offset)|.
+En secciones futuras se procederá a explicar el diseño de la memoria.
 
-\subsubsection{Values} The values for any expression are defined as follows:
+\subsubsection*{Valores}
+
+Los valores para una expresión se definen de la siguiente forma:
 
 \begin{lstlisting}[frame=single, mathescape=true]
 datatype val = NullVal | I $int\_val$ | A $addr$
 \end{lstlisting}
 
-where \verb|NullVal| corresponds to the null pointer expression, \verb|I| $int\_val$ corresponds to an integer value, and \verb|A| $addr$ corresponds to an address value.
-When evaluating an expression we can obtain any of these three values.
+donde \verb|NullVal| corresponde a un apuntador a \textit{null}, \verb|I| $int\_val$ corresponde a un valor entero y \verb|A| $addr$ corresponde al valor de una dirección.
+Al evaluar una expresión se puede obtener cualquiera de estos tres valores.
 
-\subsubsection{Memory}
+\subsubsection*{Memoria}
 
-We model dynamic memory in the following way:
+Se modela la memoria dinámica de la siguiente manera:
 
 \begin{lstlisting}[frame=single, mathescape=true]
 type_synonym mem = val option list option list
 \end{lstlisting}
 
-The memory is represented by a list of allocated blocks, and each of these blocks consists of a list of cells with the values in memory.
-For every block there's two possibilities: an allocated block or an unallocated block, this is modeled by the use of the \verb|option| type, where \verb|Some| $l$ (where $l$ is of type \verb|val option list|) denotes an allocated block and \verb|None| an unallocated one.
-Every block consists of a list of cells that contain the values in memory.
-Each cell can have different values depending on whether it is uninitialized or it holds a value.
-An uninitialized cell in memory is represented by the value \verb|None|.
-Whereas a cell holding a value is represented by the value \verb|Some| $v$, where $v$ is of type \verb|val|.
-This memory model is inspired in the work of Blazy and Leroy\cite{leroy-blazy-memory-model}, it is a simpler model adjusted to satisfy our needs.
+La memoria se encuentra representada como una lista de bloques asignados y cada uno de estos bloques consta de una lista de celdas con los valores en memoria.
+Por cada bloque hay dos posibilidades: un bloque asignado o un bloque no asignado, esto es modelado por el uso del tipo \verb|option|, donde \verb|Some| $l$ (donde $l$ es de tipo \verb|val option list|) denota un bloque asignado y \verb|None| uno sin asignar.
+Cada bloque se compone de una lista de celdas que contienen los valores en memoria.
+Cada celda puede tener diferentes valores dependiendo de si se encuentra sin inicializar o si posee un valor.
+Una celda sin sin inicializar en memoria está representada por el valor \verb|None|.
+Mientras que una celda que posee un valor está representada por el valor \verb|Some| $v$ (donde $v$ es de tipo \verb|val|).
+Este modelo de memoria está inspirado en el trabajo de Blazy y Leroy~\cite{leroy-blazy-memory-model}, es un modelo simplificado que fue ajustado para satisfacer las necesidades de este trabajo.
 
-There are four main operations that can manage the memory, these are \verb|new_block|, \verb|free|, \verb|load| and \verb|store| and these are specified in figure~\ref{fig:mem_operations}.
-Each of these operations can fail, therefore their return type is $\tau\ \verb|option|$.
-The values of that type are either \verb|None| when the operation fails or $\verb|Some|(v)$ (where $v$ is of type $\tau$).
+Existen cuatro operaciones principales para la gestión de memoria, estas son \verb|new_block|, \verb|free|, \verb|load| y \verb|store| y se encuentran especificadas en la figura~\ref{fig:mem_operations}.
+Cada una de estas operaciones puede fallar, por lo que su tipo de retorno es $\tau\ \verb|option|$.
+Los valores de ese tipo son \verb|None| cuando la operación falla y $\verb|Some|(v)$ cuando es exitosa (donde $v$ es de tipo $\tau$).
 
-The functionalities of the memory management operations are the following:
+Las funcionalidades de las operaciones de gestión de memoria se describen a continuación:
 
 \begin{itemize}
-  \item{\verb|new_block| is the function that allocates a new block of dynamic memory of a given size.
-  This function will fail in the case a size less or equal than zero is given, it can also fail if a value of a different type than an integer is given.
-  Upon successful execution the function will yield the beginning address of the new block along with the modified memory.}
-  \item{\verb|free| is the function that deallocates a block from the dynamic memory.
-  This function will fail in the case where the given address is not a valid one in memory.
-  Upon successful execution the function will yield a new state that includes the updated memory.}
-  \item{\verb|load| is the function that given an address retrieves a value stored in the memory cell denoted by the given address.
-  This function will fail in the case where the given address is not a valid one in memory.
-  Upon successful execution the function will yield the value stored in memory.}
-  \item{\verb|store| is the function that given an address stores a value in the memory cell denoted by the given address.
-  This function will fail in the case where the given address is not a valid one in memory.
-  Upon successful execution the function will yield a new state that includes the updated memory.}
+  \item{\verb|new_block| es la función que se encarga de asignar un nuevo bloque de memoria dinámica de un tamaño determinado.
+    Esta función fallará en el caso donde el tamaño dado sea menor o oigual a cero, también puede fallar si un valor de un tipo diferente a entero es dado.
+    Al ser ejecutada exitosamente, la función retorna la dirección de inicio del nuevo bloque junto con la memoria modificada.}
+  \item{\verb|free| es la función que se encarga de liberar un bloque de memoria dinámica.
+    Esta función fallará en el caso donde la dirección dada no sea válida en memoria.
+    Al ser ejecutada exitosamente, la función retorna un nuevo estado que incluye la memoria actualizada.}
+  \item{\verb|load| es la función que, dada una dirección, retorna el valor almacenado en la celda de memoria denotada por la dirección dada.
+    Esta función fallará en el caso donde la dirección dada no sea válida en memoria.
+    Al ser ejecutada exitosamente, la función retornará el valor almacenado en memoria.}
+  \item{\verb|store| es la función que, dada una dirección y un valor, almacena dicho valor en la celda de memoria denotada por la dirección dada.
+    Esta función fallará en el caso donde la dirección dada no sea válida en memoria.
+    Al ser ejecutada exitosamente, la función retorna un nuevo estado que incluye la memoria actualizada.}
 \end{itemize}
 
 \begin{figure}
@@ -178,33 +189,35 @@ The functionalities of the memory management operations are the following:
   \label{fig:mem_operations}
 \end{figure}
 
-It is important to note that the only reasons why the memory allocation can fail in our semantics are the ones described above.
-Since we assume the memory to be unlimited, there will not be a case where a \verb|new| call fails due to a lack of memory.
+Es importante tener en cuenta que las únicas razones por las que la asignación de memoria dinámica puede fallar en la semántica son aquellas descritas anteriormente.
+Debido a que se supone que la memoria es ilimitada, no existirá un caso donde una llamada a \verb|new| falle debido a falta de memoria.
 
-However, as the resources in a machine are limited, we cannot use an unlimited amount of memory.
-Here is where we find a discrepancy with what the C semantics describes and this breaks one of our assumptions.
-When performing a malloc call in a C program, there is a possibility that the call yields \verb|NULL|.
-In such case our semantics and the C semantics act differently.
+Sin embargo, como los recursos de una máquina son limitados, no se puede utilizar una cantidad ilimitada de memoria.
+Aquí es donde se consigue una discrepancia con lo descrito por el estándar de C.
+Cuando se realiza una llamada a malloc en un programa en C, existe una posibilidad de que la llamada retorne \verb|NULL|.
+En tal caso esta semántica y la descrita por el estándar de C actúan de manera diferente.
 
-In order to model an allocation function that presents this kind of behavior one would probably have to either say non-deterministically that one's function may return \verb|NULL|, which would make proving any properties about a program complicated because any call to an allocation function might fail, or assume that a fixed amount of memory is available.
-However, modeling this kind of function is not a trivial task and remains out of the scope of this work.
+Una opción para poder modelar una función de asignación de memoria que presente este tipo de comportamiento, es decidir ``non-deterministically'' que esta función puede retornar \verb|null|.
+El problema con esta opción es que complicaría el proceso de demostración de propiedades de un programa ya que cualquier llamada a la función de asignación de memoria dinámica podría fallar.
+Otra opción sería suponer que se cuenta con una cantidad fija de memoria está disponible.
+Sin embargo, modelar este tipo de función no es una tarea trivial y permanece fuera del alcance de este trabajo.
 
-Therefore, we have decided to assume an unlimited amount of memory and later when doing the translation process, we will wrap C's malloc function in an user defined function that will check whether the malloc call is successful or not.
-What we will be able to guarantee about our generated program is that it will either be generated and both the execution of it in the semantics and the execution in the machine will yield final states that are equal or the program will abort when an out of memory error is encountered.
+Por lo tanto, en este trabajo se supone que se cuenta con una cantidad ilimitada de memoria y luego, cuando el proceso de traducción se lleva a cabo, se envuelve la función \verb|malloc| de C en una función definida por el usuario que verifica si la llamada a \verb|malloc| fue exitosa o no.
+Lo que se puede garantizar sobre un programa generado es que o bien se generará y tanto la ejecución del mismo en el ambiente de Isabelle como la ejecución en la máquina producirán estados finales que son equivalentes o el programa abortará si un error por falta de memoria es encontrado.
 
 
-\subsection{Semantics}\label{subsection:semantics_expressions}
+\subsection{Semántica}\label{subsection:semantics_expressions}
 
-The semantics of an expression is its value and its effect on the program state.
-For expressions such as $21 + 21$, the evaluation of this expression is trivial ($42$).
-On the other hand when we have expressions with variables, such as $foo + 42$, then we depend on the value of the variable.
-Therefore we need to know the values of a variable at the time of execution.
-These values are stored in the program state.
+La semántica de una expresión es su valor y el efecto que evaluar la misma tiene sobre el estado del programa.
+Para expresiones tales como $21 + 21$, la evaluación de la misma es trivial ($42$).
+Por otra parte, cuando se tienen expresiones con variables, tales como $foo + 42$, entonces se depende del valor de la variable.
+Por lo tanto se deben conocer el valor de una variable al momento de ejecución.
+Estos valores se almacenan en el estado del programa.
 
-The program state is a bit more complicated than what we are about to present.
-Although section~\ref{section:states} is dedicated exclusively to discuss states, we will proceed to define in this section the part of the state needed for the semantics of the expressions.
+El estado de un programa es realmente un poco mas complicado que lo que se presenta a continuación.
+Aunque la sección~\ref{section:states} se dedica exclusivamente a discutir los estados, se procede a describir en esta sección las partes el estado que son necesarias para discutir la semántica de las expresiones en Chloe.
 
-\paragraph{Valuations}\label{paragraph:valuation}
+\paragraph*{Valuations}\label{paragraph:valuation}
 
 We define the type for a valuation as follows:
 
@@ -222,7 +235,7 @@ Therefore, given a variable name, this function can yield one of the following t
   \item{\verb|Some| $v$, which represents a defined initialized variable that holds the value $v$.}
 \end{itemize}
 
-\paragraph{Visible States}\label{paragraph:visible_state}
+\paragraph*{Visible States}\label{paragraph:visible_state}
 
 When we execute a command, this command can only \textit{see} certain part of the state.
 The part of the state a command can see is the one consisting of the variables that are local to the function that is being executed, the global variables and the memory.
@@ -236,7 +249,7 @@ type_synonym visible_state = valuation $\times$ valuation $\times$ mem
 
 A visible state is a tuple that contains a valuation function for the local variables, a valuation function for the global variables and the dynamic memory of the program.
 
-\paragraph{}
+\paragraph*{}
 Now we can proceed to introduce the semantics for the expressions in Chloe.
 As we said before the semantics of an expression is its value and its effect on a program state, therefore we have defined two evaluation functions, one that computes the value of an expression and one that computes the value of a LHS expression.
 These functions are defined as follows:
@@ -733,7 +746,7 @@ We call these two functions \textit{enabled} and \textit{transformer} functions.
 We will now describe in detail the definitions for these functions.
 
 
-\paragraph{Enabled functions}\label{paragraph:enabled}
+\paragraph*{Enabled functions}\label{paragraph:enabled}
 
 An enabled function is a partial function as follows:
 
@@ -781,7 +794,7 @@ These functions will be used later in the CFG definition.
 \end{figure}
 
 
-\paragraph{Transformer functions}\label{paragraph:transformer}
+\paragraph*{Transformer functions}\label{paragraph:transformer}
 
 A transformer function is a partial function as follows:
 
@@ -865,7 +878,7 @@ FIXME
 \end{figure}
 
 
-\paragraph{CFG}
+\paragraph*{CFG}
 
 In order to talk about executions by following edges in the CFG we must introduce yet another concept.
 Taking the definition given at the beginning of this section of what a CFG is we know that in order to talk about an execution of a command by following the edges of the CFG we must have a program pointer that indicates the current node.
@@ -1020,7 +1033,7 @@ In this manner, we have lifted our small step definition to the type \verb|state
 The infix syntax for this is written as $s_{0} \rightarrow* s_{f}$, which means we can go from state $s_{0}$ to $s_{f}$ in zero or more small steps.
 
 
-\subsubsection{Determinism}
+\subsubsection*{Determinism}
 
 To be able to make our semantics executable inside of the Isabelle/HOL environment it must be deterministic.
 This is why we prove the determinism property for the semantics.
@@ -1309,7 +1322,7 @@ Otherwise we will check which kind of step we should take by means of the \verb|
 If it is a \verb|Base| step we will call the transformer function over the state with the updated command.
 If, on the other hand, it is a \verb|Cond| step we will evaluate the condition and call the transformer function over the state with the updated command.
 
-\subsubsection{Equality between small-step semantics and single-step execution}\label{subsubsection:equality_ss_ss}
+\subsubsection*{Equality between small-step semantics and single-step execution}\label{subsubsection:equality_ss_ss}
 
 We must now prove that the single step execution is semantically equivalent to taking a step in the small-step semantics.
 This is proving that $\neg\ \mathtt{is\_empty\_stack}\ \Longrightarrow\ s\ \rightarrow\ s'\ \longleftrightarrow\ \mathtt{fstep}\ s\ =\ s'$\footnote{fstep has an extra parameter, namely the procedure table, which we will avoid writing here to make it simpler to read}.
