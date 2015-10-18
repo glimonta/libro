@@ -24,9 +24,7 @@ Esta semántica está formalizada en el probador de teoremas HOL~\cite{hol-doc}.
 
 Una de las características mas importantes de su formalización de la semántica de C es el hecho de que considera cada posible orden de evaluación para efectos de borde.
 Norrish prueba que expresiones \textit{puras}\footnote{Las expresiones puras están definidas como expresiones que no contienen llamadas a funciones, asignaciones, incrementos o decrementos postfijos.} en su lenguaje son determinísticas.
-\begin{comment}
-deterministic != determinístico
-\end{comment}
+
 Por otra parte, define expresiones \textit{libres de puntos de secuencia}\footnote{Las expresiones libres de puntos de secuencia están definidas como aquellas expresiones que no contienen la evaluación de alguno de los operadores lógicos $\&\&$, $||$ o $?:$, un operador coma o una llamada a funcion.}, las cuales están solapadas con el conjunto de expresiones puras pero ningún conjunto contiene al otro, y prueba que son determinísticas.
 
 Norrish presenta una lógica de programación, la cual permite el razonamiento sobre programas a nivel de instrucciones.
@@ -45,7 +43,7 @@ CompCert compila código fuenta de la semántica de Clight a código ensamblador
 Para ralizar esta traducción se necesitan varios lenguajes, así como un modelo de memoria que permita el rrazonamiento sobre estados de memoria.
 
 Los modelos de memoria son generalmente o demasiado concretos o demasiado abstractos.
-Cuando son demasiado abstractos pueden dejar de representar cosas tales como ``aliasing'' o ``partial overlapping'' lo cual haría que la semántica estuviera incorrecta.
+Cuando son demasiado abstractos pueden dejar de representar cosas tales como \textit{aliasing} lo cual haría que la semántica estuviera incorrecta.
 Un modelo de memoria que sea demasiado concreto puede dificultar el proceso de prueba, por ejemplo, al no poder validar propiedades algebraicas que son, en efecto, válidas en el lenguaje.
 El modelo de memoria utilizado en el compilador CompCert~\cite{leroy-blazy-memory-model} está en algún punto intermedio entre un modelo de bajo nivel y uno de alto nivel.
 La representación de la memoria tiene un conjunto de estados de memoria que están indexados por una referencia a un bloque.
@@ -62,12 +60,12 @@ La idea fundamental detras de este modelo de memoria es tomada y adaptada a las 
 
 \section{De código C a semántica}
 
-El presente trabajo tienen un enfoque ``top-down'' donde se tiene la intención de generar códigio en C de una especificación formal.
+El presente trabajo tienen un enfoque de arriba a abajo (\textit{top-down}) donde se tiene la intención de generar códigio en C de una especificación formal.
 Existe otra dirección que es relevante mencionar.
 El proyecto AutoCorres~\cite{autocorres} ``parses'' código C y genera una representación monádica de alto nivel que facilita el razonamiento sobre un programa.
 Este trabajo permite a los usuarios razonar sobre programas en C a un nivel más alto.
 Se genera una especificación en Isabelle/HOL así como una demostración de correctitud en Isabelle/HOL para la traducción que se realiza.
-Cuenta con una ``abstraction'' del ``heap'' que permite el razonamiento sobre memoria para ``type-safe functions'' así como una ``abstraction'' para palabras que permite que palabras de la máquina puedan ser ``abstracted'' a números naturales y enteros, de modo que sea posible razonar acerca de los mismos a este nivel.
+Cuenta con una abstracción del \textit{heap} que permite el razonamiento sobre memoria para funciones \textit{type-safe} así como una abstracción para palabras que permite que palabras de la máquina puedan ser abstraídas a números naturales y enteros, de modo que sea posible razonar acerca de los mismos a este nivel.
 
-Es relevante considerar este enfoque ``bottom-up'' como un enfoque diferente en la verificación formal de programas.
-AutoCorres se utiliza en varios proyectos de verificación de C tales como la verificación de una compleja librería de grafos a gran escala, la verificación de un sistema de archivos y la verificación de un sistema operativo de tiempo real para ``high-assurance systems''.
+Es relevante considerar este enfoque de abajo a arriba (\textit{bottom-up)} como un enfoque diferente en la verificación formal de programas.
+AutoCorres se utiliza en varios proyectos de verificación de C tales como la verificación de una compleja librería de grafos a gran escala, la verificación de un sistema de archivos y la verificación de un sistema operativo de tiempo real para sistemas de ala seguridad.

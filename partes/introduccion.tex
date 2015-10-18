@@ -1,5 +1,5 @@
-\chapter{Introduction}\label{chapter:introduction}
-\lhead{Capítulo 1. \emph{Introduction}}
+\chapter{Introducción}\label{chapter:introduction}
+\lhead{Capítulo 1. \emph{Introducción}}
 
 En este capítulo se discute la motivación para realizar este trabajo.
 Seguido de una breve descripción de los conceptos relacionados a semántica e Isabelle/HOL.
@@ -14,7 +14,7 @@ El objetivo de este trabajo es formalizar al semántica de un lenguaje imperativ
 
 C es un lenguaje ampliamente utilizado.
 Es especialmente popular en la implementación de sistemas operativos y aplicaciones de sistemas embebidos.
-Dado que C es mas cercano a la máquina en comparación con otros lenguajes de alto nivel y presenta bajo ``overhead'', permite la implementación eficiente de algoritmos y estructuras de datos.
+Dado que C es mas cercano a la máquina en comparación con otros lenguajes de alto nivel y presenta bajo \textit{overhead}, permite la implementación eficiente de algoritmos y estructuras de datos.
 Debido a su eficiencia, a menudo es usado en el desarrollo de compiladores, librerías e interpretadores para otros lenguajes de programación.
 
 Desafortunadamente, parte de la semántica para el lenguaje C descrita en el estándar~\cite{c99} es propensa a ambigüedades debido al uso del idioma inglés para describir el comportamiento de un programa.
@@ -33,9 +33,9 @@ El código generado, al ser compilado y ejecutado en una máquina, presentará e
 Esto permite la implementación de algunos algoritmos verificados utilizando la semántica y la generación de código C eficiente a partir de la misma que puede ser compilado y ejecutado en la máquina.
 
 Finalmente, también es objetivo de este trabajo verificar que la semántica sea compatible con un compilador de C real.
-Para ello se define un ``test harness'' y un ``test suite'' que tienen el propósito de aumentar la confianza en el proceso de traducción, es decir, la semántica del programa no es cambiada por el proceso de traducción a lenguaje C.
-El proceso de ``testing'' intenta comprobar que el estado final de un programa ejecutado en el ambiente de Isabelle/HOL y el estado final del programa generado, que es compilado y ejecutado fuera de este ambiente, serán iguales (excepto para el caso en el que se presente una falla al intentar asignar memoria dinámica).
-Para garantizar esto, se escribe una librería ``test harness'' en C que se utiliza para realizar pruebas generadas automáticamente (para los programas escritos en la semántica) que se encargan de comparar el estado final de la semántica ejecutada en el ambiente Isabelle/HOL con aquel del programa compilado.
+Para ello se define un arnés de pruebas y una \textit{suite} de pruebas que tienen el propósito de aumentar la confianza en el proceso de traducción, es decir, la semántica del programa no es cambiada por el proceso de traducción a lenguaje C.
+El proceso de``\textit{testing}'' intenta comprobar que el estado final de un programa ejecutado en el ambiente de Isabelle/HOL y el estado final del programa generado, que es compilado y ejecutado fuera de este ambiente, serán iguales (excepto para el caso en el que se presente una falla al intentar asignar memoria dinámica).
+Para garantizar esto, se escribe una librería para el arnés de pruebas en C que se utiliza para realizar pruebas generadas automáticamente (para los programas escritos en la semántica) que se encargan de comparar el estado final de la semántica ejecutada en el ambiente Isabelle/HOL con aquel del programa compilado.
 
 
 \section{Marco Teórico}
@@ -66,7 +66,7 @@ Se toma el siguiente programa
 \begin{equation*}
 z:=x; x:=y; y:=z
 \end{equation*}
-donde ``$:=$'' es una asignación a una variable y ``$;$'' es ``sequential composition''.
+donde ``$:=$'' es una asignación a una variable y ``$;$'' es la secuenciación de instrucciones.
 Sintácticamente este programa está compuesto por tres instrucciones separadas por ``$;$'', donde cada instrucción está compuesta por una variable, el símbolo ``$:=$'' y una segunda variable.
 
 La \textit{semántica} de este programa es el significado del mismo.
@@ -206,7 +206,7 @@ El enfoque está en el estado resultante que representa el efecto que el program
 Es más sencillo razonar sobre los programas utilizando este enfoque ya que es similar a razonar sobre objetos matemáticos.
 Aunque es importante tomar en cuenta que el establecimiento de una base matemática firme para hacerlo no es una tarea trivial.
 El enfoque denotacional puede ser facilmente adaptado para representar algunas propiedades de los programas.
-Ejemplos de esto son inicialización de variables, ``constant'' folding y alcanzabilidad~\cite{nielson}.
+Ejemplos de esto son inicialización de variables, plegamiento de constantes (\textit{constant folding}) y ``accesabilidad''~\cite{nielson}.
 
 
 \subsubsection*{Semántica Axiomática}

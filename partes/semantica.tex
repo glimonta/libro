@@ -57,22 +57,23 @@ foo = *bar;
 *baz = 1;
 \end{lstlisting}
 
-donde \verb|foo| y \verb|bar| son variables, \verb|1| es un valor constante, ``\verb|=|'' indica una instrucción de asignación y ``\verb|*|'' corresponde al operador de ``desreferencia''.
+donde \verb|foo| y \verb|bar| son variables, \verb|1| es un valor constante, ``\verb|=|'' indica una instrucción de asignación y ``\verb|*|'' corresponde al operador de desreferencia.
 
 En la primera expresión \verb|*bar| se encuentra del lado derecho de la asignación, en este caso se quiere que \verb|*bar| produzca un valor que pueda ser luego asignado a \verb|foo|.
 Por otra parte, en la segunda expresión \verb|*baz| se encuentra del lado izquierdo de la asignación, en este caso se quiere que \verb|*baz| produzca una dirección a la cual se le pueda asignar el valor \verb|1|.
 
 Esto también ocurre con el acceso a arreglos.
-Para modelar correctamente la semántica de las expresiones en Chloe, es necesario contar con esta distinción entre expresiones del lado izquierdo y expresioness del lado derecho.
-En las siguientes secciones al referirse a expresiones del lado derecho se utilizará simplemente el nombre expresiones y se utilizará expresion LHS (por sus siglas en ingles \textit{left-hand-side}) en lugar de expresiones del lado izquierdo al referirse a dichas expresiones.
+Para modelar correctamente la semántica de las expresiones en Chloe, es necesario contar con esta distinción entre expresiones del lado izquierdo (\textit{l-values}) y expresioness del lado derecho (\textit{r-values}).
+En las siguientes secciones al referirse a expresiones del lado derecho o \textit{r-values} se utilizará simplemente el nombre expresiones y se utilizará expresión del LHS (por sus siglas en ingles \textit{left-hand-side}) en lugar de \textit{l-values} o expresiones del lado izquierdo al referirse a dichas expresiones.
 \begin{comment}
 FIXME mosca! esto está mal traducido!
 \end{comment}
 
 Chloe soporta expresiones constantes, apuntadores a \textit{null} y variables, así como las siguientes operaciones sobre expresiones: suma, resta, menos unario, división, módulo, multiplicación, menor que, negación, conjunción, disyunción e igualdad.
 También cuenta con una expresión \verb|New| que corresponde a una llamada a \verb|malloc| en C.
-Tiene ``dereferencing'', ``referencing'' y acceso a arreglos, estos son, en C, los operadores \verb|*|, \verb|&| y \verb|[]|, respectivamente.
-Finalmente, como expresiones LHS se tienen ``dereferencing'' y accesso a arreglos.
+Tiene operadores de desreferencia, referencia y acceso a arreglos.
+En C, estos son los operadores \verb|*|, \verb|&| y \verb|[]|, respectivamente.
+Finalmente, como expresiones del LHS se tienen las operaciones de desreferencia y accesso a arreglos.
 \begin{comment}
 FIXME mosca! esto está mal traducido!
 \end{comment}
@@ -197,7 +198,7 @@ Aquí es donde se consigue una discrepancia con lo descrito por el estándar de 
 Cuando se realiza una llamada a malloc en un programa en C, existe una posibilidad de que la llamada retorne \verb|NULL|.
 En tal caso esta semántica y la descrita por el estándar de C actúan de manera diferente.
 
-Una opción para poder modelar una función de asignación de memoria que presente este tipo de comportamiento, es decidir ``non-deterministically'' que esta función puede retornar \verb|null|.
+Una opción para poder modelar una función de asignación de memoria que presente este tipo de comportamiento, es decidir de manera no determinística cuando esta función puede retornar \verb|null|.
 El problema con esta opción es que complicaría el proceso de demostración de propiedades de un programa ya que cualquier llamada a la función de asignación de memoria dinámica podría fallar.
 Otra opción sería suponer que se cuenta con una cantidad fija de memoria está disponible.
 Sin embargo, modelar este tipo de función no es una tarea trivial y permanece fuera del alcance de este trabajo.
@@ -217,61 +218,61 @@ Estos valores se almacenan en el estado del programa.
 El estado de un programa es realmente un poco mas complicado que lo que se presenta a continuación.
 Aunque la sección~\ref{section:states} se dedica exclusivamente a discutir los estados, se procede a describir en esta sección las partes el estado que son necesarias para discutir la semántica de las expresiones en Chloe.
 
-\paragraph*{Valuations}\label{paragraph:valuation}
+\paragraph*{Valuaciones}\label{paragraph:valuation}
 
-We define the type for a valuation as follows:
+Se define el tipo para una valuación de la siguiente manera:
 
 \begin{lstlisting}[frame=single, mathescape=true]
 type_synonym valuation = vname $\Rightarrow$ val option option
 \end{lstlisting}
 
-A valuation is a function that maps a variable name to a value.
-The return type is \verb|val option option| to model the following states of a variable's value: undefined, uninitialized and holding a value.
-Therefore, given a variable name, this function can yield one of the following three results:
+Una valuación es una función que ``mapea'' un nombre de una variable a un valor.
+El tipo de retorno es \verb|val option option|, lo que modela los siguientes estados para el valor de una variable: no definida, no inicializada y posee un valor.
+Por lo tanto, dado un nombre de una variable, esta función puede producir uno de los siguientes resultados:
 
 \begin{itemize}
-  \item{\verb|None|, which represents a variable that is undefined.}
-  \item{\verb|Some None|, which represents a variable that is defined but uninitialized.}
-  \item{\verb|Some| $v$, which represents a defined initialized variable that holds the value $v$.}
+  \item{\verb|None|, que representa una variable que no está definida.}
+  \item{\verb|Some None|, que representa una variable que está definida pero no ha sido inicializada.}
+  \item{\verb|Some| $v$, que representa una variable que está definida e inicializada y contiene el valor v.}
 \end{itemize}
 
-\paragraph*{Visible States}\label{paragraph:visible_state}
+\paragraph*{Estados visibles}\label{paragraph:visible_state}
 
-When we execute a command, this command can only \textit{see} certain part of the state.
-The part of the state a command can see is the one consisting of the variables that are local to the function that is being executed, the global variables and the memory.
-This part of the state is precisely what we call a \textit{visible state}.
-We can define a visible state as the part of the state a single command can view and modify.
-The defined type for it is as follows:
+Cuando se ejecuta un comando, el mismo solo puede \textit{ver} cierta parte del estado.
+La parte de un estado que un comando puede ver es aquella que contiene las variables que son locales a la función que se está ejecutando, las variables globales y la memoria.
+Esta parte del estado es precisamente lo que se llama \textit{estado visible}.
+Se puede definir un estado visible como la parte de un estado que un comando puede ver y modificar.
+El tipo definido para ellos es el siguiente:
 
 \begin{lstlisting}[frame=single, mathescape=true]
 type_synonym visible_state = valuation $\times$ valuation $\times$ mem
 \end{lstlisting}
 
-A visible state is a tuple that contains a valuation function for the local variables, a valuation function for the global variables and the dynamic memory of the program.
+Un estado visible es una tupla que contiene una función de valuación para las variables locales, una función de valuación para las variables globales y la memoria dinámica del programa.
 
 \paragraph*{}
-Now we can proceed to introduce the semantics for the expressions in Chloe.
-As we said before the semantics of an expression is its value and its effect on a program state, therefore we have defined two evaluation functions, one that computes the value of an expression and one that computes the value of a LHS expression.
-These functions are defined as follows:
+Ahora se puede introducir la semántica para las expresiones en Chloe.
+Como fue expresado antes, la semántica de una expresión es su valor y el efecto que tiene la misma sobre el estado de un programa, por lo tanto se definen dos funciónes de evaluación, una que calcula el valor de una expresión y una que calcula el valro de una expresión del LHS.
+Estas funciones se definen de la siguiente manera:
 
 \begin{lstlisting}[frame=single, mathescape=true]
 eval   :: exp $\Rightarrow$ visible_state $\Rightarrow$ (val $\times$ visible_state) option
 eval_l :: lexp $\Rightarrow$ visible_state $\Rightarrow$ (addr $\times$ visible_state) option
 \end{lstlisting}
 
-where \verb|eval|, given an expression and a visible state, will yield the value of that expression and the visible state resulting after evaluation of that expression.
-\verb|eval_l|, given a LHS expression and a visible state, will yield the value of that expression (which must be an address) and the state resulting after the evaluation of the LHS expression.
-Notice that the resulting type for these evaluation functions is an \verb|option| type.
-This is because these functions can fail, a failure can happen anywhere in the evaluation of the expression and if a failure is found then it will propagate until the whole expression evaluation returns a \verb|None| value indicating an error in evaluation.
+donde \verb|eval|, dada una expresión y un estado visible, retornará el valor de esta expresión y el estado visible resultante de evaluar dicha expresión.
+La función \verb|eval_l|, dada una expresión del LHS y un estado visible, retornará el valor de esta expresión (el cual debe ser una dirección) y el estado resultante luego de evaluar dicha expresión.
+Es importante tener en cuenta que el tipo de retorno de las funciones de evaluación es el tipo \verb|option|.
+Esto es debido a que estas funciones pueden fallar.
+Un fallo puede ocurrir en cualquier momento al evaluar una expresión y si un fallo es encontrado entonces el mismo se propaga hasta que toda la evaluación de la expresión devuelva un valor \verb|None| que indica un error en la evaluación.
 
-Expression evaluation might fail for several reasons which include, but are not limited to, variable undefinedness, an operation failing because it has some illegal operand, trying to access an invalid part of the memory and overflow.
-Therefore if there is an error early in the expression evaluation semantics, it will be detected and propagated as a \verb|None| value which indicates an error state.
+La evaluación de una expresión puede fallar por diversas razones que incluyen, pero no están limitadas a, variables no definidas, operandos ilegales en operaciones, acceso a partes inválidas de memoria y ``overflow''.
+Por lo tanto, si hay un error temprano en la semántica de evaluación de expresiones, será detectado y propagado como un valor \verb|None| que indica un estado erróneo.
 
-
-The \verb|eval| and \verb|eval_l| functions depend on several other defined functions in order to properly compute the values of expressions.
-A definition of all the auxiliary functions for \verb|eval| and \verb|eval_l| is given in figure~\ref{fig:aux_fun_eval}.
-Except for \verb|div_towards_zero| and \verb|mod_towards_zero|, each of these operations can fail, therefore their return type is $\tau$ \verb|option|.
-The values of that type are either \verb|None| when the operation fails or $\verb|Some|(v)$ where $v$ is of type $\tau$.
+Las funciones \verb|eval| y \verb|eval_l| dependen de otras funciones definidas con el find e calcular correctamente los valores de las expresiones.
+La definición de todas las funciones auxiliares para \verb|eval| y \verb|eval_l| se encuentra en la figura~\ref{fig:aux_fun_eval}.
+A excepción de \verb|div_towards_zero| y \verb|mod_towards_zero|, cada una de estas operaciones pueden fallar, por lo que su tipo de retorno es $\tau$ \verb|option|.
+Los valores de este tipo son o \verb|None| cuando la operación falla o $\verb|Some|(v)$ donde $v$ es de tipo $\tau$.
 
 \begin{figure}
   \begin{lstlisting}[mathescape=true, frame=single]
@@ -293,74 +294,74 @@ The values of that type are either \verb|None| when the operation fails or $\ver
   load             :: addr $\Rightarrow$ mem $\Rightarrow$ val option
   \end{lstlisting}
 
-  \caption{Auxiliary functions for eval and eval\_l}
+  \caption{Funciones auxiliares para eval y eval\_l}
   \label{fig:aux_fun_eval}
 \end{figure}
 
-The functionalities of the auxiliary functions are the following:
+Las funcionalidades de las funciones auxiliares son las siguientes:
 
 \begin{itemize}
-\item{The function \verb|detect_overflow| detects integer overflow.
-It takes an Isabelle predefined integer value as a parameter and checks for overflow with the bounds described in figure~\ref{fig:int_bounds}.
-This function will fail whenever overflow is detected.
-Upon successful execution the function will yield the value corresponding to the given integer parameter.}
+\item{La función \verb|detect_overflow| detecta el ``overflow'' en enteros.
+Toma como parametro un valor del tipo entero predefinido por Isabelle y chequea si existe ``overflow'' con los límites mostrados en la figura~\ref{fig:int_bounds}.
+Esta función fallará cuando se detecte ``overflow''.
+Al ser ejecutada exitosamente, la función retorna el valor correspondiente al entero dado como parámetro.}
 
-\item{The function \verb|read_var| computes the value of a variable.
-This function will fail whenever the variable name given as a parameter corresponds to an undefined variable.
-Upon successful execution the function will yield the value of the variable.
-In order to compute the value of said variable this function checks the local valuation in the visible state and proceeds to yield the value of the variable if it is defined there.
-In the case where the variable is not defined in the local scope, the function will proceed to check the global scope and yield the value of the variable.}
+\item{La función \verb|read_var| calcula el valor de una variable.
+Esta función falla cuando el nombre de la variable dado como parámetro corresponde a una variable no definida.
+Al ser ejecutada exitosamente, la función retorna el valor de la variable.
+Con el fin de calcular el valor de dicha variable, esta función chequea la valuación de las variables locales en el estado visible y retorna el valor de la variable si se encuentra definida allí.
+En el caso en el que la variable no se encuentre definida en el alcance local, la función procederá a chequear el alcance global y retornará el valor de la variable.}
 
-\item{The function \verb|plus_val| computes the value of an addition between two values.
-This function will fail whenever overflow is detected or when anything different than two integers or an address and an integer (in that specific order) are given as parameters to the function.
-Upon successful execution with two integer values the function will yield an integer value corresponding to the addition of those operands.
-Upon successful execution with an address and an integer the function will yield an address value corresponding to adding the integer offset to the original address value.}
+\item{La función \verb|plus_val| calcula el valor de la suma entre dos valores.
+Esta función falla cuando se detecta ``overflow'' o cuando operandos distintos a dos enteros o una dirección y un entero (en ese orden específico) son dados como parametros a la función.
+Al ser ejecutada exitosamente con dos valores de tipo entero como parámetros, la función retorna un valor entero correspondiente a la suma de los operandos.
+Al ser ejecutada exitosamente con una dirección y un entero como parámetros, la función retorna una dirección correspondiente a la suma del ``offset'' entero al valor original de la dirección.}
 
-\item{The function \verb|subst_val| computes the value of a subtraction between two values.
-This function will fail whenever overflow is detected or when anything different than two integers or an address and an integer (in that specific order) are given as parameters to the function.
-Upon successful execution with two integer values the function will yield an integer value corresponding to the subtraction of those operands.
-Upon successful execution with an address and an integer the function will yield an address value corresponding to subtracting the integer offset to the original address value.}
+\item{La función \verb|subst_val| calcula el valor de una sustracción entre dos valores.
+Esta función falla cuando se detecta ``overflow'' o cuando operandos distintos a dos enteros o una dirección y un entero (en ese orden específico) son dados como parametros a la función.
+Al ser ejecutada exitosamente con dos valores de tipo entero como parámetros, la función retorna un valor correspondiente a la resta de los operandos.
+Al ser ejecutada exitosamente con una dirección y un entero como parámetros, la función retorna una dirección correspondiente a la resta del ``offset'' entero al valor original de la dirección.}
 
-\item{The function \verb|minus_val| computes the value of the unary minus operation over a value.
-This function will fail whenever overflow is detected or a value different from an integer is given as a parameter.
-Upon successful execution the function will yield an integer value corresponding to the result of negating the value given as a parameter.}
+\item{La función \verb|minus_val| calcula el valor de la operación de menos unario sobre un valor.
+Esta función falla cuando se detecta ``overflow'' o cuando un operando distinto a un entero es dado.
+Al ser ejecutada exitosamente, la función retorna un valor entero correspondiente al resultado de negar el valor dado como parámetro.}
 
-\item{The function \verb|div_towards_zero| performs integer division with truncation towards zero.}
+\item{La función \verb|div_towards_zero| realiza la división entera con truncamiento hacia cero.}
 
-\item{The function \verb|div_val| computes the value of division between two values.
-This function will fail whenever either overflow or division by zero are detected or when the parameters given to the function are different from integers.
-Upon successful execution the function will yield an integer value corresponding to the result of performing integer division on the function operands.}
+\item{La función \verb|div_val| calcula el valor de la división entre dos valores.
+La función falla cuando se detecta ``overflow'' o una división por cero o cuando operandos distintos a dos enteros son dados como parámetros a la función.
+Al ser ejecutada exitosamente, la función retorna un valor entero correspondiente al resultado de la división entera entre los dos operandos.}
 
-\item{The function \verb|mod_towards_zero| performs the modulo operation with truncation towards zero.}
+\item{La función \verb|mod_towards_zero| realiza la operación de módulo con truncamiento hacia cero.}
 
-\item{The function \verb|mod_val| computes the value of performing the modulo operation between two values.
-This function will fail whenever either overflow or modulo by zero are detected or when the parameters given to the function are different from integers.
-Upon successful execution the function will yield an integer value corresponding to the result of performing integer modulo on the function operands.}
+\item{La función \verb|mod_val| calcula el valor de la operación módulo entre dos valores.
+La función falla cuando se detecta ``overflow'' o una división por cero o cuando operandos distintos a dos enteros son dados como parámetros a la función.
+Al ser ejecutada exitosamente, la función retorna un valor entero correspondiente al resultado de la operación de módulo entre los dos operandos.}
 
-\item{The function \verb|mult_val| computes the value of a multiplication between two values.
-This function will fail whenever overflow is detected or when anything different from integers are given as parameters to the function.
-Upon successful execution the function will yield an integer value corresponding to the multiplication of the function operands.}
+\item{La función \verb|mult_val| calcula el valor de la multipliación entre dos valores.
+La función falla cuando se detecta ``overflow'' o cuando operandos distintos a dos enteros son dados como parametros a la función. 
+Al ser ejecutada exitosamente, la función retorna un valor entero correspondiente a la multiplicación de los operandos de la función.}
 
-\item{The function \verb|less_val| computes the value of performing the less than operation between two values.
-This function will fail whenever anything different from integers are given as parameters to the function.
-Upon successful execution the function will yield an integer value of \verb|I| $1$ when the first operand is smaller than the second one, and an integer value of \verb|I| $0$ otherwise.}
+\item{La función \verb|less_val| calcula el valor resultante de realizar la operación menor que entre dos valores.
+La función falla cuando operandos distintos a dos enteros son dados como parámetros a la función.
+Al ser ejecutada exitosamente, la función retorna un valor entero \verb|I| $1$ cuando el primer operando es menor que el segundo y un valor entero \verb|I| $0$ de lo contrario.}
 
-\item{The function \verb|not_val| computes the value of performing logical negation over a value.
-This function will fail whenever a parameter different from an integer is given.
-Upon successful execution the function will yield an integer value of \verb|I| $1$ when the operand is an integer of value \verb|I| $0$, and an integer value of \verb|I| $0$ when the given operand is any integer value different from \verb|I| $0$.}
+\item{La función \verb|not_val| calcula el valor resultante de realizar la negación lógica sobre un valor.
+La función falla cuando un operando distinto a un entero es dado como parámetro.
+Al ser ejecutada exitosamente, la función retorna un valor entero \verb|I| $1$ cuando el operando dado es un entero de valor \verb|I| $0$ y retorna un valor entero \verb|I| $0$ cuando el operando dado es un entero de valor diferente de \verb|I| $0$.}
 
-\item{The function \verb|to_bool| yields an Isabelle predefined boolean given a value.
-This function is used to compute short-circuit evaluation on the \verb|And| and \verb|Or| operations.
-This function will fail whenever the parameter is anything different from an integer.
-Upon successful execution the function will yield \verb|False| when the given parameter has a value equal to \verb|I| $0$, it will yield \verb|True| otherwise.}
+\item{La función \verb|to_bool| retorna un valor de tipo booleano predefinido en Isabelle dado un operando.
+La función se utiliza para calcular evaluación de corto circuito para las operaciones \verb|And| y \verb|Or|.
+La función falla cuando un operando distinto a un entero es dado como parámetro.
+Al ser ejecutada exitosamente, la función retorna \verb|False| cuando el parámetro dado tiene un valor igual a \verb|I| $0$ y retorna \verb|True| de lo contrario.}
 
-\item{The function \verb|eq_val| computes the value of equality comparison between to values.
-This function will fail whenever anything different than two integers or two addresses are given as parameters to the function.
-Upon successful execution with two integer values the function will yield an integer value of \verb|I| $1$ if both operands were equal and an integer value of \verb|I| $0$ otherwise.
-Upon successful execution with two address values the function will yield an integer value of \verb|I| $1$ if both addresses were equal and an integer value of \verb|I| $0$ otherwise.
-Two addresses are regarded to as equal whenever both components of the address tuple are equal.}
+\item{La función \verb|eq_val| calcula el valor resultante de relizar la comparación de igualdad entre dos valores.
+La función falla cuando operandos diferentes a dos enteros o dos direcciones son dados como parámetros.
+Al ser ejecutada exitosamente con dos valores enteros como parámetros, la función retorna un valor entero \verb|I| $1$ si ambos operandos son iguales y un valor entero \verb|I| $0$ de lo contrario.
+Al ser ejecutada exitosamente con dos direcciones como parámetros, la función retorna un valor entero \verb|I| $1$ si ambas direcciones son iguales y un valor entero \verb|I| $0$ de lo contrario.
+Dos direcciones son consideradas como iguales cuando ambos componentes de la tupla son iguales.}
 
-\item{The functions \verb|new_block| and \verb|load| are the ones explained earlier in section~\ref{subsection:syntax_expressions} that allocate a new block of memory and load a value from memory, respectively.}
+\item{Las funciones \verb|new_block| y \verb|load| son aquellas explicadas anteriormente en la sección~\ref{subsection:syntax_expressions} que se encargan de asignar un nuevo bloque de memoria y cargar un valor desde memoria, respectivamente.}
 \end{itemize}
 
 
