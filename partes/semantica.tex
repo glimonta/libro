@@ -365,17 +365,17 @@ Dos direcciones son consideradas como iguales cuando ambos componentes de la tup
 \end{itemize}
 
 
-\section{Commands}\label{section:commands}
+\section{Comandos}\label{section:commands}
 
-In this next section we will discuss in detail the syntax and semantics of Chloe's commands as well as functions and programs written in the language.
-Additionally, we will discuss some restrictions the semantics assumes.
+En la siguiente sección se discutirá la sintaxis y semántica de los comandos en Chloe, así como las funciones y los programas escritos en el lenguaje.
+Ademas, se discutirán algunas suposiciones que la semantica toma que causan restricciones en la misma.
 
-\subsection{Syntax}\label{subsection:syntax_commands}
+\subsection{Sintaxis}\label{subsection:syntax_commands}
 
-Chloe contains the following constructs: assignments, sequential composition, conditionals, while loops, SKIP,\footnote{The SKIP command is is equivalent to a noop because it does nothing. We use it in order to be able to express other syntactic constructs such as a conditional without an ELSE branch. } deallocation of memory, return statements and functions.
-The expressions are the ones described in the previous section (~\ref{section:expressions}).
+Chloe contiene los siguientes constructores: asignación, secuenciación, condicionales, ciclos, SKIP\footnote{El comando SKIP es el equivalente a noop ya que no realiza operación algna. Se utiliza con el fin de poder expresar otros constructores sintácticos como lo es un condicional sin una rama ELSE}, liberación de memoria, instrucción \verb|return| y funciones.
+Las expresiones son aquellas descritas en la sección anterior (~\ref{section:expressions}).
 
-Here we proceed to describe the \textit{abstract syntax} for the commands of the Chloe language.
+Aquí se procede a describir la \textit{sintaxis abstracta} de loc omandos en el lenguaje Chloe.
 
 \begin{figure}
   \begin{lstlisting}[frame=single, mathescape=true]
@@ -396,24 +396,24 @@ Here we proceed to describe the \textit{abstract syntax} for the commands of the
         | Callfunv fname "exp list"
   \end{lstlisting}
 
-  \caption{Chloe commands}
+  \caption{Comandos en Chloe}
   \label{fig:chloe_commands}
 \end{figure}
 
-In figure~\ref{fig:chloe_commands} we can find the definition of the datatype created in Isabelle for the commands, where \verb|lexp| and \verb|exp| stand for expressions described in the previous sections (~\ref{section:expressions}), \verb|vname| stands for variable names and \verb|fname| stands for the function names.
+En la figura~\ref{fig:chloe_commands} se encuentra la definición del tipo de datos creado en Isabelle para los comandos, donde \verb|lexp| y \verb|exp| son las expresiones descritas en la sección anterior (~\ref{section:expressions}), \verb|vname| representa los nombres de variables y \verb|fname| representa los nombres de funciones.
 
-For assignment commands we define two different commands, one of them allows assignment to a variable, whereas the other one allows assignment to an address location in memory.
-We need these two commands since our domain for addresses and integer values is disjoint, therefore an address cannot represent an integer value and vice versa.
+Para la asignación se definen dos comandos diferentes, uno de ellos permite la asignación a una variable, mientras que el otro permite la asignación a una ubicación en memoria.
+Se necesitan ambos comandos dado que el dominio definidos para las direcciones y los valores enteros es disjunto, por lo tanto, una dirección no puede representar un valor entero y viceversa.
 
-We also have two return commands, one of them is for returning from functions with a return value, whereas the other one is for returning from a function which has no return value.
+También se tienen dos comandos de retorno, uno de ellos permite retornar de una funcion que posee un valor de retorno, mientras que el otro es para retornar de una función que no lo posee.
 
-Finally we have three different statements for function calling.
-One of them (\verb|Callfunv|) is for functions without a return value.
-The other two depend on what is done with the return value of the function, if the return value should be assigned to a variable we use the \verb|Callfun| command and if the return is to be assigned to a cell in memory we use the \verb|Callfunl| command.
+Finalemnte, se tienen tres comandos diferentes para llamadas a funciones.
+Uno de ellos (\verb|Callfunv|) es para funciones que no poseen un valor de retorno.
+Los otros dos dependen de lo que se haga con el valor de retorno de la función, si el valor de retorno debe ser asignado a una variable se utiliza el comando \verb|Callfun| y si el retorno debe ser asignado a una celda en memoria se utiliza el comando \verb|Callfunl|.
 
-In Isabelle we have defined a concrete infix syntax as well, which facilitates writing and reading commands in Chloe.
-In table~\ref{tab:concrete_syntax} we introduce the concrete syntax supposing we have $x$ that ranges over variable names, $a$ that ranges over expressions, $c$, $c_{1}$ and $c_{2}$ that range over commands, $y$ that ranges over the LHS expressions and $f$ that ranges over function names.
-We will continue to use the concrete syntax throughout the rest of this work to make it more readable.
+En Isabelle se define una sintaxis concreta, la cual facilita la escritura y lectura de comandos en Chloe.
+En la tabla~\ref{tab:concrete_syntax} se introduce la sintaxis concreta suponiendo que se tiene $x$ que representa nombres de variables, $a$ que representa expresiones, $c$, $c_1$ y $c_2$ que representan comandos, $y$ que representa expresiones del LHS y $f$ que representa nombres de funciones.
+A lo largo del trabajo se continuará utilizando la sintaxis concreta para facilitar la legibilidad.
 
 \begin{table}[h!]
 \centering
@@ -434,21 +434,21 @@ We will continue to use the concrete syntax throughout the rest of this work to 
   \hline
 \end{tabular}
 
-\caption{Abstract and concrete syntax equivalence}
+\caption{Equivalencia entre sintaxis abstracta y concreta}
 \label{tab:concrete_syntax}
 \end{table}
 
 
-\section{Functions}\label{section:functions_commands}
+\section{Funciones}\label{section:functions_commands}
 
-In Chloe we have both functions that return values and those which do not have a return value.
-For functions that do return a value we needed to figure out what to do with that return value.
-We decided that the return value of every function should either be assigned to a variable or to a destination in a memory cell or ignored whenever a function was returning from a call.
-We will not go into details explaining this design decision now but rather delay it until section~\ref{subsection:cfg} where we will be able to explain the reasoning behind this in a better manner.
+En Chloe se tienen funciones que devuelven valores y aquellas que no tienen valor de retorno.
+Para las funciones que devuelven un valor es necesario saber que ocurre con ese valor de retorno.
+Al retornar de una llamada a función, el valor de retorno o bien debe ser asignado a una variable o a una celda en memoria o debe ser ignorado.
+En esta sección no se entrará en detalles para explicar esta decisión de diseño sino que se retrasará hasta la sección~\ref{subsection:cfg} donde se podrá explcar el razonamiento detras de esta decisión de una manera mas adecuada.
 
-As we see in the definition in figure~\ref{fig:fun_def}, a function consists of a name, the formal parameters, the local variables and the body of the function, which is a, potentially big, command in the Chloe language.
-We also define a predicate which checks whether a function declaration is valid or not.
-A function declaration is considered valid if and only if the function parameters and the local variables have different names.
+Como es visible en la definición de la figura~\ref{fig:fun_def}, una función consiste en un nombre, los parámetros formales, las variables locales y el cuerpo de la función, que es un comando, potencialmente grande, en el lenguaje Chloe.
+También se define un predicado que comprueba si una declaración de una función es válida o no.
+La declaración de una función se considera válida si y solo si los parámetros de la función y las variables locales tienen nombres distintos.
 
 \begin{figure}
   \begin{lstlisting}[frame=single, mathescape=true]
@@ -461,24 +461,24 @@ A function declaration is considered valid if and only if the function parameter
   valid_fun_decl :: fun_decl $\Rightarrow$ bool
   \end{lstlisting}
 
-  \caption{Function definitions}
+  \caption{Definiciones de funciones}
   \label{fig:fun_def}
 \end{figure}
 
-\section{Programs}\label{section:programs_commands}
+\section{Programas}\label{section:programs_commands}
 
-A program in Chloe consists of a name, a list of global variables and a list of functions as showed in figure~\ref{fig:prog_def}.
-In that same figure we can see a definition that every valid program must comply with.
+Un programa en Chloe consiste en un nombre, una lista de variables globales y una lista de funciones como se muestra en la figura~\ref{fig:prog_def}.
+En esa misma figura se encuentra la definición de una condición que todo programa válido debe cumplir.
 
-A program is considered valid if it complies with all the following conditions:
+Un programa se considera válido si cumple con todas las siguientes condiciones:
 
 \begin{itemize}
-  \item{The names for the global variables are different from one another.}
-  \item{The names for the functions in the program are different from one another.}
-  \item{Every function declaration for every function in the program must be valid.}
-  \item{The main function must be defined.}
-  \item{None of the variable names or function names in the program must be a reserved keyword from C or a reserved keyword for testing.\footnote{Since we want to generate C code from the Chloe semantics we must guarantee that neither variable nor function names are any of the reserved C keywords or any of the reserved keywords used for testing variables.}}
-  \item{The global variables and the function names in a program cannot be the same.}
+  \item{Los nombres de las variables globales son distintos entre si.}
+  \item{Los nombres de las funciones en el programa son diferentes entre si.}
+  \item{Cada declaración de función para cada función en el programa debe ser válida.}
+  \item{La función main debe estar definida.}
+  \item{Ninguno de los nombres de las variables o nombres de funcion en el programa debe ser una palabra clave reservada del lenguaje C o una palabra clave reservada para \textit{testing}.\footnote{Dado que se quiere generar código C de la semántica de Chloe, se debe garantizar que ni los nombres de las variables ni de las funciones son alguna de las palabras claves reservadas en C o alguna de las palabras claves reservadas que se utilizan como nombres de variables en el proceso de \textit{testing}.}}
+  \item{Las variables globales y los nombres de las funciones en un programa no pueden ser iguales.}
 \end{itemize}
 
 
@@ -526,66 +526,66 @@ A program is considered valid if it complies with all the following conditions:
            ($\forall$ vname $\in$ set (program.globals p). fname $\neq$ vname)))
   \end{lstlisting}
 
-  \caption{Program definitions}
+  \caption{Definiciones de un programa}
   \label{fig:prog_def}
 \end{figure}
 
 
-\section{Restrictions}\label{subsection:restrictions_commands}
+\section{Restricciones}\label{subsection:restrictions_commands}
 
-This semantics does an assumption regarding the machine where the code is going to be executed.
-This restriction is parameterized and corresponds to the architecture of the machine where our code is going to be ultimately executed.
-As stated earlier, the precision of the integer values can be changed in order to make this semantics compatible with different architectures, e.g.\ 32-bit architectures.
+Esta semántica hace una suposición con respecto a la máquina en la que el código va a ser ejecutado.
+Esta restricción está parametrizada y corresponde a la arquitectura de la máquina en la que el código será ejecutado.
+Como se dijo anteriormente, la precisión de los valores enteros puede ser modificada con el fin de hacer que esta semántica sea compatible con diferentes arquitecturas, por ejemplo arquitecturas de 32 bits.
 
-We can change the assumptions this semantics makes by changing the \verb|int_width| parameter, which will automatically change the upper and lower bounds we assume for integers (these bounds are described in figure~\ref{fig:int_bounds}).
+Las suposiciones hechas por esta semántica pueden ser cambiadas al cambiar el parámetro \verb|int_width|, el cual cambiará automáticamente los límites superior e inferior que se tienen para enteros (estos límites se describen en la figura~\ref{fig:int_bounds}).
 
-In order to guarantee the assumptions our semantics makes, later in the code generation process, we generate assertions that make sure the conditions we assume are met.
+Con el fin de garantizar las suposiciones hechas por la semántica, más adelante en el proceso de generación de código, se generan aserciones que aseguran que las condiciones que se suponen se cumplan.
 
-Another restriction in our semantics is that it only works for a subset of C where the semantics is deterministic and we consider any undefined behavior to be an error in our semantics.
-We will go to an erroneous state if our semantics encounters behavior that is undefined by the C standard\cite{c99}, an example of undefined behavior is integer overflow.
-
-
-\section{States}\label{section:states}
-
-In simpler languages, which only support a limited set of features such as assignment, sequential composition, conditionals, loops and integer values, the state representation consists of simply a function that maps variables to values.
-In Chloe that is not the case, by including constructs as functions, dynamic memory and pointers to our set of features, the state representation ceases to be a simple function that maps variable names to values.
-In this section we will detail the complete components of the representation of a state.
-Previously, in section~\ref{subsection:semantics_expressions} we began explaining a simplified ``visible state'', here we will clarify the difference between that visible state and a real state, as well as detailing the components of a state in a program.
-
-\subsection{Valuation}\label{subsection:valuation}
-
-As mentioned previously a valuation is simply a function that maps variable names to values.
-The return type for this function is \verb|val option option| which models a variable having one of the following states: undefined, uninitialized or holding a value.
+Otra restricción en la semántica es que solo funciona para un subconjunto de C donde la semántica es determinística y cualquier comportamiento indefinido se considera como un error en la semántica.
+Se pasará a un estado erróneo si la semántica encuentra comportamiento que sea considerado como indefinido por el documento de referencia del lenguaje C~\cite{c99}, un ejemplo de este tipo de comportamiento es ``overflow'' de enteros.
 
 
-\subsection{Stack}\label{subsection:stack}
+\section{Estados}\label{section:states}
 
-Chloe supports functions calls, in order to do so an execution stack must be maintained in the state.
-This execution stack (from now on we will refer to it simply as the stack) consists of a list of stack frames.
-Each of these stack frames contains important information about the current function call.
+En lenguajes más simples, que solo admiten un conjunto limitado de características tales como asinación, secuenciación de instrucciones, condicionales, ciclos y valores enteros, la representación del estado consite simplemente en una función que mapea los nombres de variables a valores.
+En Chloe ese no es el caso, al incluir funciones, memoria dinámica y apuntadores al conjunto de características admitidas, la representación del estado del programa deja de ser una simple función que mapea nombres de variables a valores.
+En esta sección se detallan los componentes de la represntación de un estado.
+Anteriormente, en la sección~\ref{subsection:semantics_expressions} se explico el concepto de un ``estado visible'', aquí se aclara la diferencia entre ese estado visible y un estado real, también se detallan los componentes del estado de un programa.
 
-In figure~\ref{fig:stack_def} the type for a stack frame is a tuple containing a Chloe command, a valuation and a return location.
-The Chloe command corresponds to the body of the function to be executed.
-The valuation corresponds to the values of the variables that are local to the function that was called.
-Finally the return location can be one of the following three: an address, a variable or an invalid return location.
-When a function returns a variable several things can happen:
+\subsection{Valuación}\label{subsection:valuation}
+
+Como se menciono anteriormente, una valuación es simplemente una función que mapea nombres de variables a valores.
+El tipo de retorno para esta función es \verb|val option option| que se encarga de modelar tres estados diferentes que puede tener una variable: no definida, no inicializada o posee un valor.
+
+
+\subsection{Pila de ejecución}\label{subsection:stack}
+
+Chloe admite llamadas a funciones, para poder hacerlo se debe mantener una pila de ejecución en el estado.
+Esta pila de ejecución (de ahora en adelante se referirá a la misma simplemente como la pila) consiste en una lista de marcos de pila.
+Cada uno de estos marcos de pila contiene información importante acerca de la llamada a la función actual.
+
+En la figura~\ref{fig:stack_def} el tipo definido para un marco de pila es una tupla que contiene un comando en Chloe, una valuación y una ubicación de retorno.
+El comando de Chloe corresponde al cuerpo de la función a ejecutar.
+La valuación corresponde a las variables locales a la función que fue llamada.
+Finalmente, la ubicación de retorno puede ser una de las siguientes: una dirección, una variable o una ubicación de retorno inválida.
+Cuando una función retorna una variable pueden suceder varias cosas:
 \begin{itemize}
-  \item{The value will be assigned to a variable.
-  This is indicated by the variable return location}
-  \item{The value will be assigned to a cell in memory.
-  This is indicated by the address return location}
-  \item{The value will be ignored.
-  This is indicated by the invalid return location}
+  \item{El valor se asigna a una variable.
+  Esto es indicado por la ubicación de retorno correspondiente a una variable.}
+  \item{El valor se asigna a una celda en memoria.
+  Esto es indicado por la ubicación de retorno correspondiente a una dirección.}
+  \item{El valor es ignorado.
+  Esto es indicado por la ubicación de retorno inválida.}
 \end{itemize}
 
-We will also use the invalid return location for functions that do not have a return value.
+También se utiliza la ubicación de retorno inválida para las funciones que no poseen un valor de retorno.
 
-The return location is set on the caller's stack frame, that is, when returning from a function the stack frame of the caller is the one to be checked to know where to assign the return value or if a value is expected at all.
-To further clarify this we can take the example code from figure~\ref{fig:stack_example}.
-It is a simple program where a function that adds the value of its two parameters is defined and then called from the main function.
-Before the function call, the stack frame belonging to the main function has an $Invalid$ return location and after the function call, the return location changes to the variable $x$.
-Notice that the stack frame that changes its return location is the one belonging to main, this is because the caller is the one saving the return location where it expects to store the value of a returning function.
-An $Invalid$ return value indicates the caller is not expecting to store any results, i.e.\ either the caller has not called any functions yet or the function it has called have no return value.
+La ubicación de retorno se encuentra en el marco de pila del llamador, es decir, al retornar de una función el marco del llamador es el que debe ser revisado para saber a donde asignar el valor de retorno o si un valor de retorno es esperado.
+Para aclarar esto podemos tomar el ejemplo de código en la figura~\ref{fig:stack_example}.
+Es un programa sencillo donde una función que suma el valor de sus dos parámetros se define y luego se llama desde la función main.
+Antes de la llamada a función, el marco de pila perteneciente a la función main tiene una ubicación de retorno $Invalid$ y luego de la llamada a función la ubicación de retorno cambia a la variable $x$.
+Observe que el marco de pila que cambia su ubicación de retorno es aquel correpondiente a main, esto es porque el llamador es el que debe guardar la ubicación de retorno donde espera guardar el valor de retorno de una función llamada.
+Una ubicación de retorno $Invalid$ indica que el llamador no espera guardar resultado alguno, es decir, el llamador no ha llamado aun a alguna función o la función llamada no tiene valor de retorno.
 
 \begin{figure}
   \begin{lstlisting}[frame=single, mathescape=true]
@@ -649,30 +649,30 @@ An $Invalid$ return value indicates the caller is not expecting to store any res
   \label{fig:stack_aft_fun_call}
   \end{subfigure}
 
-  \caption{Calling convention code example}
+  \caption{Ejemplo de convención de llamada}
   \label{fig:stack_example}
 \end{figure}
 \end{comment}
 
-\subsection{Procedure Table}\label{subsection:procedure_table}
+\subsection{Tabla de procedimientos}\label{subsection:procedure_table}
 
-Another extension we must add when dealing with functions is a procedure table.
-A procedure table is defined as follows:
+Otra extensión que debemos agregar al tratar con funciones es una tabla de procedimientos.
+Una tabla de procedimientos se define como sigue:
 
 \begin{lstlisting}[mathescape=true, frame=single]
 type_synonym proc_table = fname $\rightharpoonup$ fun_decl
 \end{lstlisting}
 
-where ``$\rightharpoonup$ \verb|fun_decl|'' is equivalent to writing ``$\Rightarrow$ \verb|fun_decl option|''.
-This function maps function names to their declaration.
+donde ``$\rightharpoonup$ \verb|fun_decl|'' es equivalente a escribir ``$\Rightarrow$ \verb|fun_decl option|''.
+Esta función mapea nombres de funciones a sus declaraciones.
 
-This function is constructed by taking the program definition and pairing every function declaration from the list of functions to its name.
-Every program has its own procedure table.
+Esta función se construye tomando la definición del programa y emparejando cada declaración de función en la lista a su nombre.
+Cada programa tiene su propia tabla de procedimientos.
 
 
-\subsection{State}\label{subsection:state}
+\subsection{Estado}\label{subsection:state}
 
-A state is defined as a tuple containing the stack, a valuation for the globals and the dynamic memory.
+Un estado se define como una tupla que contiene la pila, la valuación para las variables globales y la memoria dinámica.
 
 \begin{lstlisting}[mathescape=true, frame=single]
 type_synonym state = stack_frame list $\times$ valuation $\times$ mem
@@ -680,13 +680,13 @@ type_synonym state = stack_frame list $\times$ valuation $\times$ mem
 
 \subsection{Initial State}\label{subsection:initial_state}
 
-In order to build an initial state we need to define some components.
-In figure~\ref{fig:prog_def} we find definitions for the initial configuration of the stack, the global variables and the memory.
-The initial configuration for the stack consists of the stack frame for the main function of the program.
-The initial configuration for the global valuation is a function where every possible variable name is mapped to the undefined variable value (\verb|None|).
-The initial configuration for the dynamic memory is the empty memory, since nothing has been allocated.
+Con el fin de construir un estado inicial se deben definir ciertos componentes.
+En la figura~\ref{fig:prog_def} se encuentran definiciones para la configuración inicial de la pila, las variables globales y la memoria.
+La configuración inicial para la pila consiste en la pila que contiene únicamente el marco de pila para la función main del programa.
+La configuración inicial para la valuación global es una función donde cada posible nombre de variable se mapea al valor correspondiente a una variable no definida (\verb|None|).
+La configuración inicial de la memoria dinámica es la memoria vacia, dado que nada ha sido asignado.
 
-Having defined all of these components the initial state configuration is given by the tuple consisting of the initial configuration for the stack, global variables and dynamic memory.
+Luego de definir todos estso componentes, la configuracion del estado inicial es dada por la tupla que contiene la configuración inicial de la pila, las variables globales y la memoria dinámica.
 
 
 \begin{figure}
@@ -712,22 +712,23 @@ Having defined all of these components the initial state configuration is given 
   end
   \end{lstlisting}
 
-  \caption{Initial state building}
+  \caption{Construcción del estado inicial}
   \label{fig:init_state_building}
 \end{figure}
 
 
 
-\subsection{Visible State}\label{subsection:visible_state}
-Additionally, a visible state is defined (as mentioned before in section~\ref{paragraph:visible_state}).
-Executing a transformer function\footnote{we will cover transformer functions further in section~\ref{section:small_step}} over a state, excepting the transformer functions for function calls or returns, will not be able to modify any part of the stack other than the current frame's local variables valuation.
-We define the real transformations in the context of visible states and then lift this function to states.
-Therefore, a transformer function over states, other than the ones for function call or return, cannot tamper with the stack.
+\subsection{Estado visible}\label{subsection:visible_state}
 
-The stack frame on the top of the stack corresponds to the current function that is being executed, and the command component of it is the Chloe command (or program) being executed.
-Whenever a command is executed or a step is taken in our small-step semantics this command is updated to contain the command that is to be executed next.
-In order to prove that the small-step semantics is deterministic we must prove that whenever we have a non-empty execution stack the order in which we apply the evaluation transformer\footnote{This is the eval function lifted to work on states instead of visible states, we will discuss it in further detail in section~\ref{section:small_step}} and the function that updates the command is irrelevant to the resulting final state.
-This is why we introduce a separate definition for a visible state apart from the regular state, it is a view of the same state with some limited information.
+Adicionalmente, se debe definir un estado visible (como se mencionó anteriormente en la sección~\ref{paragraph:visible_state}).
+Al ejecutar una función transformadora\footnote{las funciones transformadoras se cubrirán más adelante en la sección~\ref{section:small_step}} sobre un estado (exceptuando las funciones transformadoras para las llamadas o retornos de funciones) la misma no podrá modificar alguna otra parte de la pila que no sea la valuación de variables locales del marco de pila actual.
+Se definen las transformaciones reales en el contexto de estados visibles y luego se levanta esta definición a estados.
+Por lo tanto, una función transformadora sobre estados, con excepción de las llamadas o retornos de funciones, no puede manipular la pila.
+
+El marco de pila en el tope de la pila corresponde a la función actual que está siendo ejecutada y el comando en ese marco de pila corresponde al comando (o programa) en Chloe que está siendo ejecutado.
+Cada vez que se ejecuta un comando o se toma un paso en la semántica de pasos cortos, este comando se actualiza para contener el próximo comando a ejecutar.
+Con el fin de demostrar que la semántica de pasos cortos es determinística se debe demostrar que cada vez que se tiene una pila de ejecución no vacía, el orden en que se aplica el transformador de evaluación\footnote{Este transformador es la función eval levantada para trabajar en estados en lugar de estados visibles, se discutirá con mayor detalle en la sección~\ref{section:small_step}} y la función que actualiza el comando a ejecutar a continuación es irrelevante para el estado final resultante.
+Es por ello que se introduce una definición separada para un estado visible aparte de la de un estado regular, es una vista del mismo estado completo pero con informacion limitada.
 
 \section{Small Step Semantics}\label{section:small_step}
 
