@@ -678,7 +678,7 @@ Un estado se define como una tupla que contiene la pila, la valuación para las 
 type_synonym state = stack_frame list $\times$ valuation $\times$ mem
 \end{lstlisting}
 
-\subsection{Initial State}\label{subsection:initial_state}
+\subsection{Estado inicial}\label{subsection:initial_state}
 
 Con el fin de construir un estado inicial se deben definir ciertos componentes.
 En la figura~\ref{fig:prog_def} se encuentran definiciones para la configuración inicial de la pila, las variables globales y la memoria.
@@ -730,7 +730,7 @@ Cada vez que se ejecuta un comando o se toma un paso en la semántica de pasos c
 Con el fin de demostrar que la semántica de pasos cortos es determinística se debe demostrar que cada vez que se tiene una pila de ejecución no vacía, el orden en que se aplica el transformador de evaluación\footnote{Este transformador es la función eval levantada para trabajar en estados en lugar de estados visibles, se discutirá con mayor detalle en la sección~\ref{section:small_step}} y la función que actualiza el comando a ejecutar a continuación es irrelevante para el estado final resultante.
 Es por ello que se introduce una definición separada para un estado visible aparte de la de un estado regular, es una vista del mismo estado completo pero con informacion limitada.
 
-\section{Small Step Semantics}\label{section:small_step}
+\section{Semántica de pasos cortos}\label{section:small_step}
 
 \begin{comment}
 add a little summary here.
@@ -738,44 +738,44 @@ add a little summary here.
 
 \subsection{CFG}\label{subsection:cfg}
 
-A Control Flow Graph is a graph representation that covers the different paths a program can take during its execution.
-We have the concept of a current location which is a program pointer to a node.
-A command can be executed by following edges from the node pointed to by the program pointer to a new node.
-The nodes in our CFG are commands.
-The edges in our CFG are annotated with two functions that depend on the current program state.
-The first one indicates whether an edge can be followed or not (for example, in the case of a conditional) and the second one indicates how the state is transformed by following the edge i.e.\ the effect that following the edge has on the state.
-We call these two functions \textit{enabled} and \textit{transformer} functions.
-We will now describe in detail the definitions for these functions.
+Un Grafo de Control de Flujo (CFG por sus siglas en ingles \textit{Control Flow Graph}) es una representación en forma de grafo que cubre los diferentes caminos que un programa puede tomar durante su ejecución.
+Se tiene el concepto de ubicación actual, que es un ``program pointer'' a un nodo.
+Un comando se ejecuta siguiendo una arista desde el nodo al que apunta el ``program pointer'' a un nuevo nodo.
+Los nodos del CFG son comandos.
+Las aristas del CFG contienen una anotación con dos funciones que dependen del estado actual del programa.
+La primera de estas funciones indica si una arista puede ser seguida o no (por ejemplo, en le caso de un condicional) y la segunda indica como será transformado el estado al seguir la arista, es decir, el efecto que tiene seguir la arista sobre el estado del programa.
+Estas funciones son llamadas \textit{habilitado} (``enabled'') y \verb|transformador| (``transformer'').
+A continuación se describen en detalle las definiciones para estas funciones.
 
 
 \paragraph*{Enabled functions}\label{paragraph:enabled}
 
-An enabled function is a partial function as follows:
+Una función ``enabled'' es una función parcial que se define como sigue:
 
 \begin{lstlisting}[mathescape=true, frame=single]
 type_synonym enabled = state $\rightharpoonup$ bool
 \end{lstlisting}
 
-It indicates whether a state is enabled to continue its execution.
-This is a partial function, therefore its execution might fail.
-The execution of an enabled function will fail whenever an error is encountered when evaluating the function and it yields a \verb|None| value indicating an erroneous state.
+Indica si un estado está habilitado para continuar su ejecución.
+Esta es una función parcial, por lo que su ejecución podría fallar.
+La ejecución de una función ``enabled'' falla cuando encuentra un error en su evaluación y retorna un valor \verb|None| que representa un estado erróneo.
 
-This function is useful for the execution of conditional constructs in our language.
+Esta función es útil para la ejecución de construcciones condicionales en el lenguaje.
 
-Suppose we have the term ``\verb|IF| $b$ \verb|THEN| $c_{1}$ \verb|ELSE| $c_{2}$''.
-When the evaluation of the condition $b$ yields a \verb|True| value we will follow the edge that leads us to the node that contains $c_1$.
-Whereas when the evaluation of $b$ yields a \verb|False| value we will follow the edge that leads us to the node that contains $c_2$.
-Depending on the result of the enabled function we will decide whether the term is enabled to follow one edge or the other.
-The only case where an execution would not be able to continue is when there is no enabled edge to follow.
-Fortunately, this cannot happen in our programs as there is always an enabled edge.
-Except for the conditional construct, for every command supported by Chloe the enabled function will always yield \verb|True|.
-In the case of a conditional construct, the execution can either continue its execution by following the edge to the first command or by following the edge to the second command.
-There will always be an edge that can be followed after a node that contains a conditional
+Si se tiene el término ``\verb|IF| $b$ \verb|THEN| $c_{1}$ \verb|ELSE| $c_{2}$''.
+Cuando la evaluación de la condición $b$ produce un valor \verb|True| se seguirá aquella arista que lleva al nodo que contiene $c_1$.
+Mientras que cuando la evaluación de $b$ produce un valor \verb|False| se seguirá aquella arista que lleva al nodo que contiene $c_2$.
+Dependiendo del resultado de la función habilitada se decide que arista puede seguir el nodo.
+El único caso donde una ejecución no podría continuar es cuando no hay ninguna arista habilitada que seguir.
+Afortunadamente, esto no puede pasar en los programas de Chloe ya que siempre hay una arista habilitada.
+A excepción del condicional, para cada comando en Chloe la función ``enabled'' siempre retorna \verb|True|.
+En el caso de un condicional, la ejecución puede continuar o bien siguiendo la arista hasta el primer comando o siguiendo la arista hasta el segundo comando.
+Siempre habrá una arista que puede ser seguida luego de un nodo que contenga un condicional.
 
-A list of the enabled functions we use is shown in figure~\ref{fig:enabled_def}.
-The function \verb|truth_value_of| maps a value to a boolean value, namely \verb|True| or \verb|False|.
-We also find \verb|en_always| which always yields \verb|True|, the \verb|en_pos| function which only yields \verb|True| when the truth value of the expression given as a parameter evaluates to \verb|True| and the \verb|en_neg| function which only yields \verb|True| when the truth value of the expression given as a parameter evaluates to \verb|False|.
-These functions will be used later in the CFG definition.
+Una lista de las funciones ``enabled'' que son utilizadas se presenta en la figura ~\ref{fig:enabled_def}.
+La funcion \verb|truth_value_of| mapea un valor a un valor booleano, es decir \verb|True| o \verb|False|.
+Tambien se encuentran las funciones \verb|en_always| que siempre retorna \verb|True|, \verb|en_pos| que solo retorna \verb|True| cuando el valor real (calculado con \verb|truth_value_of|) de una expresión dada como parámetro se evalúa como \verb|True| y \verb|en_neg| que solo retorna \verb|True| cuando el valor real (calculado con \verb|truth_value_of|) de una expresión dada como parámetro se evalua como \verb|False|.
+Estas funciones serán utilizadas mas tarde en la definición del CFG.
 
 \begin{figure}
   \begin{lstlisting}[frame=single, mathescape=true]
@@ -791,69 +791,73 @@ These functions will be used later in the CFG definition.
   definition en_neg :: exp $\Rightarrow$ enabled
   \end{lstlisting}
 
-  \caption{Enabled functions}
+  \caption{Funciones ``enabled''}
   \label{fig:enabled_def}
 \end{figure}
 
 
 \paragraph*{Transformer functions}\label{paragraph:transformer}
 
-A transformer function is a partial function as follows:
+Una función ``transformer'' es una función parcial que se define como sigue:
 
 \begin{lstlisting}[mathescape=true, frame=single]
 type_synonym transformer = state $\rightharpoonup$ state
 \end{lstlisting}
 
-It is a partial function that transforms a state into another.
-Since it is a partial function, its execution might fail.
-The execution of a transformer function will fail whenever an error is encountered at some point of its execution and yield a \verb|None| value indicating an erroneous state.
+Es una función parcial que realiza una transformación de un estado a otro.
+Dado que es una función parcial, su ejecución puede fallar.
+La ejecución de una función ``transformer'' falla cuando se encuentra un error en algún momento de su ejecución y retorna un valor \verb|None| que indica un estado erróneo.
 
-We define functions that will return a transformer function for each command in Chloe.
-These functions will be used later in the CFG definition and are defined in figure~\ref{fig:transformer_def}
-We define a transformer function \verb|tr_id| that will serve as the id function and simply yields the same state it is given as a parameter.
+Se definen funciones que producen una función ``transformer'' para cada comando en Chloe.
+Estas funciones serán utilizadas mas tarde en la definición del CFG y se definen en la figura~\ref{fig:transformer_def}.
+Se define una función ``transformer'' \verb|tr_id| que sirve como la función identidad y simplemente retorna el mismo estado que recibe como parámetro.
 
-The definitions listed in figure~\ref{fig:transformer_def} yield a transformer function which we will use when executing a command.
-We proceed to roughly describe the effect the transformer functions yielded will have when applied to a state.
+Las definiciones presentadas en la figura~\ref{fig:transformer_def} producen una función ``transformer'' que será utilizada al ejecutar un comando.
+Se procede a describir de una manera aproximada el efecto que tendrán estas funciones ``transformer'' producidas al ser aplicadas a estados.
 
-First of all we have the transformer for an assignment yielded by \verb|tr_assign|, it will evaluate the expression we want to assign and then proceed to perform a \verb|write| operation to the state and it yields the state resulting from this evaluation and \verb|write| operation.
+En primer lugar se tiene la función ``transformer'' para una asignación producida por \verb|tr_assign|, se encarga de evaluar la expresión que se quiere asignar y luego realizar una operación \verb|write| al estado.
+Retorna el estado resultante de realizar dicha evaluación y la operación \verb|write|.
 
-The transformer for an assignment to a cell in the dynamic memory yielded by \verb|tr_assignl| will first evaluate the LHS expression to obtain the location in memory where the value will be updated, then it will evaluate the expression to obtain the new value and proceed to store the value in memory, it yields the state resulting from the evaluations and the \verb|store| operation.
+El ``transformador'' para una asignación a una celda en memoria producida por \verb|tr_assignl|, se encarga de evaluar la expresión del LHS para obtener la ubicación de memoria donde se guardará el valor, evaluar la expresión para obtener el nuevo valor y guardar el valor en memoria.
+Retorna el estado resultatnte de realizar dichas evaluaciones y la opración \verb|store|.
 
-The transformer for an evaluation yielded by \verb|tr_eval| will evaluate the expression and yield the state resulting from the evaluation.
+El ``transformador'' para una evaluación producido por \verb|tr_eval|, se encarga de evaluar una expresión.
+Retorna el estado resultante de realizar dicha evaluación.
 
-The transformer for a free operation yielded by \verb|tr_free| will evaluate the LHS expression it receives as a parameter in order to obtain an address and the block for this address will be deallocated.
-The transformer will yield the state resulting from the evaluation and deallocation of memory.
+El ``transformador'' para una operación de liberación de memoria producido por \verb|tr_free|, se encarga de evaluar la expresión del LHS que recibe como parametro con el fin de obtener una dirección y liberar el bloque correspondiente a esta dirección en memoria.
+Retorna el estado resultante de realizar dicha evaluación y la liberación de memoria.
 
-When performing a function call one must check that the formal parameters and the actual parameters given to the function have the same type and that each formal parameter has a corresponding given parameter.
-Since we do not have a static type system we will only check the second condition mentioned.
-Furthermore, we fix the evaluation order for the parameters given to a function as left to right order.
-The parameters will always be evaluated following a left to right order.
-Finally when calling a function we must also map the formal parameters to the values of the given parameters and regard these as local variables in the scope of our function.
+Cuando se realiza una llamada a función se debe chequear que los parámetros formales y los parámetros reales dados a la función tengan el mismo tipo y que cada parámetro formal tenga un parámetro real correspondiente.
+Dado que no se posee un sistema de tipos estático solamente se chequeara la segunda condición mencionada.
+Ademas, el orden de evaluación de los parámetros dados a una función es de izquierda a derecha.
+Los parámetros siempre se evaluan siguiendo un orden de derecha a izquierda.
+Finalmente, cuando se llama a una función también se deben mapear los parámetros formales a los valores de los parámetros dados y considerarlos como variables locales en el alcance de la función.
 
-We have a \verb|call_function| which yields a transformer function for any function call, this transformer checks that the number of formal parameters and given parameters is the same, it evaluates the given parameters from left to right, it creates a new stack frame containing the body of the function, the local variables valuation (which includes the parameters mapped to their given values and the local variables mapped to an uninitialized value) and the return location \verb|Invalid|, it yields the state resulting from performing these operations over the state.
+Se tiene una función \verb|call_function| que produce un ``transformador'' para cualquier llamada a función, este ``transformador'' verifica que el número de parámetros formales y parámetros dados sea el mismo, evalua los parámetros dados de izquierda a derecha, crea un nuevo marco de pila que contiene el cuerpo de la función, la valuación de las variables locales (la cual incluye los parámetros mapeados a sus valores dados y las variables locales mapeadas al valor que representa no inicializado) y la ubicación de retorno \verb|Invalid|, retorna el estado resultante de realizar dichas operaciones sobre el estado.
 
-When calling a function the caller has to change its stack frame in order to update the return location value in the current stack frame.
-We define different functions that perform that change depending on the type of function call and then proceed to yield a transformer by calling \verb|call_function|.
+Cuando se llama a una función, el llamador tiene que cambiar su marco de pila con el fin de actualizar el valor de la ubicación de retorno en el marco de pila actual.
+Se definen diferentes funciones que realizan ese cambio dependiendo del tipo de llamada a función y producen un ``transformador'' llamando a \verb|call_function|.
 
-The different functions we define are \verb|tr_callfunl|, \verb|tr_callfun| and \verb|tr_callfunv|.
-We use \verb|tr_callfunl| when the return location of the function is a cell in memory.
-In this case the function first evaluates the LHS expression to obtain the return address and updates the return location of the stack frame with it before calling \verb|call_function|, the resulting transformer function will yield a state resulting from this evaluation, the update of the stack frame and the operations done by \verb|call_function|.
-It is important here that the evaluation of the LHS expression that yields an address value must be the first one done, this is in order to avoid unwanted behavior since the function could change the state.
+Las diferentes funciones que se definen son \verb|tr_callfunl|, \verb|tr_callfun| y \verb|tr_callfunv|.
+Se utiliza \verb|tr_callfunl| cuando la ubicación de retorno de una función es una celda en memoria.
+En este caso, la función evalúa primero la expresión del LHS para obtener la dirección de retorno y la utiliza para actualizar la ubicación de retorno del marco de pila antes de llamar a \verb|call_function|.
+El ``tranformador'' resultante retornará el estado resultante de realizar esta evaluación, actualizar el marco de pila y las operaciones hechas por \verb|call_function|.
+Es importante resaltar que la evaluación de la expresión del LHS que retorna una dirección debe ser la primera que se realiza, esto es con el fin de evitar comportamiento no deseado, ya que la función llamada podría cambiar el estado.
 
-We use \verb|tr_callfun| when the return location of the function is a variable.
-In this case the function updates the return location of the stack frame with the variable name before calling \verb|call_function|, the resulting transformer function will yield a state resulting from this update of the stack frame and the operations done by \verb|call_function|.
+Se utiliza \verb|tr_callfun| cuando la ubicación de retorno de la función es una variable.
+En este caso la función actualiza la ubicación de retorno del marco de pila con el nombre de la variable antes de llamar a \verb|call_function|, el ``transformador'' resultante retornará el estado resultante de actualizar el marco de pila y las operaciónes hechas por \verb|call_function|.
 
-We use \verb|tr_callfunl| when the function is not expected to return a value.
-In this case the function updates the return location of the stack frame with \verb|Invalid| before calling \verb|call_function|, the resulting transformer function will yield a state resulting from this update of the stack frame and the operations done by \verb|call_function|.
+Se utiliza \verb|tr_callfunl| cuando no se espera que la función llamada retorne un valor.
+En este caso, la función actualiza la ubicación de retorno del marco de pila con \verb|Invalid| antes de llamar a \verb|call_function|, el ``transformador'' resultante retorna el estado resultante de actualizar el marco de pila y las operaciones hechas por \verb|call_function|.
 
-We have a \verb|tr_return| which yields a transformer function for a return call returning an expression in a function, this transformer will pop the last stack frame in the stack belonging to the returning function, evaluate the value corresponding to the expression returned by the function and if the stack is not empty then proceed to retrieve the return location and depending on if it is an address, a variable or an invalid location it will yield the state resulting from storing the value in memory, writing the value to a variable or yield the state as it is, respectively as well as popping the last stack frame of the stack.
-Note that if the function returns a value but its return location is expected to be invalid then the returned value is ignored instead of being considered an erroneous execution.
+Se tiene una función \verb|tr_return| que produce un ``transformador'' para una llamada a \verb|return| que retorna una expresión de una funcion, este ``transformador'' desempila el marco de pila en el tope de la pila (el cual pertenece a la función de la que se retorna), evalua el valor correspondiente a la expresión retornada y, si la pila no está vacía, busca el valor de retorno y dependiendo de si es una dirección, una variable o una ubicación \verb|Invalid| retorna el estado resultante de guardar el valor en memoria, guardar el valor en una variable o retornar el estado como estaba, respectivamente.
+Nótese que si la función retorna un valor pero su ubicación de retorno es \verb|Invalid| entonces el valor retornado es ignorado en lugar de ser considerado como una ejecución errónea.
 
-Finally we have a \verb|tr_return_void| which yields a transformer function for a return call in a function which has no return value.
-This transformer will pop the last stack frame belonging to the returning function.
-Subsequently, if the stack is not empty it will obtain the return location.
-If the return location is anything different from an invalid return location it will return a \verb|None| value which represents an error.
-However, if the return location is, in fact, an invalid one then it will yield the state resulting from the last frame of the stack being popped.
+Finalmente, se tiene una función \verb|tr_return_void| que produce un ``transformer'' para una llamada a \verb|return| en una función que no retorna un valor.
+Este ``transformador'' se encarga de desempilar el marco de pila en el tope de la pila (el cual pertenece a la función de la que se retorna).
+Posteriormente, si la pila no está vacia, obtiene la ubicación de retorno.
+Si la ubicación de retorno es una ubicación diferente de \verb|Invalid|, retorna un valor \verb|None| que indica un estado erróneo.
+Sin embargo, si la ubicación de retorno es, en efecto, \verb|Invalid| entonces retorna el estado resultante de desempilar el último marco de pila.
 
 \begin{comment}
 FIXME
@@ -882,19 +886,19 @@ FIXME
 
 \paragraph*{CFG}
 
-In order to talk about executions by following edges in the CFG we must introduce yet another concept.
-Taking the definition given at the beginning of this section of what a CFG is we know that in order to talk about an execution of a command by following the edges of the CFG we must have a program pointer that indicates the current node.
-We also need to introduce the concept of a stack.
-We will have a stack of program pointers to accompany our CFG and we will pop a new program pointer from the stack once we have \verb|followed| the current pointer up to a \verb|SKIP| node.
-A program pointer to the command of a function will be pushed to the stack when there is a function call.
-A program pointer will be popped from the stack when there is a return command.
-This concept will become important when talking about function calls and return commands further ahead.
+Para poder hablar de ejecuciones siguiendo las aristas del CFG se debe introducir un nuevo concepto.
+Si se toma la definición de un CFG dada al inicio de esta sección, se tiene que para poder hablar de una ejecución de un comando siguiendo las aristas del CFG se debe tener un ``program pointer'' que apunte al nodo actual.
+También se debe introducir el concepto de una pila.
+Se tiene una pila de ``program pointers'' que acompaña el CFG y se desempilará un nuevo ``program pointer '' de la pila una vez que se haya \textit{seguido} el ``program pointer'' actual hasta un nodo que contenga \verb|SKIP|.
+Un ``program pointer'' al cuerpo de una función se empilará cuando una llamada a función sea realizada.
+Un ``program pointer'' se desempilará de la pila cuando exista una instrucción \verb|return|.
+Este concepto será importante al hablar de llamadas a funciones y retornos de funciones más adelante.
 
-We can see an inductive definition in figure~\ref{fig:cfg_rules} for CFG, where we can see the rules to form edges between commands.
-We can follow an edge in the CFG from an assignment to a variable to \verb|SKIP|.
-This edge is always enabled and has a transformer function to update the state which is given by the result of \verb|tr_assign| called with the parameters specific for the command.
+En la figura~\ref{fig:cfg_rules} se encuentra una definición inductiva para CFG, donde se pueden ver las reglas para formar aristas entre comandos.
+Se puede seguir una arista en el CFG desde una asignación a una variable a \verb|SKIP|.
+Esta arista siempre está ``enabled'' y el  ``transformer'' para actualizar el estado es el resultado de llamar a \verb|tr_assign| con los parámetros específicos para el comando.
 
-\begin{figure}
+\begin{figure} 
   \begin{lstlisting}[frame=single, mathescape=true]
   type_synonym cfg_label = enabled $\times$ transformer
 
@@ -925,74 +929,74 @@ This edge is always enabled and has a transformer function to update the state w
   \label{fig:cfg_rules}
 \end{figure}
 
-Likewise, an edge in the CFG can be followed from an assignment to a cell in memory to \verb|SKIP|, this edge is always enabled and the transformer function to update the state is given by the result of \verb|tr_assignl| called with the parameter specific for the command.
+Del mismo modo, una arista del CFG puede ser seguida desde una asignación a una celda en memoria hasta \verb|SKIP|, esta arista siempre está ``enabled'' y el ``transformer'' para actualizar el estado es el resultado de llamar a \verb|tr_assignl| con los parámetros específicos para el comando.
 
-The sequential composition has two different edges that can be followed.
-When the first command in the sequential composition is a \verb|SKIP| command we can follow an edge that will lead us from the node with the whole command to a node with only the second command.
-This edge is always enabled and the transformer over the state is the \verb|tr_id|.
-The second case occurs when we have a command of the form \verb|(| $c_{1}$ \verb|;;| $c_{2}$ \verb|)| where $c_{1}$ is not \verb|SKIP|.
-If we follow an edge from $c_{1}$ to some other node $c_{1}'$ (where the edge is labelled $a$), which contains an enabled and a transformer function, then we can follow an edge (also labelled with $a$) from \verb|(| $c_{1}$ \verb|;;| $c_{2}$ \verb|)| to \verb|(| $c_{1}'$ \verb|;;| $c_{2}$ \verb|)|.
+Para la secuenciación de instrucciones existen dos aristas diferentes que pueden ser seguidas.
+Cuando el primer comando en la secuenciación es \verb|SKIP|, se puede seguir una arista que va desde el nodo con el comando completo hasta el nodo que tiene solamente el segundo comando.
+Esta arista siempre está ``enabled'' y el ``transformer'' para actualizar el estado es \verb|tr_id|.
+El segundo caso ocurre cuando se tiene un comando de la forma \verb|(| $c_{1}$ \verb|;;| $c_{2}$ \verb|)| donde $c_{1}$ no es \verb|SKIP|.
+Si es posible seguir una arista desde $c_{1}$ hasta otro nodo $c_{1}'$ (donde dicha arista está anotada con $a$, que es una tupla que contiene una función ``enabled'' y un ``transformer'') entonces es posible seguir una arista (también anotada con $a$) desde \verb|(| $c_{1}$ \verb|;;| $c_{2}$ \verb|)| hasta \verb|(| $c_{1}'$ \verb|;;| $c_{2}$ \verb|)|.
 
-We also have two cases when it comes to the case of the conditional.
-We will have the possibility to follow an edge to the first command or an edge to the second command, depending on the value of the guard.
-In the case where we follow the edge that leads us to the first command, we will go from \verb|IF| $b$ \verb|THEN| $c_{1}$ \verb|ELSE| $c_{2}$ to $c_{1}$.
-This edge will be labelled with an enabled function given by \verb|en_pos| which will be enabled only when the condition $b$ evaluates to \verb|True| and with a transformer function given by \verb|tr_eval|.
-In the case where we follow the edge that leads us to the second command, we will go from \verb|IF| $b$ \verb|THEN| $c_{1}$ \verb|ELSE| $c_{2}$ to $c_{2}$.
-This edge will be labelled with an enabled function given by \verb|en_neg| which will be enabled only when the condition $b$ evaluates to \verb|False| and with a transformer function given by \verb|tr_eval|.
+Para un condicional también se tienen dos casos.
+Se tendrá la posibilidad de seguir una arista hacia el primer comando u otra arista hacia el segundo comando, dependiendo del valor de la condición.
+En el caso donde se sigue la arista que lleva hasta el primer comando, se va desde \verb|IF| $b$ \verb|THEN| $c_{1}$ \verb|ELSE| $c_{2}$ hasta $c_{1}$.
+Esta arista estará anotada con una función ``enabled'' dada por \verb|en_pos| que solo habilitará esta arista cuando la condición $b$ se evalúe a \verb|True| y un ``transformer'' dado por \verb|tr_eval|.
+En el caso donde se sigue la arista que lleva hasta el segundo comando, se va desde \verb|IF| $b$ \verb|THEN| $c_{1}$ \verb|ELSE| $c_{2}$ hasta $c_{2}$.
+Esta arista estará anotada con una función ``enabled'' dada por \verb|en_neg| que solo habilitará esta arista cuando la condición $b$ se evalúe a \verb|False| y un ``transformer'' dado por \verb|tr_eval|.
 
-In the case of a loop we can always follow an edge that takes us from \verb|WHILE| $b$ \verb|DO| $c$ to \verb|IF| $b$ \verb|THEN| $c$ \verb|;; WHILE| $b$ \verb|DO| $c$ \verb|ELSE SKIP| by unrolling the loop once.
-The edge will have an enabled function that is always enabled and the transformer over the state is the \verb|tr_id|.
+En el caso de un ciclo siempre se puede seguir una arista que va desde \verb|WHILE| $b$ \verb|DO| $c$ hasta \verb|IF| $b$ \verb|THEN| $c$ \verb|;; WHILE| $b$ \verb|DO| $c$ \verb|ELSE SKIP| al hacer ``loop unrolling'' una vez.
+La arista tendrá una función ``enabled'' que siempre está habilitada y el ``transformer'' para el estado es \verb|tr_id|.
 
-We can follow an edge from \verb|FREE| $x$ to \verb|SKIP|.
-This edge is always enabled and a has transformer function given by the result of \verb|tr_free| called with $x$.
+Se puede seguir una arista desde \verb|FREE| $X$ hasta \verb|SKIP|.
+Esta arista siempre está ``enabled'' y tiene un ``transformer'' dado por \verb|tr_free| llamado con $x$.
 
-We can follow an edge from any of the two existing return commands to \verb|SKIP|.
-This edge is always enabled and has a transformer function given by the result of \verb|tr_return| or \verb|tr_return_void| depending on which return command it is.
-Note that when \textit{executing} this command in the CFG, following the edge from a return node to a \verb|SKIP| node will pop the program pointer pointing to the \verb|SKIP| node and we will continue our ``execution'' in the location pointed by the next program pointer in the stack.
+Se puede seguir una arista desde cualquiera de los dos comandos de retorno existentes hasta \verb|SKIP|.
+Esta arista siempre está ``enabled'' y tiene un ``transformer'' dado como resultado de \verb|tr_return| o \verb|tr_return_void| dependiendo de que comando de retorno sea.
+Nótese que al \textit{ejecutar} este comando en el CFG, seguir una arista desde un nodo que contiene un retorno hasta \verb|SKIP| desempilará el ``program pointer'' que apunta al nodo \verb|SKIP| y continuará la ``ejecución'' en el nodo apuntado por el próximo ``program pointer'' en la pila.
 
-Finally, we can follow an edge from any of the function call nodes to \verb|SKIP|.
-This edge is always enabled and has a transformer function given by the result of either \verb|tr_callfunl|, \verb|tr_callfun| or \verb|tr_callfunv| depending on whether it is a function call that returns to a memory cell, a variable or returns no value.
-Note that, also in this case, when \textit{executing} this command in the CFG, following the edge from a function call node to a \verb|SKIP| node will push a new program pointer to the stack that points to the location of the node that contains the command of the function and we will continue our ``execution'' in the location pointed by this next program pointer.
+Finalmente, se puede seguir una arista desde cualquiera de los nodos de llamada a función hasta \verb|SKIP|.
+Esta arista siempre está ``enabled'' y tiene un ``transformer'' dado como resultado de \verb|tr_callfunl|, \verb|tr_callfun| o \verb|tr_callfunv| dependiendo de si es una llamada a función que retorne a una celda en memoria, una variable o sin retorno.
+Nótese que, también en este caso, al \textit{ejecutar} este comando en el CFG, seguir la arista desde una llamada a función hasta un nodo \verb|SKIP| empilará un nuevo ``program pointer'' que apunte al nodo con el cuerpo de la función y continuará la ``ejecución'' en el nodo apuntado por el próximo ``program pointer'' en la pila.
 
-\subsection{Small Step semantics rules}\label{subsection:rules_small_step}
+\subsection{Reglas de la semántica de pasos cortos}\label{subsection:rules_small_step}
 
-Finally, we introduce the rules for the small-step semantics for Chloe.
-A small-step semantics is chosen over a big-step definition for the semantics due to the fact that we want a finer grained semantics.
-The big-step semantics has a major drawback, which is that it cannot differentiate between a non-terminating execution and getting stuck in an erroneous configuration.
-This is why we prefer a more detailed semantics that allows us to differentiate between nontermination and getting stuck because it allows us to talk about intermediate states during evaluation.
+Finalmente, se introducen las reglas para la semántica de pasos cortos de Chloe.
+Se prefiere una semántica de pasos cortos en lugar de una de pasos largos dado que se quiere una semántica mas detallada.
+La semántica de pasos largos tiene un gran inconveniente y es que no puede diferenciar entre una ejecución que no termina y una que se queda atascada en una configuración errónea.
+Es por ello que se prefiere una semántica mas detallada que permita diferenciar entre no terminación y quedarse atascado en un estado erróneo, dado que permite hablar de estados intermedios durante la evaluación.
 
-Usually a configuration in a small step semantics is a pair consisting of a command and a state.
-Since we are working with functions and we have the command that is being executed in the stack frame our small-step definition is defined over states.
-A small, atomic step can be taken from one state to another.
+Por lo general una configuración en una semántica de pasos cortos es un par que contiene un comando y un estado.
+Dado que se trabaja con funciones y se tiene el comando que se esta ejecutando en el marco de pila, la definición de pasos cortos dada en este trabajo es dada sobre estados.
+Un paso pequeño y atómico puede ser tomado desde un estado a otro.
 
-The small-step rules for the semantics are detailed in figure~\ref{fig:small_step_rules}.
-The infix syntax for the small step semantics is written as $s \rightarrow s_{2}$ which means we take a small step from $s$ to $s_{2}$.
-A step can be taken if the following conditions are met:
+Las reglas para la semántica de pasos cortos se encuentran detalladas en la figura~\ref{fig:small_step_rules}.
+La notación de infijo para la semántica de pasos cortos se escribe: $s \rightarrow s_{2}$ lo cual significa que se toma un paso corto desde $s$ hasta $s_{2}$.
+Se puede dar un paso cuando las siguientes condiciones se cumplen:
 
 \begin{itemize}
-  \item{The stack is not empty.}
-  \item{There is a CFG edge between $c_{1}$ and $c_{2}$.}
-  \item{The command at the topmost stack frame in the initial state is $c_{1}$.}
-  \item{Applying the enabled function over the state yields \verb|True|.}
-  \item{Applying the transformer function to the state with the command at the topmost stack frame updated from $c_{1}$ to $c_{2}$ yields a new state $s_{2}$.}
+  \item{La pila no está vacía}
+  \item{Hay una arista en el CFG entre $c_{1}$ y $c_{2}$.}
+  \item{El comando en el marco de pila en el tope de la pila en el estado inicial es $c_{1}$.}
+  \item{Al aplicar la función ``enabled'' sobre el estado, esta retorna \verb|True|.}
+  \item{Al aplicar el ``transformer'' al estado con el comando en marco de pila en el top de la pila actualizdo de $c_{1}$ a $c_{2}$, este retorna un nuevo estado $s_{2}$.}
 \end{itemize}
 
-Given that all the previous conditions are fulfilled then a small step can go from state $s$ to $s_{2}$.
+Si todas las condiciones mencionadas anteriormente se cumplen, entonces se puede tomar un paso corto desde el estado $s$ hasta $s_{2}$.
 
-A small step can also be taken upon return from a function which returns no value.
-If the command at the top of the stack is \verb|SKIP|, the stack is not empty and applying the transformer function on the initial state $s$ yields a new state $s_{2}$, then we can take a small step from $s$ to $s_{2}$
+Un paso corto también puede ser tomado al retornar de una función que no retorne valor alguno.
+Si el comando en el tope de la pila es \verb|SKIP|, la pila no está vacía y alicar el ``transformer'' en el estaod inicial $s$ produce un nuevo estado $s_{2}$, entonces podemos tomar un paso corto desde $s$ hasta $s_{2}$.
 
-The type for \verb|small_step| is from \verb|state| to \verb|state option|.
-The second configuration is enclosed in an option type because taking a small step can result in an erroneous state in which we will get stuck.
+El tipo para \verb|small_step| es de \verb|state| a \verb|state option|.
+La segunda configuración está encerrada en un tipo opción ya que tomar un paso corto puede resultar en una estado erróneo donde la ejecución se quedará atascada.
 
-A small step can fail to be taken in any of the following cases:
+Tomar un paso corto puede fallar en cualquiera de los siguientes casos:
 
 \begin{itemize}
-  \item{Either the enabled function or the transformer function yield \verb|None| when evaluated over the initial state.
-  This indicates an erroneous state was reached when evaluating one of those functions.
-  We propagate the erroneous state by taking a small step from state $s$ to \verb|None| and then the execution will get stuck there.}
-  \item{If applying the transformer function \verb|tr_return_void| over the state yields a \verb|None| value, the command at the top of the stack in the initial state is \verb|SKIP| and the stack is not empty, then we also propagate this erroneous \verb|None| state by taking a small step from $s$ to None.
-  This indicates there was an error returning from a function without a return value.}
+  \item{La función ``enabled'' o el ``transformer'' retornan \verb|None| al ser evaluados sobre el estado inicial.
+  Esto indica que un estado erróneo fue alcanzado durante la evaluación de alguna de esas dos funciones.
+  El estado erróneo se propaga al tomar un paso corto desde el estado $s$ hasta \verb|None| y luego la ejecución se queda atascada allí.}
+  \item{Si al aplicar el ``transformer'' \verb|tr_return_void| sobre el estado el mismo retorna un valor \verb|None|, el comando en el tope de la pila en el estado inicial es SKIP y la pila no está vacía, entonces también se propaga este estado erróneo \verb|None| al tomar un paso corto desde $s$ hasta \verb|None|.
+  Esto indica que hubo un error al retornar de una función sin valor de retorno.}
 \end{itemize}
 
 \begin{figure}
@@ -1023,16 +1027,16 @@ A small step can fail to be taken in any of the following cases:
   \label{fig:small_step_rules}
 \end{figure}
 
-We have defined how to take a single step in our semantics.
-In order to take more than one step and define the execution of a program in our semantics we must lift the definition of \verb|small_step| to \verb|state option| in both the initial and the final state.
+Se ha definido como tomar un solo paso en la semántica.
+Con el fin de tomar mas de un solo paso y definir la ejecución de un programa en la semántica se debe levantar la definición de \verb|small_step| a \verb|state option| tanto en el estado inicial como en el final.
 
-We also define (in figure~\ref{fig:small_step_rules}) a new \verb|small_step'| based on our previous definition of \verb|small_step|.
-This definition essentially says that if a small step can be taken from state $s$ to state $s'$ then a small step can be taken from \verb|Some| $s$ to $s'$.
-Note that $s'$ can either be a \verb|None| value or a \verb|Some| $s_{i}$.
-The infix syntax for this new \verb|small_step'| is written as \verb|Some| $s \rightarrow' s'$, which means we take a small step from \verb|Some| $s$ to $s'$.
+También se define (en la figura~\ref{fig:small_step_rules}) una nueva definición \verb|small_step'| basada en la definición previa para \verb|small_step|.
+Esta definición basicamente dice que si un paso corto puede ser tomado desde el estado $s$ hasta $s'$ entonces un paso corto puede ser tomado desde \verb|Some| $s$ hasta $s'$.
+Nótese que $s'$ puede ser tanto \verb|None| como \verb|Some| $s_{i}$.
+La notación de infijo para esta nueva definición se escribe como \verb|Some| $s \rightarrow' s'$, lo cual significa que se toma un paso corto desde \verb|Some| $s$ hasta $s'$.
 
-In this manner, we have lifted our small step definition to the type \verb|state option| and we can define the execution of a program as the reflexive transitive closure of the newly defined \verb|small_step'|, using Isabelle's \verb|star| operator.
-The infix syntax for this is written as $s_{0} \rightarrow* s_{f}$, which means we can go from state $s_{0}$ to $s_{f}$ in zero or more small steps.
+De esta manera, se ha levantado la definición de pasos cortos al tipo \verb|state option| y se puede definir la ejecución de un programa como la clausura reflexiva y transitiva de \verb|small_step'|, usando el operador \verb|star| de Isabelle.
+La notación de infijo para esto es escrito: $s_{0} \rightarrow* s_{f}$, lo cual significa que se puede ir desde el estado $s_{0}$ hasta $s_{f}$ en cero o mas pasos cortos.
 
 
 \subsubsection*{Determinism}
