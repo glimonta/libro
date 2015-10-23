@@ -1038,19 +1038,17 @@ La notación de infijo para esta nueva definición se escribe como \verb|Some| $
 De esta manera, se ha levantado la definición de pasos cortos al tipo \verb|state option| y se puede definir la ejecución de un programa como la clausura reflexiva y transitiva de \verb|small_step'|, usando el operador \verb|star| de Isabelle.
 La notación de infijo para esto es escrito: $s_{0} \rightarrow* s_{f}$, lo cual significa que se puede ir desde el estado $s_{0}$ hasta $s_{f}$ en cero o mas pasos cortos.
 
-
 \subsubsection*{Determinism}
 
-To be able to make our semantics executable inside of the Isabelle/HOL environment it must be deterministic.
-This is why we prove the determinism property for the semantics.
-In order to go through with that proof a set of lemmas must be first defined and proved.
-We will proceed to explain such defined lemmas for our semantics in this section.
+Para poder ejecutar la semántica dentro del ambiente de Isabelle/HOL, la misma debe ser determinística.
+Es por ello que se demuestra la propiedad de ``determinism'' para la semántica.
+Con el fin de demostrar esa propiedad, una serie de lemas deben ser definidos y demostrados primero.
 
-Whenever we introduce a lemma, next to its number we will have a name in parenthesis.
-This corresponds to the name of the lemma in the Isabelle source files submitted with this work.
-In the case where the reader is interested in the exact proof for a particular lemma he or she can search for the corresponding lemma in the theory files and read the proof.
+Cada vez que se introduce un lema, junto a su número se encontrará un nombre en paréntesis.
+Este nombre corresponde al nombre del lema en el código fuente de Isabelle presentados con este trabajo.
+En el caso en que el lector esté interesado en la demostración exacta para un lema en particular él o ella puede buscar el lema correspondiente en los archivos y leer la prueba.
 
-This first lemma indicates that whenever we have a command different from \verb|SKIP| there is either always an enabled action to take in the CFG or an error occurs when trying to evaluate the enabled function.
+Este primer lema indica que cada vez que se tiene un comando diferente a \verb|SKIP| hay siempre una arista ``enabled'' que se puede tomar en el CFG o un error ocurre al evaluar la función ``enabled''.
 
 \begin{lemma}[cfg\_has\_enabled\_action]
 $\newline$
@@ -1059,23 +1057,23 @@ $c$ $\neq$ \verb|SKIP| $\Longrightarrow$ $\exists\ c'\ en\ tr$. \verb|cfg| $c\ (
 \end{lemma}
 
 \begin{proof}
-The proof is by induction on the command.
-Except for two cases the proof is solved automatically.
-Those interesting cases are the \verb|Seq| and the \verb|If| cases.
-In the \verb|Seq| case we need to make a further case distinction on the first command of the sequential composition in order to differentiate the cases where it is \verb|SKIP| and when it is not.
-In both cases there is a CFG rule that ensures there is an enabled action and the case is solved automatically.
+La prueba es por inducción en el comando.
+A excepción de dos casos, la prueba es demostrada automáticamente.
+Esos dos casos son los comandos \verb|Seq| y \verb|If|.
+En el caso de \verb|Seq| se debe hacer una prueba por casos sobre el primer comando de la secuenciación para poder diferenciar los casos cuando es \verb|SKIP| y cuando no.
+En ambos casos existe una regla en la defición de CFG que asegura que hay una arista habilitada que se puede tomar y el caso se soluciona automáticamente.
 
-In the \verb|If| case we need to make a case distinction over the value of $\mathtt{en\_pos}\ b\ s$.
-It can fail and return a None value, then the case is solved.
-If it does not fail then we must check the boolean value returned by the \verb|en_pos| function.
-In the case where it is \verb|True| then the case is solved.
-The challenging case comes when the evaluation of \verb|en_pos| is \verb|False|, semantically, this means the else branch should be taken instead.
-Therefore when $\mathtt{en\_pos}\ b\ s$ is \verb|False|, $\mathtt{en\_neg}\ b\ s$ will always evaluate to \verb|True|, this means that the command will have an enabled action, namely $\mathtt{en\_neg}\ b\ s$ and the proof of this case is complete.
+En el caso de \verb|If| se debe hacer una prueba por casos sobre el valor de $\mathtt{en\_pos}\ b\ s$.
+Puede fallar y retornar un valor \verb|None|, entonces el caso está resuelto.
+Si no falla entonces se debe chequear el valor booleano retornado por la función \verb|en_pos|.
+En el caso donde es \verb|True| entonces el caso está resuelto.
+El caso difícil es cuando la evaluación de \verb|en_pos| es \verb|False|, semanticamente, esto significa que se debe tomar la rama del else.
+Por lo tanto cuando $\mathtt{en\_pos}\ b\ s$ es \verb|False|, $\mathtt{en\_neg}\ b\ s$ siempre se evaluará como \verb|True|, esto significa qe el comando siempre tendrá una arista habilitada que puede seguir, es decir, $\mathtt{en\_neg}\ b\ s$ y la demostración de este caso está completa.
 \end{proof}
 
-Next we want to prove that as long as the stack is not empty the small-step semantics can always take a step.
-We will make use of the previous lemma in the proof for this new lemma.
-This lemma states that the semantics can take a step.
+A continuación se quiere demostra que mientras la pila no esté vacia, la semántica de pasos cortos siempre puede tomar un paso.
+Se utilizará el lema anterior en la prueba para este nuevo lema.
+Este lema dice que la semántica puede tomar un paso.
 
 \begin{lemma}[can\_take\_step]
 $\newline$
@@ -1084,36 +1082,36 @@ $\neg$ \verb|is_empty_stack| $s$ $\Longrightarrow$ $\exists\ x.\ s\ \rightarrow\
 \end{lemma}
 
 \begin{proof}
-From the assumptions we know that the stack is not empty, therefore we can rewrite the state as follows: $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
-We can then do a proof by cases.
-We have the case where $c\ =\ \mathtt{SKIP}$ and the case where $c\\neq\ \mathtt{SKIP}$.
+De las supociiones sabemos que la pila no está vacia, por lo tanto se puede reescribir el estado de la siguiente manera: $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
+Luego se puede hacer una prueba por casos.
+Se tiene el caso donde $c\ =\ \mathtt{SKIP}$ y el caso donde $c\\neq\ \mathtt{SKIP}$.
 
-The case where $c\ =\ \mathtt{SKIP}$ is the case where we are returning from the execution of a function.
-We know that the stack is not empty, that $c\ =\ \mathtt{SKIP}$ and that $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
-This case corresponds to the \verb|Return_void| and \verb|Return_void_None| rules in the definition of \verb|small_step|.
-In both these cases the semantics can take a step, either to some new state $s'$ or to \verb|None|.
-This goal is solved automatically by Isabelle indicating the mentioned rules and assumptions.
+El caso donde $c\ =\ \mathtt{SKIP}$ es el caso en el que se está retornando de la ejecución de una función.
+Se tiene que la pila no está vacia, que $c\ =\ \mathtt{SKIP}$ y que $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
+Este caso corresponde a las reglas \verb|Return_void| y \verb|Return_void_None| en la definición de \verb|small_step|.
+En ambos casos la semántica puede tomar un paso, bien sea a un nuevo estado $s'$ o a \verb|None|.
+El caso se resuelve automáticamente por Isabelle al indicar las reglas mencionadas y las suposiciones.
 
-The second case is where $c\\neq\ \mathtt{SKIP}$.
-This is the case when we are executing any other command and not returning from a function.
-In this case we use the previous lemma~\ref{lemma:cfg_enabled_action} and from that we know that $\mathtt{cfg}\ c\ (en,tr)\ c'$ and either the enabled function fails ($\mathtt{en}\ s\ = \mathtt{None}$) or it is enabled ($\mathtt{en}|\ s\ = \mathtt{Some True}$).
+El segundo caso es cuando $c\\neq\ \mathtt{SKIP}$.
+Este es el caso donde se ejecuta cualquier otro comando que no sea el retorno de una función.
+En este caso se utiliza el lema anterior~\ref{lemma:cfg_enabled_action} y se tiene que $\mathtt{cfg}\ c\ (en,tr)\ c'$ y o la función ``enabled'' falla ($\mathtt{en}\ s\ = \mathtt{None}$) o está habilidada ($\mathtt{en}|\ s\ = \mathtt{Some True}$).
 
-We prove this subgoal by splitting it into cases.
-In the first case we assume $\mathtt{cfg}\ c\ (en,tr)\ c'$ and $\mathtt{en}\ s\ = \mathtt{None}$.
-This is the case where the evaluation function fails, we know this case takes a step to None because of the \verb|None| case of the small step definition.
-Then we have proved that it exists a state so that $s\ \rightarrow\ \mathtt{None}$.
+Esto se demuestra mediante una separación por casos.
+En el primer caso se supone $\mathtt{cfg}\ c\ (en,tr)\ c'$ y $\mathtt{en}\ s\ = \mathtt{None}$.
+Este es el caso donde la evaluación de la función falla, se sabe que este caso toma un paso corto a None dado por el caso \verb|None| de la definción de \verb|small_step|.
+Entonces se ha demostrado que existe un estado tal que $s\ \rightarrow\ \mathtt{None}$.
 
-In the next case we assume $\mathtt{cfg}\ c\ (en,tr)\ c'$ and $\mathtt{en}\ s\ = \mathtt{Some True}$.
-This is the case where we are enabled to take a step and we must still check two more cases.
-Applying the transformer function over the state updated with the command ($tr\ (upd\_com\ c'\ s)$) can either fail or not.
-In the case it fails (it returns \verb|None|) we can take a step to \verb|None| and we will have proved that there is a state to which $s$ can take a small step, namely \verb|None|.
-In the case it does not fail, it will return $\mathtt{Some}\ s_{2}$.
-In this case we can take a step to $\mathtt{Some}\ s_{2}$ and we will have proved that there is a state to which $s$ can take a small step, namely $\mathtt{Some}\ s_{2}$.
+En el siguiente caso se supone $\mathtt{cfg}\ c\ (en,tr)\ c'$ y $\mathtt{en}\ s\ = \mathtt{Some True}$.
+Este es el caso donde hay una arista que está habilitada para ser seguida y aún se deben revisar dos casos mas.
+Aplicar el ``transformer'' sobre el estado actualizado con el comando ($tr\ (upd\_com\ c'\ s)$) puede fallar o no.
+En el caso donde falla (retorna \verb|None|) se puede tomar un paso a \verb|None| y se habrá probado que hay un estado al que $s$ puede tomar un paso corto, es decir \verb|None|.
+En el caso donde no falla, retornará $\mathtt{Some}\ s_{2}$.
+En este caso se puede tomar un paso a $\mathtt{Some}\ s_{2}$ y se habrá probado que hay un estado al cual $s$ puede tomar un paso corto, es decir $\mathtt{Some}\ s_{2}$.
 \end{proof}
 
-We define several lemmas that will come in handy later on.
+Se definen varios lemas que serán útiles más adelante.
 
-The first lemma states that the CFG gets stuck at SKIP:
+El primer lema establece que el CFG se queda atascado en SKIP:
 \begin{lemma}[cfg\_SKIP\_stuck]
 $\newline$
 $\neg$ \verb|cfg SKIP| $a\ c$
@@ -1121,7 +1119,7 @@ $\neg$ \verb|cfg SKIP| $a\ c$
 \end{lemma}
 
 \begin{proof}
-The property is proved automatically.
+La propiedad es demostrada automáticamente.
 \end{proof}
 
 
@@ -1132,7 +1130,7 @@ $\newline$
 \end{lemma}
 
 \begin{proof}
-The property is proved automatically.
+La propiedad es demostrada automáticamente.
 \end{proof}
 
 
@@ -1143,10 +1141,10 @@ $\newline$
 \end{lemma}
 
 \begin{proof}
-The property is proved automatically.
+La propiedad es demostrada automáticamente.
 \end{proof}
 
-Lemmas~\ref{lemma:ss_empty_stack_stuck} and~\ref{lemma:ss'_empty_stack_stuck} define the final state in which the semantics will get stuck, the semantics will get stuck when there are no more stack frames in the stack.
+Los lemas~\ref{lemma:ss_empty_stack_stuck} y~\ref{lemma:ss'_empty_stack_stuck} definen el estado final en el que la semántica se quedará atascada, la semántica se quedará atascada cuando no existan mas marcos de pila en la pila.
 
 
 \begin{lemma}[en\_neg\_by\_pos]
@@ -1156,13 +1154,13 @@ $\newline$
 \end{lemma}
 
 \begin{proof}
-The property is proved automatically unfolding the definitions of \verb|en_neg| and \verb|en_pos|.
+La propiedad es demostrada automáticamente desplegando las definiciones de \verb|en_neg| y \verb|en_pos|.
 \end{proof}
 
-Lemma~\ref{lemma:en_neg_by_pos} states that every time the enabled function \verb|en_neg| has a value (different than None) over a state, \verb|en_pos| will have the same but opposite result.
-In the case where one of the functions fails the other one will too, and they will yield \verb|None|.
-If they do not fail their results will be opposite, that is, if one has \verb|Some True| as a result, the other one will have \verb|Some False| as a result.
-This lemma will come in handy when proving determinism.
+El lema~\ref{lemma:en_neg_by_pos} establece que cada vez que la función \verb|en_neg| tenga un valor (diferente de None) sobre un estado, \verb|en_pos| tendrá el mismo resultado opuesto.
+En el caso donde una de las funciones falla, la otra fallará también y retornarán \verb|None|.
+Si no fallan, sus resultados serán opuestos, esto es, si una tiene \verb|Some True| como resultado, la otra tendrá \verb|Some False| como resultado.
+Este lema será útil al probar ``determinism''.
 
 \begin{lemma}[cfg\_determ]
 $\newline$
@@ -1179,13 +1177,14 @@ $\exists\ b.\ a1\ = (\mathtt{en\_neg}\ b,\ \mathtt{tr\_eval}\ b)\ \wedge\ a2\ = 
 \end{lemma}
 
 \begin{proof}
-The proof is by induction on the command, with the cases of the \verb|cfg| rules generated by Isabelle all cases are solved automatically.
+La demostración es por inducción sobre el comando, con los casos generados automáticamente por Isabelle de las reglas de \verb|cfg|.
+Todos los casos se demuestran automáticamente.
 \end{proof}
 
-Lemma~\ref{lemma:cfg_determ} states that CFG is deterministic.
-The only case where it is not is in the conditional case, for which we add an extra alternative in the conclusion.
-It can happen that we have a CFG rule starting at an \verb|If| command that has an edge to a $c_{1}$ and also an edge to $c_{2}$.
-This is not really a problem since the enabled functions guarantee that whenever that happens only one of the branches can be taken.
+El lema~\ref{lemma:cfg_determ} establece que CFG es determinístico.
+El único caso donde no lo es es en el caso del condicional, para el cual se agrega una alternativa extra en la conclusion.
+Puede pasar que se tenga una regla del CFG comanzando en un comando \verb|If| que tiene una arista a $c_{1}$ y también una arista a $c_{2}$.
+Esto no es realmente un problema dado que las funciones ``enabled'' garantizan que cuando esto ocurre, solamente una de las aristas puede ser tomada.
 
 
 \begin{lemma}[lift\_upd\_com]
@@ -1199,7 +1198,7 @@ $\mathtt{map\_option}\ (\mathtt{upd\_com}\ c)\ (\mathtt{lift\_transformer\_nr}\ 
 \end{lemma}
 
 \begin{proof}
-It is proved automatically by unfolding the definition of \verb|lift_transformer_nr|.
+Es demostrado automáticamente desplegando la definición de \verb|lift_transformer_nr|.
 \end{proof}
 
 \begin{lemma}[tr\_eval\_upd\_com]
@@ -1213,17 +1212,17 @@ $\mathtt{map\_option}\ (\mathtt{upd\_com}\ c)\ (\mathtt{tr\_eval}\ e\ s)$
 \end{lemma}
 
 \begin{proof}
-It is proved automatically by unfolding the definition of \verb|tr_eval|.
+Es demostrado automáticamente desplegando la definición de \verb|tr_eval|.
 \end{proof}
 
-The \verb|lift_transformer_nr| function lifts to states the definition of a transformer function that operates in the visible state level.
-Lemmas~\ref{lemma:lift_upd_com} states that it does not matter in which order a transformer function is applied over a state and the command in the top of the stack frame is updated, since it will always yield the same result.
-This is because the update command function only modifies the command at the top of the stack and the transformer function cannot access and modify that part of the stack since it only modifies the visible state.
+La función \verb|lift_transformer_nr| levanta la definición de un ``transformer'', que opera en el nivel de estados visibles, a estados.
+El lema~\ref{lemma:lift_upd_com} establece que no importa en que orden se aplique un ``transformer'' sobre un estado y se actualice el comando en el tope de la pila, dado que siempre produce el mismo resultado.
+Esto es porque la función que actualiza el comando solo modifica el comando en el tope de la pila y el ``transformer'' no puede accesar y modificar esa parte de la pila, ya que solo puede modificar el estado visible.
 
-Lemma~\ref{lemma:tr_eval_upd_com} is a more specific version of the previous lemma that states the same fact specifically for the evaluation transformer function.
+El lema~\ref{lemma:tr_eval_upd_com} es una versión más específica del lema anterior que establece el mismo hecho específicamente para la función \verb|tr_eval|.
 
 
-All the previous lemmas and definitions have been building up to this next proof, the determinism of the small step semantics.
+Todos los lemas y definiciones anteriores son definidos con el fin de ser utilizados en la próxima demostración; ``determinism'' de la semántica de pasos cortos.
 \begin{lemma}[small\_step\_determ]
 $\newline$
 $s\ \rightarrow\ s'\ \wedge\ s\ \rightarrow\ s''\ \Longrightarrow\ s'\ =\ s''$
@@ -1231,13 +1230,13 @@ $s\ \rightarrow\ s'\ \wedge\ s\ \rightarrow\ s''\ \Longrightarrow\ s'\ =\ s''$
 \end{lemma}
 
 \begin{proof}
-The proof is by cases on the small step semantics.
-We obtain 4 cases, each corresponding to each rule in the small step semantics.
-The goals generated by the \verb|Return_void| and \verb|Return_void_None| rules are solved automatically.
-The goals generated by the \verb|Base| and the \verb|None| are solved automatically after adding lemmas~\ref{lemma:en_neg_by_pos} and~\ref{lemma:tr_eval_upd_com}.
+La demostración es una prueba por casos sobre la semántica de pasos cortos.
+Se obtienen 4 casos, cada uno correspondiente a cada regla en la semántica de pasos cortos.
+Los objetivos de prueba generados por las reglas \verb|Return_void| y \verb|Return_void_None| se resuelven automáticamente.
+Los objetivos de prueba generados por las reglas \verb|Base| y \verb|None| se resuelven automáticamente luego de agregar los lemas~\ref{lemma:en_neg_by_pos} y ~\ref{lemma:tr_eval_upd_com}.
 \end{proof}
 
-Then we are only left to show that \verb|small_step'| is also deterministic.
+Luego solo queda demostrar que \verb|small_step'| es tambien determinística.
 
 \begin{lemma}[small\_step'\_determ]
 $\newline$
@@ -1246,14 +1245,14 @@ $s\ \rightarrow'\ s'\ \wedge\ s\ \rightarrow'\ s''\ \Longrightarrow\ s'\ =\ s''$
 \end{lemma}
 
 \begin{proof}
-The proof is by cases on the small step semantics.
-It is proved automatically by using lemma~\ref{lemma:small_step_determ}.
+La demostración es una prueba por casos sobre la semántica de pasos cortos.
+Se demuestra automáticamente mediante el uso del lema~\ref{lemma:small_step_determ}.
 \end{proof}
 
 
-\section{Interpreter}\label{section:interpreter}
+\section{Interpretador}\label{section:interpreter}
 
-\subsection{Single step}\label{subsection:single_step}
+\subsection{Ejecución de un solo paso}\label{subsection:single_step}
 
 \begin{figure}
   \begin{lstlisting}[frame=single, mathescape=true]
@@ -1287,7 +1286,7 @@ It is proved automatically by using lemma~\ref{lemma:small_step_determ}.
   end
   \end{lstlisting}
 
-  \caption{Single step edges}
+  \caption{Aristas de un solo paso}
   \label{fig:single_step_edges}
 \end{figure}
 
@@ -1309,33 +1308,33 @@ It is proved automatically by using lemma~\ref{lemma:small_step_determ}.
             }
   \end{lstlisting}
 
-  \caption{Definition of fstep}
+  \caption{Definición de fstep}
   \label{fig:fstep_def}
 \end{figure}
 
-There are two kinds of edges in the CFG.
-We create a new datatype for representing them.
+Existen dos tipos de pasos que se pueden tomar en el CFG.
+Se crea un nuevo tipo de datos par representarlos.
 
 
-A $Base$ edge that has a transformer function and is always enabled and takes us to a new command and a $Cond$ edge that, apart from the transformer function, also has an enabled function and two commands.
-This enabled function indicates whether we take a step to the first or the second command.
-Also we define a \verb|cfg_step| function that given the starting command returns which kind of edge follows in the CFG.
+Un paso $Base$ tiene un ``transformer'' y siempre está habilitada para seguir hasta un nuevo comando y un paso $Cond$ que, además del ``transformer'', también tiene una función ``enabled'' y dos comandos.
+Esta función ``enabled'' indica si se debe tomar un paso al primer o al segundo comando.
+También se define una función \verb|cfg_step| que dada el comando de inicio retorna que tipo de paso sigue en el CFG.
 
-The function \verb|fstep|, defined in figure~\ref{fig:fstep_def}, is how we take a single step in the execution of the semantics.
-An execution of a step in the semantics will take us from an initial state to a new state which can be an erroneous state (\verb|None|) or a valid one (\verb|Some| $s$).
-To execute a \verb|SKIP| command we call the transformer function for returning without a value from a function \verb|tr_return_void|.
-Otherwise we will check which kind of step we should take by means of the \verb|cfg_Step| function and, based on that, decide what to do.
-If it is a \verb|Base| step we will call the transformer function over the state with the updated command.
-If, on the other hand, it is a \verb|Cond| step we will evaluate the condition and call the transformer function over the state with the updated command.
+La función \verb|fstep|, definida en la figura~\ref{fig:fstep_def}, indica como se toma un solo paso el la ejecución de la semántica.
+La ejecución de un paso en la semántica va desde un estado inicial a un nuevo estado que puede ser erróneo (\verb|None|) o uno válido (\verb|Some| $s$).
+Para ejecutar un comando \verb|SKIP| se llama a \verb|tr_return_void|.
+En cualquier otro comando se verifica que tipo de paso se debe tomar utilizando la función \verb|cfg_step| y, basado en esto, se decide que hacer.
+Si es un paso \verb|Base| se llama al ``transformer'' sobre el estado con el comando actualizado.
+Si es un paso \verb|Cond| se evalúa la condición y se llama a la función transformer sobre el estado con el comando actualizado.
 
-\subsubsection*{Equality between small-step semantics and single-step execution}\label{subsubsection:equality_ss_ss}
+\subsubsection*{Equivalencia entre semántica de pasos cortos y ejecución de un solo paso}\label{subsubsection:equality_ss_ss}
 
-We must now prove that the single step execution is semantically equivalent to taking a step in the small-step semantics.
-This is proving that $\neg\ \mathtt{is\_empty\_stack}\ \Longrightarrow\ s\ \rightarrow\ s'\ \longleftrightarrow\ \mathtt{fstep}\ s\ =\ s'$\footnote{fstep has an extra parameter, namely the procedure table, which we will avoid writing here to make it simpler to read}.
-We prove both directions of the equivalence separately: for every step taken in the small-step semantics, there is an equivalent step that can be taken in the execution by \verb|fstep| which will lead to the same final state and vice versa.
+Ahora se debe demostrar que le ejecución de un solo paso es semánticamente equivalente a tomar un paso en la semántica de pasos cortos.
+Esto significa probar que $\neg\ \mathtt{is\_empty\_stack}\ \Longrightarrow\ s\ \rightarrow\ s'\ \longleftrightarrow\ \mathtt{fstep}\ s\ =\ s'$~\footnote{fstep tiene un parámetro extra, es decir la tabla de procedimientos, que no se escribirá acá para simplificar la lectura.}.
+Se demuestran ambas direciones de la equivalencia por separado: para cada paso tomado en la semántica de pasos cortos hay un paso equivalente que puede ser tomado en la ejecución por \verb|fstep| que llevará al mismo estado final y viceversa.
 
 
-We start by showing that any step taken in the small-step semantics can be simulated by a step taken with fstep.
+Se comienza demostrando que cualquier paso tomado en la semántica de pasos cortos puede ser simulado a través de un paso tomado con \verb|fstep|.
 
 \begin{lemma}[fstep1]
 $\newline$
@@ -1344,10 +1343,10 @@ $s\ \rightarrow\ s'\ \Longrightarrow\ \mathtt{fstep}\ s\ =\ s'$
 \end{lemma}
 
 \begin{proof}
-This proof is done by induction over the small-step semantics.
+La demostración es por inducción sobre la semántica de pasos cortos.
 \end{proof}
 
-Then we consider the other direction:
+Luego se considera la dirección opuesta:
 
 \begin{lemma}[fstep2]
 $\newline$
@@ -1356,10 +1355,10 @@ $\neg\ \mathtt{is\_empty\_stack}\ s\ \Longrightarrow\ s\ \rightarrow\ (\mathtt{f
 \end{lemma}
 
 \begin{proof}
-This proof is done automatically by making a case distinction on the result of ``\verb|tr_return_void| $s$'' and using the lemmas~\ref{lemma:can_take_step} and~\ref{lemma:fstep1}.
+La demostración se hace automáticamente mediante una prueba por casos sobre el resultado de ``\verb|tr_return_void| $s$'' y utilizando los lemas~\ref{lemma:can_take_step} y~\ref{lemma:fstep1}.
 \end{proof}
 
-Both directions together (Lemma~\ref{lemma:fstep1} and lemma~\ref{lemma:fstep2}) let us then show the equivalence we were aiming for originally:
+Ambas direcciones juntas (lema~\ref{lemma:fstep1} y lema~\ref{lemma:fstep2}) permiten demostrar la equivalencia planteada al inicio:
 
 \begin{lemma}[ss\_fstep\_equiv]
 $\newline$
@@ -1368,9 +1367,9 @@ $\neg\ \mathtt{is\_empty\_stack}\ \Longrightarrow\ s\ \rightarrow\ s'\ \longleft
 \end{lemma}
 
 
-\subsection{Execution and Interpretation}\label{subsection:exec_interp}
+\subsection{Ejecución e interpretación}\label{subsection:exec_interp}
 
-In order to execute a program we will define an interpreter for it.
+Con el fin de ejecutar un programa se define un interpretador.
 
 \begin{figure}
   \begin{lstlisting}[frame=single, mathescape=true]
@@ -1385,17 +1384,17 @@ In order to execute a program we will define an interpreter for it.
       (Some $cs$))"
   \end{lstlisting}
 
-  \caption{Definition of an interpreter for Chloe}
+  \caption{Definición de un interpretador para Chloe}
   \label{fig:interpreter_def}
 \end{figure}
 
-In figure~\ref{fig:interpreter_def} we find such definition.
-First we define the criteria on which a state is considered final.
-A state will be considered final when its execution stack is empty or when it is \verb|None|.
+La definición para tal interpretador se encuentra en la figura~\ref{fig:interpreter_def}.
+Primero se define el criterio para considerar un estado como final.
+Un estado será considerado como final cuando su pila de ejecución esté vacia o cuando sea \verb|None|.
 
-The interpreter for our semantics works as follows: As long as a final state is not reached we execute \verb|fstep|.
+El interpretador para la semántica funciona de la siguiente manera: mientras no se alcance un estado final se ejecuta \verb|fstep|.
 
-Finally, we show a lemma that states that if a state is final, then it is the result of the interpretation.
+Se presenta un lema que establece que si un estado es final, entonces es el resultado de la interpretación.
 
 \begin{lemma}[interp\_term]
 $\newline$
@@ -1403,7 +1402,7 @@ $\mathtt{is\_term}\ \mathtt{(Some}\ cs\mathtt{)}\ \Longrightarrow\ \mathtt{inter
 \label{lemma:interp_term}
 \end{lemma}
 
-In order to show this we need a lemma that unfolds the loop in the definition of our interpreter:
+Para poder demostrar esto necesitamos un lema que ``unfolds the loop'' en la definición de nuestro interpretador:
 
 \begin{lemma}[interp\_unfold]
 $\newline$
@@ -1417,13 +1416,14 @@ $\mathtt{\}})$
 \end{lemma}
 
 \begin{proof}
-The proof is solved automatically.
+La demostración es hecha automáticamente.
 \end{proof}
 
-With lemma~\ref{lemma:interp_unfold} the proof for lemma~\ref{lemma:interp_term} is solved automatically.
+Con el lema~\ref{lemma:interp_unfold}, la demostración del lema~\ref{lemma:interp_term} se hace automáticamente.
 
-Finally, only valid programs can be executed. In figure~\ref{fig:execute_def} we can see the definition for the function that executes a program.
-In order to execute a program we assert that it is valid with the previously defined \verb|valid_program| and then proceed to interpret the initial state of the program p.
+Solamente programas válidos pueden ser ejecutados.
+En la figura~\ref{fig:execute_def} se encuentra la definición de la función que ejecuta un programa.
+Para ejecutar un programa se debe asegurar que el mismo es válido utilizando el criterio definido en \verb|valid_program| y luego se interpreta el estado inicial del programa p.
 
 \begin{figure}
   \begin{lstlisting}[frame=single, mathescape=true]
@@ -1434,17 +1434,17 @@ In order to execute a program we assert that it is valid with the previously def
     }"
   \end{lstlisting}
 
-  \caption{Definition of an interpreter for Chloe}
+  \caption{Definición de un interpretador para Chloe}
   \label{fig:execute_def}
 \end{figure}
 
 
-\subsection{Correctness}\label{subsection:correctness}
+\subsection{Correctitud}\label{subsection:correctness}
 
-Finally we must show our interpreter to be correct.
-In figure~\ref{fig:execution_definitions} we have two definitions regarding execution.
-The first one states that an execution of a state $cs$ \verb|yields| $cs'$ if we can take small steps from $cs$ to $cs'$ and $cs'$ is a final state.
-Secondly, we define an execution of a state to terminate if there exists a state $cs'$ such that the execution of state $cs$ yields it.
+Por último, se debe demostrar que el interpretador es correcto.
+En la figura~\ref{fig:execution_definitions} se encuentran dos definiciones con respecto a la ejecución.
+La primera establece que una ejecución de un estado $cs$ produce (\verb|yields|) $cs'$ si se pueden tomar pasos cortos desde $cs$ hasta $cs'$ y $cs'$ es un estado final.
+En segundo lugar, se dice que la ejecución de un estado \textit{termina} si existe algún estado $cs'$ tal que sea producido por la ejecución del estado $cs$.
 
 \begin{figure}
   \begin{lstlisting}[frame=single, mathescape=true]
@@ -1453,12 +1453,12 @@ Secondly, we define an execution of a state to terminate if there exists a state
   definition "terminates $\equiv$ $lambda\ cs$. $\exists\ cs'$. yields $cs\ cs'$"
   \end{lstlisting}
 
-  \caption{Definitions about program execution}
+  \caption{Definiciones sobre ejecución de programas}
   \label{fig:execution_definitions}
 \end{figure}
 
-Before showing the correctness lemma for the correctness of the interpreter we must show that the small steps execution will preserve an erroneous \verb|None| state if it is reached by the path of steps taken.
-Upon erroneous execution we will get stuck in a \verb|None| state.
+Antes de demostrar el lema de correctitud para el interpretador, se debe demostrar que la semátnica de pasos cortos preserva un estado erróneo \verb|None| si tal es alcanzado por el camino de pasos tomados.
+Tras una ejecución errónea, la misma se queda atascada en un estado \verb|None|.
 
 \begin{lemma}[None\_star\_preserved]
 $\newline$
@@ -1467,13 +1467,13 @@ $\mathtt{None}\ \rightarrow*\ z\ \longleftrightarrow\ z\ =\ \mathtt{None}$
 \end{lemma}
 
 \begin{proof}
-The proof is by induction on the reflexive transitive closure (star).
-The goals are solved automatically.
+La demostración es por inducción sobre la clausura reflexiva transitiva (\verb|star|).
+Los objetivos se resuelven automáticamente.
 \end{proof}
 
+Finalmente se tiene la propiedad de correctitud para el interpretador.
+El teorema~\ref{theorem:interp_correct} establece qeu si la ejecución de $cs$ termina, entonces esa ejecución produce $cs'$ si y solo si $cs'$ es el resultado que se obtiene de ejecutar el programa en el interpretador.
 
-Finally we show the correctness property for our interpreter.
-Theorem~\ref{theorem:interp_correct} states that if the execution of $cs$ terminates, then that execution yields $cs'$ if and only if $cs'$ is the result we obtain from executing the program in the interpreter.
 \begin{theorem}[interp\_correct]
 $\newline$
 $\mathtt{terminates}\ cs\ \Longrightarrow\ (\mathtt{yields}\ cs\ cs')\ \longleftrightarrow\ (cs'\ =\ \mathtt{interp}\ \mathtt{proc\_table}\ cs)$
@@ -1481,5 +1481,5 @@ $\mathtt{terminates}\ cs\ \Longrightarrow\ (\mathtt{yields}\ cs\ cs')\ \longleft
 \end{theorem}
 
 \begin{proof}
-The proof is done by assuming the premise and proving each direction of the equality separately.
+La demostración se hace suponiendo el antecedente y demostrando cada dirección de la igualdad por separado.
 \end{proof}
