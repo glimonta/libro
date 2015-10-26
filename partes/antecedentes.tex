@@ -62,7 +62,7 @@ La idea fundamental detras de este modelo de memoria es tomada y adaptada a las 
 
 El presente trabajo tienen un enfoque de arriba a abajo (\textit{top-down}) donde se tiene la intención de generar códigio en C de una especificación formal.
 Existe otra dirección que es relevante mencionar.
-El proyecto AutoCorres~\cite{autocorres} ``parses'' código C y genera una representación monádica de alto nivel que facilita el razonamiento sobre un programa.
+El proyecto AutoCorres~\cite{autocorres} reconoce código C y genera una representación monádica de alto nivel que facilita el razonamiento sobre un programa.
 Este trabajo permite a los usuarios razonar sobre programas en C a un nivel más alto.
 Se genera una especificación en Isabelle/HOL así como una demostración de correctitud en Isabelle/HOL para la traducción que se realiza.
 Cuenta con una abstracción del \textit{heap} que permite el razonamiento sobre memoria para funciones \textit{type-safe} así como una abstracción para palabras que permite que palabras de la máquina puedan ser abstraídas a números naturales y enteros, de modo que sea posible razonar acerca de los mismos a este nivel.

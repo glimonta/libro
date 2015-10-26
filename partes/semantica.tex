@@ -124,10 +124,7 @@ Se define el siguiente tipo de datos en Isabelle para representar direcciones:
 datatype addr = nat $\times$ int
 \end{lstlisting}
 
-\begin{comment}
-FIXME block_id, offset
-\end{comment}
-Una dirección es entonces un par compuesto por un número natural y un entero (el cual es de tipo \verb|int| predefinido en Isabelle), estos representan un par \verb|(block_id, offset)|.
+Una dirección es entonces un par compuesto por un número natural y un entero (el cual es de tipo \verb|int| predefinido en Isabelle), estos representan un par \verb|(id_bloque, desplazamiento)|.
 En secciones futuras se procederá a explicar el diseño de la memoria.
 
 \subsubsection*{Valores}
@@ -186,7 +183,7 @@ Las funcionalidades de las operaciones de gestión de memoria se describen a con
   store     :: addr $\Rightarrow$ val  $\Rightarrow$ visible_state $\Rightarrow$ visible_state option
   \end{lstlisting}
 
-  \caption{Memory Management operations}
+  \caption{Operaciones de manejo de memoria}
   \label{fig:mem_operations}
 \end{figure}
 
@@ -226,7 +223,7 @@ Se define el tipo para una valuación de la siguiente manera:
 type_synonym valuation = vname $\Rightarrow$ val option option
 \end{lstlisting}
 
-Una valuación es una función que ``mapea'' un nombre de una variable a un valor.
+Una valuación es una función que mapea un nombre de una variable a un valor.
 El tipo de retorno es \verb|val option option|, lo que modela los siguientes estados para el valor de una variable: no definida, no inicializada y posee un valor.
 Por lo tanto, dado un nombre de una variable, esta función puede producir uno de los siguientes resultados:
 
@@ -266,7 +263,7 @@ Es importante tener en cuenta que el tipo de retorno de las funciones de evaluac
 Esto es debido a que estas funciones pueden fallar.
 Un fallo puede ocurrir en cualquier momento al evaluar una expresión y si un fallo es encontrado entonces el mismo se propaga hasta que toda la evaluación de la expresión devuelva un valor \verb|None| que indica un error en la evaluación.
 
-La evaluación de una expresión puede fallar por diversas razones que incluyen, pero no están limitadas a, variables no definidas, operandos ilegales en operaciones, acceso a partes inválidas de memoria y ``overflow''.
+La evaluación de una expresión puede fallar por diversas razones que incluyen, pero no están limitadas a, variables no definidas, operandos ilegales en operaciones, acceso a partes inválidas de memoria y \textit{overflow}.
 Por lo tanto, si hay un error temprano en la semántica de evaluación de expresiones, será detectado y propagado como un valor \verb|None| que indica un estado erróneo.
 
 Las funciones \verb|eval| y \verb|eval_l| dependen de otras funciones definidas con el find e calcular correctamente los valores de las expresiones.
@@ -301,9 +298,9 @@ Los valores de este tipo son o \verb|None| cuando la operación falla o $\verb|S
 Las funcionalidades de las funciones auxiliares son las siguientes:
 
 \begin{itemize}
-\item{La función \verb|detect_overflow| detecta el ``overflow'' en enteros.
-Toma como parametro un valor del tipo entero predefinido por Isabelle y chequea si existe ``overflow'' con los límites mostrados en la figura~\ref{fig:int_bounds}.
-Esta función fallará cuando se detecte ``overflow''.
+\item{La función \verb|detect_overflow| detecta el \textit{overflow} en enteros.
+Toma como parametro un valor del tipo entero predefinido por Isabelle y chequea si existe \textit{overflow}con los límites mostrados en la figura~\ref{fig:int_bounds}.
+Esta función fallará cuando se detecte \textit{overflow}.
 Al ser ejecutada exitosamente, la función retorna el valor correspondiente al entero dado como parámetro.}
 
 \item{La función \verb|read_var| calcula el valor de una variable.
@@ -313,33 +310,33 @@ Con el fin de calcular el valor de dicha variable, esta función chequea la valu
 En el caso en el que la variable no se encuentre definida en el alcance local, la función procederá a chequear el alcance global y retornará el valor de la variable.}
 
 \item{La función \verb|plus_val| calcula el valor de la suma entre dos valores.
-Esta función falla cuando se detecta ``overflow'' o cuando operandos distintos a dos enteros o una dirección y un entero (en ese orden específico) son dados como parametros a la función.
+Esta función falla cuando se detecta \textit{overflow} o cuando operandos distintos a dos enteros o una dirección y un entero (en ese orden específico) son dados como parametros a la función.
 Al ser ejecutada exitosamente con dos valores de tipo entero como parámetros, la función retorna un valor entero correspondiente a la suma de los operandos.
-Al ser ejecutada exitosamente con una dirección y un entero como parámetros, la función retorna una dirección correspondiente a la suma del ``offset'' entero al valor original de la dirección.}
+Al ser ejecutada exitosamente con una dirección y un entero como parámetros, la función retorna una dirección correspondiente a la suma del desplazamiento entero al valor original de la dirección.}
 
 \item{La función \verb|subst_val| calcula el valor de una sustracción entre dos valores.
-Esta función falla cuando se detecta ``overflow'' o cuando operandos distintos a dos enteros o una dirección y un entero (en ese orden específico) son dados como parametros a la función.
+Esta función falla cuando se detecta \textit{overflow} o cuando operandos distintos a dos enteros o una dirección y un entero (en ese orden específico) son dados como parametros a la función.
 Al ser ejecutada exitosamente con dos valores de tipo entero como parámetros, la función retorna un valor correspondiente a la resta de los operandos.
-Al ser ejecutada exitosamente con una dirección y un entero como parámetros, la función retorna una dirección correspondiente a la resta del ``offset'' entero al valor original de la dirección.}
+Al ser ejecutada exitosamente con una dirección y un entero como parámetros, la función retorna una dirección correspondiente a la resta del desplazamiento entero al valor original de la dirección.}
 
 \item{La función \verb|minus_val| calcula el valor de la operación de menos unario sobre un valor.
-Esta función falla cuando se detecta ``overflow'' o cuando un operando distinto a un entero es dado.
+Esta función falla cuando se detecta \textit{overflow} o cuando un operando distinto a un entero es dado.
 Al ser ejecutada exitosamente, la función retorna un valor entero correspondiente al resultado de negar el valor dado como parámetro.}
 
 \item{La función \verb|div_towards_zero| realiza la división entera con truncamiento hacia cero.}
 
 \item{La función \verb|div_val| calcula el valor de la división entre dos valores.
-La función falla cuando se detecta ``overflow'' o una división por cero o cuando operandos distintos a dos enteros son dados como parámetros a la función.
+La función falla cuando se detecta \textit{overflow} o una división por cero o cuando operandos distintos a dos enteros son dados como parámetros a la función.
 Al ser ejecutada exitosamente, la función retorna un valor entero correspondiente al resultado de la división entera entre los dos operandos.}
 
 \item{La función \verb|mod_towards_zero| realiza la operación de módulo con truncamiento hacia cero.}
 
 \item{La función \verb|mod_val| calcula el valor de la operación módulo entre dos valores.
-La función falla cuando se detecta ``overflow'' o una división por cero o cuando operandos distintos a dos enteros son dados como parámetros a la función.
+La función falla cuando se detecta \textit{overflow} o una división por cero o cuando operandos distintos a dos enteros son dados como parámetros a la función.
 Al ser ejecutada exitosamente, la función retorna un valor entero correspondiente al resultado de la operación de módulo entre los dos operandos.}
 
 \item{La función \verb|mult_val| calcula el valor de la multipliación entre dos valores.
-La función falla cuando se detecta ``overflow'' o cuando operandos distintos a dos enteros son dados como parametros a la función. 
+La función falla cuando se detecta \textit{overflow} o cuando operandos distintos a dos enteros son dados como parametros a la función. 
 Al ser ejecutada exitosamente, la función retorna un valor entero correspondiente a la multiplicación de los operandos de la función.}
 
 \item{La función \verb|less_val| calcula el valor resultante de realizar la operación menor que entre dos valores.
@@ -542,7 +539,7 @@ Las suposiciones hechas por esta semántica pueden ser cambiadas al cambiar el p
 Con el fin de garantizar las suposiciones hechas por la semántica, más adelante en el proceso de generación de código, se generan aserciones que aseguran que las condiciones que se suponen se cumplan.
 
 Otra restricción en la semántica es que solo funciona para un subconjunto de C donde la semántica es determinística y cualquier comportamiento indefinido se considera como un error en la semántica.
-Se pasará a un estado erróneo si la semántica encuentra comportamiento que sea considerado como indefinido por el documento de referencia del lenguaje C~\cite{c99}, un ejemplo de este tipo de comportamiento es ``overflow'' de enteros.
+Se pasará a un estado erróneo si la semántica encuentra comportamiento que sea considerado como indefinido por el documento de referencia del lenguaje C~\cite{c99}, un ejemplo de este tipo de comportamiento es \textit{overflow} de enteros.
 
 
 \section{Estados}\label{section:states}

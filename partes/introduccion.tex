@@ -18,7 +18,7 @@ Dado que C es mas cercano a la máquina en comparación con otros lenguajes de a
 Debido a su eficiencia, a menudo es usado en el desarrollo de compiladores, librerías e interpretadores para otros lenguajes de programación.
 
 Desafortunadamente, parte de la semántica para el lenguaje C descrita en el estándar~\cite{c99} es propensa a ambigüedades debido al uso del idioma inglés para describir el comportamiento de un programa.
-El uso de ``formal mathematical constructs'' eliminaría estas ambigüedades, aunque la formalización de la semántica para la totalidad del lenguaje C no es una tarea facil y de hecho es una que ha sido objeto de mucha investigación en el área de la semántica.
+El uso de constructores matemáticos formales eliminaría estas ambigüedades, aunque la formalización de la semántica para la totalidad del lenguaje C no es una tarea facil y de hecho es una que ha sido objeto de mucha investigación en el área de la semántica.
 
 A pesar de que la semántica definida en el presente trabajo cubre un subconjunto limitado del lenguaje C, es lo suficientemente expresiva como para permitir la implementación de algorítmos tales como algorítmos de ordenamiento, búsqueda en arboles, etc.
 
@@ -34,7 +34,7 @@ Esto permite la implementación de algunos algoritmos verificados utilizando la 
 
 Finalmente, también es objetivo de este trabajo verificar que la semántica sea compatible con un compilador de C real.
 Para ello se define un arnés de pruebas y una \textit{suite} de pruebas que tienen el propósito de aumentar la confianza en el proceso de traducción, es decir, la semántica del programa no es cambiada por el proceso de traducción a lenguaje C.
-El proceso de``\textit{testing}'' intenta comprobar que el estado final de un programa ejecutado en el ambiente de Isabelle/HOL y el estado final del programa generado, que es compilado y ejecutado fuera de este ambiente, serán iguales (excepto para el caso en el que se presente una falla al intentar asignar memoria dinámica).
+El proceso de pruebas intenta comprobar que el estado final de un programa ejecutado en el ambiente de Isabelle/HOL y el estado final del programa generado, que es compilado y ejecutado fuera de este ambiente, serán iguales (excepto para el caso en el que se presente una falla al intentar asignar memoria dinámica).
 Para garantizar esto, se escribe una librería para el arnés de pruebas en C que se utiliza para realizar pruebas generadas automáticamente (para los programas escritos en la semántica) que se encargan de comparar el estado final de la semántica ejecutada en el ambiente Isabelle/HOL con aquel del programa compilado.
 
 
@@ -171,13 +171,13 @@ Por último, se tiene que el comportamiento de este programa es intercambiar los
 La semántica denotacional deja de centrarse en \textit{como} se ejecuta un programa y redirige su enfoce hacia el \textit{efecto} de ejecutar el programa.
 Este enfoque sirve de ayuda pues da un \textit{significado} a los programas en un lenguaje~\cite{nipkow}.
 Este enfoque se modela mediante el uso de funciones matemáticas.
-Se tiene una función por cada ``construcción'' en el lenguaje, que define su significado, y estas funciones operan sobre estados.
-Toman el estado inicial y produce el estado resultante de aplicar el efecto de la ``construcción''.
+Se tiene una función por cada construcción en el lenguaje, que define su significado, y estas funciones operan sobre estados.
+Toman el estado inicial y produce el estado resultante de aplicar el efecto de la construcción.
 \begin{comment}
 FIXME Construcción no es la palabra.
 \end{comment}
 
-Si se toma el ejemplo anterior, se pueden definir los efectos de las diferentes ``construcciones'' que tenemos: instrucciones de secuenciación y asignación.
+Si se toma el ejemplo anterior, se pueden definir los efectos de las diferentes construcciones que tenemos: instrucciones de secuenciación y asignación.
 
 \begin{itemize}
 \item{El efecto de una secuencia de instrucciones se define como la composición funcional de cada instrucción individual.}
@@ -215,13 +215,13 @@ Ejemplos de esto son inicialización de variables, plegamiento de constantes (\t
 FIXME construcción
 \end{comment}
 Tambien conocida como Lógica de Hoare, este enfoque final se utiliza cuando el interés recae en probar propiedades de los programas.
-Se puede hablar de \textit{correctitud parcial} de un programa con respecto a una ``construcción'', una precondición y una postcondición siempre que la siguiente implicación se cumpla:
+Se puede hablar de \textit{correctitud parcial} de un programa con respecto a una construcción, una precondición y una postcondición siempre que la siguiente implicación se cumpla:
 
 \begin{displayquote}
 Si la precondición se cumple antes de que el programa se ejecute, y la ejecución del programa termina, entonces la postcondición se cumple para el estado final.
 \end{displayquote}
 
-También se puede hablar de \textit{correctitud total} de un programa con respecto a una ``construcción'', una precondición y una postcondición siempre que la siguiente implicación se cumpla:
+También se puede hablar de \textit{correctitud total} de un programa con respecto a una construcción, una precondición y una postcondición siempre que la siguiente implicación se cumpla:
 
 \begin{displayquote}
 Si la precondición se cumple antes de que el programa se ejecute y la ejecución del programa termina, entonces la postcondición se cumple para el estado final.

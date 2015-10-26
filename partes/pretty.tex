@@ -465,8 +465,7 @@ Nótese que la precision del tipo utilizado como \verb|dflt_type| debe correspon
 
 \paragraph*{Global variables}
 
-The only other thing we must know how to pretty print before defining the string representation of a program is a global variable definition.
-It is done the same way as the pretty printing of local variables, following this string format:
+La impresión de variables globales se hace de la misma manera que para las variables locales, siguiendo el siguiente formato:
 
 \begin{equation*}
 \begin{split}
@@ -481,7 +480,7 @@ It is done the same way as the pretty printing of local variables, following thi
 Para imprimir un programa se imprimen las directivas \verb|include| para los ``header files'', luego la verificación de los límites para los enteros, las declaraciones de las variables globales y, por último, se imprime cada función en el programa separado por un caracter de salto de línea.
 En la figura~\ref{fig:factorial_isabelle} se encuentra la definición de un programa factorial en Isabelle y en la figura~\ref{fig:factorial_c} se encuentra el código C generado para la misma.
 
-La verificación de los límites para los enteros para el límite inferior tiene una solución temporal ya que el valor de \verb|INTPTR_MIN| excede el límite superior para los enteros del preprocesador lo cual causa ``\textit{overflow}'' y una advertencia al compilar.~\footnote{Interpreta el número negativo como $-(numero)$ y produce una advertencia que indica que no puede representar $numero$.}
+La verificación de los límites para los enteros para el límite inferior tiene una solución temporal ya que el valor de \verb|INTPTR_MIN| excede el límite superior para los enteros del preprocesador lo cual causa \textit{overflow} y una advertencia al compilar.~\footnote{Interpreta el número negativo como $-(numero)$ y produce una advertencia que indica que no puede representar $numero$.}
 Para elimiar esta advertencia, se compara el valor de \verb|INTPTR_MIN + 1| al de \verb|INT_MIN + 1|.
 
 
