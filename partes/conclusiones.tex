@@ -1,61 +1,61 @@
-\chapter{Conclusion and Future Work}\label{chapter:conclusion}
-\lhead{Capítulo 6. \emph{Conclusion and Future Work}}
+\chapter{Conclusiones y trabajo futuro}\label{chapter:conclusion}
+\lhead{Capítulo 6. \emph{Conclusiones y trabajo futuro}}
 
-\section{Conclusions}
+\section{Conclusiones}
 
-In this work we have managed to successfully formalize the semantics for an imperative language called Chloe which covers a subset of the C language.
-Chloe has the following features: variables, arrays, pointer arithmetic, while loop construct, if-then-else conditional construct, functions and dynamic memory.
-We have formalized a small-step semantics in the Isabelle/HOL theorem prover for Chloe and proven the semantics to be deterministic.
-Additionally, we present an interpreter for the language, thus allowing for programs written in Chloe to be executed within the Isabelle/HOL environment.
-In order to do so we needed the determinism proofs for the semantics.
+En este trabajo se logró formalizar exitosamente la semántica para un lenguaje imperativo llamado Chloe, el cual abarca un subconjunto del lenguaje C.
+Chloe tiene las siguientes características: variables, arreglos, aritmética de apuntadores, ciclos, condicionales, funciones y memoria dinámica.
+Se formalizó una semántica de pasos cortos en el probador de teoremas Isabelle/HOL para Chloe y se demostró que la misma es determinística.
+Además, se presenta un interpretador para el lenguaje, lo que permite que los programas escritos en Chloe sean ejecutados en el entorno de Isabelle/HOL.
+Para escribir el interpretador eran necesarias las demostraciones de ``determinismo'' para la semántica.
 
-Another result of this work was to present a code generator for the Chloe language.
-This code generator will translate programs from the formal semantics to real C code which can be executed.
-We guarantee that the generated program can be compiled and executed in a machine given that it is a program without undefined behavior, which complies with the restrictions assumed in the formalization of our semantics (section~\ref{subsection:restrictions_commands}) and does not run out of memory during execution.
-Moreover, we will only generate C code for programs that are valid and execute correctly in our interpreter.
+Otro resultado de este trabajo fue la presentación de un generador de código para el lenguaje Chloe.
+Este generador de código traduce programas de la semántica formal a código C real que puede ser ejecutado.
+Se garantiza que el programa generado puede ser compilado y ejecutado en una máquina si no posee comportamiento indefinido, cumple con las restricciones supuestas en la formalización de la semántica (sección~\ref{subsection:restrictions_commands}) y no se queda sin memoria durante la ejecución.
+Además, solo se genera código en C para programas que sean válidos y se ejecuten correctamente en el interpretador.
 
-We faced some problems when formalizing the semantics such as allowing only programs with defined behavior to be executed in our semantics.
-This means we had to detect undefined behavior, according to the C standard\cite{c99}, such as integer overflow and consider it an error in our semantics.
-We also faced a problem when formalizing the semantics for the memory allocation function because we assume an unlimited amount of memory, whereas the resources in a machine are limited.
-In order to solve this problem we decided to change the way a memory allocation call would be translated to C code.
-We wrap C's malloc function in a new one defined by us that would abort the program if a call to malloc fails.
-We also had to assume architecture restrictions over the target machine where the generated code will be executed and generate code that verifies if the machine satisfies our assumptions.
+Al formalizar la semántica se presentaron varios problemas, tales como sólo permitir que programas con comportamiento definido fueran ejecutados en la semántica.
+Esto significa que se tuvo que detectar comportamiento indefinido, de acuerdo al estándar de C~\cite{c99}, tales como el \textit{overflow} de enteros y considerarlo como un error en la semántica.
+Otro problema se presentó al formalizar la semántica para la función de asignación de memoria ya que se supone que una cantidad ilimitada de memoria está disponible, mientras que los recursos en una máquina son limitados.
+Para solventar esta problemática, se decidió cambiar la manera en que se traducía una llamada a la función de asignación de memoria a código C.
+Se rodea la función \verb|malloc| de C en una nueva definida por el usuario que aborta el programa si una llamada a \verb|malloc| falla.
+También se supone una restricción sobre la arquitectura de la máquina destino donde el código será ejecutado y se genera código que verifica que la máquina satisface las suposiciones.
 
 
-Finally, we also present a test harness and a test suite for testing the translation process.
-The goal of this test suite is to increase the trust in the translation process and to make sure that the semantics of a Chloe program does not change when translated to C code.
-In this test suite we include incorrect cases that cover all the border cases or cases where no code should be generated due to the program facing an error.
-Furthermore, we include example programs to demonstrate how the language works and how the programs are translated to C code.
-Additionally, there is a set of correct tests written that are meant to generate code.
-The complete battery of tests can be found in the source code submitted with this work.
+Por otra parte, se presenta un arnés de pruebas y una \textit{suite} de pruebas para el proceso de traducción.
+La finalidad de esta \textit{suite} de pruebas es incrementar la confianza en el proceso de traducción y asegurarse que la semántica de un programa en Chloe no cambia al ser traducido a código C.
+En la \textit{suite} de pruebas se incluyen casos incorrectos que cubren los casos bordes o casos donde no se debería generar código C ya que el programa encuentra un error.
+Además, se incluyen programas de ejemplo para demostrar como funciona el lenguaje y como se traducen los programas a código C.
+Existe también un conjunto de pruebas correctas para las que se espera generar código.
+La batería completa de pruebas puede ser encontrada en el código fuente presentado con este trabajo.
 
-To guarantee that the semantics of a program is not changed by the translation process, we include a way of generating code with tests.
-These tests are meant to check that the final state of the program executed in the interpreters within Isabelle/HOL is the same as the state the program is in after being compiled and executed.
-Two states are equivalent when the global variables and the reachable dynamic memory, at the end of execution, have the same content.
-For this purpose we wrote a test harness in Isabelle which translates the tests to be made into a set of C macros that we define outside of Isabelle/HOL, and include in our compilation process, which test the equivalence between final states.
-In order to not run these tests manually we defined a bash script which runs all the existing tests automatically.
+Para garantizar que la semántica de un programa no es cambiada por el proceso de traducción, se incluye una manera de generar código con chequeos.
+Estos chequeos tienen la finalidad de verificar que el estado final de un programa ejecutado en el interpretador dentro de Isabelle/HOL es equivalente al estado final del programa ejecutado y compilado.
+Dos estados son considerados equivalentes cuando las variables globales y la memoria dinámica accesible, al final de la ejecución, tienen el mismo contenido.
+Para ello, se escribe un arnés de pruebas en Isabelle que traduce las pruebas que se deben hacer a un conjunto de macros en C que se definen fuera de Isabelle/HOL, y se incluyen en el proceso de compilación, que verifican la equivalencia entre estados finales.
+Con el fin de no correr estas pruebas manualmente se crea un ``bash script'' que corre todas las pruebas existentes automáticamente.
 
-\section{Future work}
+\section{Trabajo futuro}
 
-In this section we will point some directions in which this work can be taken in the future.
-The time frame available for doing this work made it impossible to include these features in the scope of our work.
+En esta sección se señalan algunas direcciones que puede tomar este trabajo en un futuro.
+El marco de tiempo disponible para hacer este trabajo hizo imposible incluir estas características en el alcance del mismo.
 
-First of all, we can upgrade the testing process by parsing C tests from an external test suite and translating them to Chloe.
-This would allow us to provide more precise metrics for the results of the testing process, e.g.\ how much of the test suite is successfully covered by our work.
-An example of this would be to take a test suite made for C compilers such as gcc's C testsuites\cite{gcc-tests} and narrow the tests to ones that can be translated to our semantics, translate them from C to Chloe and generate the code with tests from them.
-After having the translation to Chloe we can generate code and tests for them in order to enhance the current test suite we have provided with this work.
+En primer lugar, se puede mejorar el proceso de pruebas al reconocer lexicográficamente pruebas de C de una \textit{suite} de pruebas externa y traducirlas a Chloe.
+Esto permitiría ofrecer métricas mas exactas para los resultados del proceso de pruebas, por ejemplo, que tanto de la \textit{suite} de pruebas abarca exitosamente el trabajo.
+Un ejemplo de esto sería tomar una \textit{suite} de pruebas hecha para compiladores de C, tales como las \textit{suites} de prueba de gcc~\cite{gcc-tests} y reducir las pruebas a aquellas que puedan ser traducidas a la semántica, traducirlas de C a Chloe y generar código con chequeos a partir de las mismas.
+Luego de traducir a Chloe se puede generar código con chequeos para las mismas con el fin de mejorar la \textit{suite} de pruebas que se presenta con este trabajo.
 
-Another interesting direction this work might take is to formalize an axiomatic semantics in order to reason about programs and their properties in Chloe.
-Since Chloe has pointers as a feature it would be necessary to formalize a separation logic\cite{sep-logic} in order to reason about pointers in programs.
-By extending the work in this direction it would be possible to show partial and total correctness properties proofs of our programs.
+Otra dirección interesante que se podría tomar es la de formalizar una semántica axiomática con el fin de razonar sobre programas y sus propiedades en Chloe.
+Dado que Chloe posee apuntadores como una de sus características, sería necesario formalizar una lógica de separación~\cite{sep-logic} para poder razonar sobre apuntadores en los programas.
+Al extender el trabajo en esta dirección sería posible demostrar propiedades de correctitud parcial y total para los programas.
 
-One of the features not included in the scope of our work is a proven sound and correct static type system.
-This would allow to reason about type safety for programs written in Chloe.
+Una de las características que no se encuentran incluidas en el alcance del trabajo es un sistema de tipos estático que sea demostrado como correcto y sólido.
+Esto permitiría razonar sobre ``type safety'' para los programas escritos en Chloe.
 
-There is the Isabelle Refinement Framework\cite{Refine_Monadic-AFP}, which provides a way of formulating non-deterministic algorithms in a monadic style and refine them to obtain an executable algorithm.
-It provides tools for reasoning about these programs.
-Another source of future work would be to link our language to the Isabelle Refinement Framework, so that programs from the framework can be refined to programs in Chloe.
+Existe un ``framework'' llamado Isabelle Refinement Framework~\cite{Refine_Monadic-AFP}, que proporciona una manera de formular algoritmos no deterministicos en un estilo monádico y refinarlos para obtener un algoritmo ejecutable.
+Proporciona herramientas para razonar sobre estos programas.
+Otra fuente de trabajo futuro sería vincular este lenguaje al Isabelle Refinement Framework, de modo que lso programas del ``framework'' puedan ser refinados a programas en Chloe.
 
-Finally, the set of features that are currently supported by Chloe is limited.
-Another way to improve the results from this work is to expand the set of features supported by Chloe.
-This might include expanding the set of expressions and instructions (e.g.\ adding support for structs and unions), adding I/O operations or support for concurrency.
+Por último, el conjunto de características que actualmente son compatibles con Chloe es limitado.
+Otra forma de meejorar los resultados de este trabajo es aumentar el conjunto de características compatibles con Chloe.
+Esto puede incluir expandir el conjunto de expresiones e instrucciones (por ejemplo, agregar compatibilidad para structs y unions), agregar operaciones de I/O o agregar soporte para concurrencia.
