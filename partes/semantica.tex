@@ -595,8 +595,8 @@ Una ubicación de retorno $Invalid$ indica que el llamador no espera guardar res
   \label{fig:stack_def}
 \end{figure}
 
-\begin{comment}
 \begin{figure}
+\centering
   \begin{subfigure}{0.3\textwidth}
   \begin{lstlisting}[mathescape=true]
   int sum(int a; int b){
@@ -608,10 +608,11 @@ Una ubicación de retorno $Invalid$ indica que el llamador no espera guardar res
     x = sum(2,2);
   }
   \end{lstlisting}
-  \caption{Example code in C}
+  \caption{Código de ejemplo en C}
   \label{fig:stack_ex_c_code}
   \end{subfigure}
   \begin{subfigure}{0.3\textwidth}
+  \centering
     \begin{tabular}{|c|}
       \hline
       \hline
@@ -623,7 +624,7 @@ Una ubicación de retorno $Invalid$ indica que el llamador no espera guardar res
       $ Invalid )$ \\
       \hline \hline
     \end{tabular}
-  \caption{Stack before function call (Stack grows upwards)}
+  \caption{Pila antes de la llamada (crece hacia arriba)}
   \label{fig:stack_bef_fun_call}
   \end{subfigure}
   \begin{subfigure}{0.3\textwidth}
@@ -642,14 +643,13 @@ Una ubicación de retorno $Invalid$ indica que el llamador no espera guardar res
       $ x )$ \\
       \hline \hline
     \end{tabular}
-  \caption{Stack after function call (Stack grows upwards)}
+  \caption{Pila luego de la llamada (crece hacia arriba)}
   \label{fig:stack_aft_fun_call}
   \end{subfigure}
 
   \caption{Ejemplo de convención de llamada}
   \label{fig:stack_example}
 \end{figure}
-\end{comment}
 
 \subsection{Tabla de procedimientos}\label{subsection:procedure_table}
 
