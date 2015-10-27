@@ -95,13 +95,30 @@ Ingeniero de Computación}
 \addtotoc{Resumen}
 \abstract{
 \addtocontents{toc}{\vspace{1em}}
-\blindtext
 
-\blindtext
+C es un lenguaje de programación ampliamente utilizado, el cual es particularmente popular en la implementación de sistemas de operación y aplicaciones de sistemas embebidos.
+Es frecuentemente utilizado en el desarrollo de compiladores, librerias e interpretadores para otros lenguajes de programación debido a su eficiencia.
+La eficiencia de C se debe al hecho de que está mas cercano a la máquina que otros lenguajes de alto nivel y presenta un bajo \textit{overhead}.
+Desafortunadamente, parte de la semántica para el lenguaje se describe utiliando el idioma inglés, lo cual hace que esta definición sea propensa a ambigüedades.
+
+Este trabajo tiene tres objetivos principales.
+En primer lugar, formalizar la semántica de un lenguaje imperativo (con arreglos y apuntadores) que represente un subconjunto determinístico del lenguaje C y escribir un interpretador para el mismo.
+Segundo, generar código C a partir de la semántica que sea compilable y ejecutable.
+Por último, crear una \textit{suite} de pruebas y un arnés de pruebas que permitan verificar que el comportamiento del programa generado en C coincide con el comportamiento de la semántica formalizada.
+
+Una semántica de pasos cortos se formaliza para el lenguaje en el demostrador de teoremas Isabelle/HOL.
+Luego, un interpretador para el lenguaje dentro del ambiente de Isabelle/HOL se escribe, lo cual permite la ejecución de programas escritos en la semántica.
+Además, se demuestra que este interpretador es correcto con respecto a la semántica formal.
+Con el fin de traducir programas de la semántica formal a código C, se escribe un generador de código.
+Este generador de código uiliza el proceso de \textit{pretty printing} para traducir la semántica formal a representaciones en \textit{string} que pueden ser luego exportadas a un archivo.
+Para poder verificar que el proceso de traducción se hace de manera adecuada, el estado final del programa generado se compara al estado final esperado para determinar si son equivalentes.
+Por lo tanto, se define un método para generar instrucciones de prueba que verifican la condición de equivalencia para cualquier programa que se traduce a C.
+Un arnés de pruebas se presenta en el ambiente de Isabelle/HOL que traduce las instrucciones de pruebas a macros en C que se definen fuera de este ambiente.
+Finalmente, una \textit{suite} de pruebas se presenta junto con programas de ejemplo en el lenguaje.
 
 % Las palabras clave son generalmente los nombres de áreas de investigación a
 % los cuales está asociado el trabajo. Generalmente son tres o cuatro.
-\noindent \begin{small} \textbf{Palabras clave}: @palabra1, @palabra2, @palabra3.
+\noindent \begin{small} \textbf{Palabras clave}: semántica, lenguajes, métodos formales.
 \end{small}
 
 % Iniciar nueva página luego del resumen
@@ -111,9 +128,24 @@ Ingeniero de Computación}
 % Agradecimientos
 \acknowledgements{
 \addtocontents{toc}{\vspace{1em}}
-\blindtext
 
-\blindtext
+Me gustaría expresar mi gratitud a mi supervisor, Prof. Tobias Nipkow, cuyo conocimiento y pasión en esta área de investigación ha sido una fuente de inspiración y motivación desde el inicio de mi año de intercambio en la Technische Universität München.
+También quisiera agradecerle por la brindar la oportunidad de trabajar en esta interesante área de investigación.
+
+Además, me gustaría dar un agradecimiento especial a mi asesor, Dr. Peter Lammich, por su orientación y apoyo constante durante este proyecto.
+Él me guió a lo largo de este proyecto y me dió consejos y conocimientos útiles.
+Aprendí muchas cosas de él y su apoyo hizo de este viaje un paseo divertido.
+
+Me gustaría agradecer a mi tutor Federico Flaviani por su ayuda con este proyecto y su apoyo, sobretodo en las fases finales.
+
+Por otra parte, deseo ofrecer mi mas sincero agradecimiento a Antti Sonkeri, Carlos peres y José Luis Jiménes por su valiosa ayuda al leer los primeros borradores de este trabajo.
+
+También me gustaría agradecer de todo corazón a John Delgado y a Manuel Gómez por su amistad y apoyo constante a lo largo de los últimos años.
+
+Por último, pero no menos importante, quiero expresar mi más profunda gratitud y amor a mi familia.
+Les debo todo, ellos son mi inspiración y siempre me han motivado a perseverar aun cuando los tiempos se ponen difíciles.
+Eugenio, Gaudy, Santiago y Juana, sin ustedes esto no hubiera sido posible, gracias.
+
 }
 \clearpage
 
@@ -168,7 +200,17 @@ Ingeniero de Computación}
 \dedicatory{
     \textbf{Dedicatoria} \bigskip
 
-    A @personasImportantes, por @razonesDedicatoria.
+    A:
+
+    Mis padres, Eugenio y Gaudy, por el apoyo contínuo a lo largo de este trayecto, los amo.
+    
+    Mi hermano, Santiago, por siempre hacerme reir con sus ocurrencias.
+    
+    Antti, por darme apoyo y motivación en todo momento.
+    
+    John, Manuel y Vanessa, por brindarme su amistad y estar allí para mi.
+    
+    Mis familiares y amigos que por razones de espacio no menciono aquí, ustedes saben quienes son.
 }
 
 \addtocontents{toc}{\vspace{2em}}
