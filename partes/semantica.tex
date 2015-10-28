@@ -736,18 +736,18 @@ add a little summary here.
 \subsection{CFG}\label{subsection:cfg}
 
 Un Grafo de Control de Flujo (CFG por sus siglas en ingles \textit{Control Flow Graph}) es una representación en forma de grafo que cubre los diferentes caminos que un programa puede tomar durante su ejecución.
-Se tiene el concepto de ubicación actual, que es un ``program pointer'' a un nodo.
-Un comando se ejecuta siguiendo una arista desde el nodo al que apunta el ``program pointer'' a un nuevo nodo.
+Se tiene el concepto de ubicación actual, que es un \textit{program pointer} a un nodo.
+Un comando se ejecuta siguiendo una arista desde el nodo al que apunta el \textit{program pointer} a un nuevo nodo.
 Los nodos del CFG son comandos.
 Las aristas del CFG contienen una anotación con dos funciones que dependen del estado actual del programa.
 La primera de estas funciones indica si una arista puede ser seguida o no (por ejemplo, en le caso de un condicional) y la segunda indica como será transformado el estado al seguir la arista, es decir, el efecto que tiene seguir la arista sobre el estado del programa.
-Estas funciones son llamadas \textit{habilitado} (``enabled'') y \verb|transformador| (``transformer'').
+Estas funciones son llamadas \textit{enabled} y \textit{transformer}.
 A continuación se describen en detalle las definiciones para estas funciones.
 
 
 \paragraph*{Enabled functions}\label{paragraph:enabled}
 
-Una función ``enabled'' es una función parcial que se define como sigue:
+Una función \textit{enabled} es una función parcial que se define como sigue:
 
 \begin{lstlisting}[mathescape=true, frame=single]
 type_synonym enabled = state $\rightharpoonup$ bool
@@ -755,7 +755,7 @@ type_synonym enabled = state $\rightharpoonup$ bool
 
 Indica si un estado está habilitado para continuar su ejecución.
 Esta es una función parcial, por lo que su ejecución podría fallar.
-La ejecución de una función ``enabled'' falla cuando encuentra un error en su evaluación y retorna un valor \verb|None| que representa un estado erróneo.
+La ejecución de una función \textit{enabled} falla cuando encuentra un error en su evaluación y retorna un valor \verb|None| que representa un estado erróneo.
 
 Esta función es útil para la ejecución de construcciones condicionales en el lenguaje.
 
@@ -765,11 +765,11 @@ Mientras que cuando la evaluación de $b$ produce un valor \verb|False| se segui
 Dependiendo del resultado de la función habilitada se decide que arista puede seguir el nodo.
 El único caso donde una ejecución no podría continuar es cuando no hay ninguna arista habilitada que seguir.
 Afortunadamente, esto no puede pasar en los programas de Chloe ya que siempre hay una arista habilitada.
-A excepción del condicional, para cada comando en Chloe la función ``enabled'' siempre retorna \verb|True|.
+A excepción del condicional, para cada comando en Chloe la función \textit{enabled} siempre retorna \verb|True|.
 En el caso de un condicional, la ejecución puede continuar o bien siguiendo la arista hasta el primer comando o siguiendo la arista hasta el segundo comando.
 Siempre habrá una arista que puede ser seguida luego de un nodo que contenga un condicional.
 
-Una lista de las funciones ``enabled'' que son utilizadas se presenta en la figura ~\ref{fig:enabled_def}.
+Una lista de las funciones \textit{enabled} que son utilizadas se presenta en la figura ~\ref{fig:enabled_def}.
 La funcion \verb|truth_value_of| mapea un valor a un valor booleano, es decir \verb|True| o \verb|False|.
 Tambien se encuentran las funciones \verb|en_always| que siempre retorna \verb|True|, \verb|en_pos| que solo retorna \verb|True| cuando el valor real (calculado con \verb|truth_value_of|) de una expresión dada como parámetro se evalúa como \verb|True| y \verb|en_neg| que solo retorna \verb|True| cuando el valor real (calculado con \verb|truth_value_of|) de una expresión dada como parámetro se evalua como \verb|False|.
 Estas funciones serán utilizadas mas tarde en la definición del CFG.
@@ -788,14 +788,14 @@ Estas funciones serán utilizadas mas tarde en la definición del CFG.
   definition en_neg :: exp $\Rightarrow$ enabled
   \end{lstlisting}
 
-  \caption{Funciones ``enabled''}
+  \caption{Funciones \textit{enabled}}
   \label{fig:enabled_def}
 \end{figure}
 
 
 \paragraph*{Transformer functions}\label{paragraph:transformer}
 
-Una función ``transformer'' es una función parcial que se define como sigue:
+Una función \textit{transformer} es una función parcial que se define como sigue:
 
 \begin{lstlisting}[mathescape=true, frame=single]
 type_synonym transformer = state $\rightharpoonup$ state
@@ -803,16 +803,16 @@ type_synonym transformer = state $\rightharpoonup$ state
 
 Es una función parcial que realiza una transformación de un estado a otro.
 Dado que es una función parcial, su ejecución puede fallar.
-La ejecución de una función ``transformer'' falla cuando se encuentra un error en algún momento de su ejecución y retorna un valor \verb|None| que indica un estado erróneo.
+La ejecución de una función \textit{transformer} falla cuando se encuentra un error en algún momento de su ejecución y retorna un valor \verb|None| que indica un estado erróneo.
 
-Se definen funciones que producen una función ``transformer'' para cada comando en Chloe.
+Se definen funciones que producen una función \textit{transformer} para cada comando en Chloe.
 Estas funciones serán utilizadas mas tarde en la definición del CFG y se definen en la figura~\ref{fig:transformer_def}.
-Se define una función ``transformer'' \verb|tr_id| que sirve como la función identidad y simplemente retorna el mismo estado que recibe como parámetro.
+Se define una función \textit{transformer} \verb|tr_id| que sirve como la función identidad y simplemente retorna el mismo estado que recibe como parámetro.
 
-Las definiciones presentadas en la figura~\ref{fig:transformer_def} producen una función ``transformer'' que será utilizada al ejecutar un comando.
-Se procede a describir de una manera aproximada el efecto que tendrán estas funciones ``transformer'' producidas al ser aplicadas a estados.
+Las definiciones presentadas en la figura~\ref{fig:transformer_def} producen una función \textit{transformer} que será utilizada al ejecutar un comando.
+Se procede a describir de una manera aproximada el efecto que tendrán estas funciones \textit{transformer} producidas al ser aplicadas a estados.
 
-En primer lugar se tiene la función ``transformer'' para una asignación producida por \verb|tr_assign|, se encarga de evaluar la expresión que se quiere asignar y luego realizar una operación \verb|write| al estado.
+En primer lugar se tiene la función \textit{transformer} para una asignación producida por \verb|tr_assign|, se encarga de evaluar la expresión que se quiere asignar y luego realizar una operación \verb|write| al estado.
 Retorna el estado resultante de realizar dicha evaluación y la operación \verb|write|.
 
 El ``transformador'' para una asignación a una celda en memoria producida por \verb|tr_assignl|, se encarga de evaluar la expresión del LHS para obtener la ubicación de memoria donde se guardará el valor, evaluar la expresión para obtener el nuevo valor y guardar el valor en memoria.
@@ -850,7 +850,7 @@ En este caso, la función actualiza la ubicación de retorno del marco de pila c
 Se tiene una función \verb|tr_return| que produce un ``transformador'' para una llamada a \verb|return| que retorna una expresión de una funcion, este ``transformador'' desempila el marco de pila en el tope de la pila (el cual pertenece a la función de la que se retorna), evalua el valor correspondiente a la expresión retornada y, si la pila no está vacía, busca el valor de retorno y dependiendo de si es una dirección, una variable o una ubicación \verb|Invalid| retorna el estado resultante de guardar el valor en memoria, guardar el valor en una variable o retornar el estado como estaba, respectivamente.
 Nótese que si la función retorna un valor pero su ubicación de retorno es \verb|Invalid| entonces el valor retornado es ignorado en lugar de ser considerado como una ejecución errónea.
 
-Finalmente, se tiene una función \verb|tr_return_void| que produce un ``transformer'' para una llamada a \verb|return| en una función que no retorna un valor.
+Finalmente, se tiene una función \verb|tr_return_void| que produce una función \textit{transformer} para una llamada a \verb|return| en una función que no retorna un valor.
 Este ``transformador'' se encarga de desempilar el marco de pila en el tope de la pila (el cual pertenece a la función de la que se retorna).
 Posteriormente, si la pila no está vacia, obtiene la ubicación de retorno.
 Si la ubicación de retorno es una ubicación diferente de \verb|Invalid|, retorna un valor \verb|None| que indica un estado erróneo.
@@ -884,16 +884,16 @@ FIXME
 \paragraph*{CFG}
 
 Para poder hablar de ejecuciones siguiendo las aristas del CFG se debe introducir un nuevo concepto.
-Si se toma la definición de un CFG dada al inicio de esta sección, se tiene que para poder hablar de una ejecución de un comando siguiendo las aristas del CFG se debe tener un ``program pointer'' que apunte al nodo actual.
+Si se toma la definición de un CFG dada al inicio de esta sección, se tiene que para poder hablar de una ejecución de un comando siguiendo las aristas del CFG se debe tener un \textit{program pointer} que apunte al nodo actual.
 También se debe introducir el concepto de una pila.
-Se tiene una pila de ``program pointers'' que acompaña el CFG y se desempilará un nuevo ``program pointer '' de la pila una vez que se haya \textit{seguido} el ``program pointer'' actual hasta un nodo que contenga \verb|SKIP|.
-Un ``program pointer'' al cuerpo de una función se empilará cuando una llamada a función sea realizada.
-Un ``program pointer'' se desempilará de la pila cuando exista una instrucción \verb|return|.
+Se tiene una pila de \textit{program pointers} que acompaña el CFG y se desempilará un nuevo ``program pointer '' de la pila una vez que se haya \textit{seguido} el \textit{program pointer} actual hasta un nodo que contenga \verb|SKIP|.
+Un \textit{program pointer} al cuerpo de una función se empilará cuando una llamada a función sea realizada.
+Un \textit{program pointer} se desempilará de la pila cuando exista una instrucción \verb|return|.
 Este concepto será importante al hablar de llamadas a funciones y retornos de funciones más adelante.
 
 En la figura~\ref{fig:cfg_rules} se encuentra una definición inductiva para CFG, donde se pueden ver las reglas para formar aristas entre comandos.
 Se puede seguir una arista en el CFG desde una asignación a una variable a \verb|SKIP|.
-Esta arista siempre está ``enabled'' y el  ``transformer'' para actualizar el estado es el resultado de llamar a \verb|tr_assign| con los parámetros específicos para el comando.
+Esta arista siempre está habilitada (la función \textit{enabled} retorna \verb|True|) y la función \textit{transformer} para actualizar el estado es el resultado de llamar a \verb|tr_assign| con los parámetros específicos para el comando.
 
 \begin{figure} 
   \begin{lstlisting}[frame=single, mathescape=true]
@@ -926,34 +926,34 @@ Esta arista siempre está ``enabled'' y el  ``transformer'' para actualizar el e
   \label{fig:cfg_rules}
 \end{figure}
 
-Del mismo modo, una arista del CFG puede ser seguida desde una asignación a una celda en memoria hasta \verb|SKIP|, esta arista siempre está ``enabled'' y el ``transformer'' para actualizar el estado es el resultado de llamar a \verb|tr_assignl| con los parámetros específicos para el comando.
+Del mismo modo, una arista del CFG puede ser seguida desde una asignación a una celda en memoria hasta \verb|SKIP|, esta arista siempre está habilitada (la función \textit{enabled} retorna \verb|True|) y la función \textit{transformer} para actualizar el estado es el resultado de llamar a \verb|tr_assignl| con los parámetros específicos para el comando.
 
 Para la secuenciación de instrucciones existen dos aristas diferentes que pueden ser seguidas.
 Cuando el primer comando en la secuenciación es \verb|SKIP|, se puede seguir una arista que va desde el nodo con el comando completo hasta el nodo que tiene solamente el segundo comando.
-Esta arista siempre está ``enabled'' y el ``transformer'' para actualizar el estado es \verb|tr_id|.
+Esta arista siempre está está habilitada (la función \textit{enabled} retorna \verb|True|) y la función \textit{transformer} para actualizar el estado es \verb|tr_id|.
 El segundo caso ocurre cuando se tiene un comando de la forma \verb|(| $c_{1}$ \verb|;;| $c_{2}$ \verb|)| donde $c_{1}$ no es \verb|SKIP|.
-Si es posible seguir una arista desde $c_{1}$ hasta otro nodo $c_{1}'$ (donde dicha arista está anotada con $a$, que es una tupla que contiene una función ``enabled'' y un ``transformer'') entonces es posible seguir una arista (también anotada con $a$) desde \verb|(| $c_{1}$ \verb|;;| $c_{2}$ \verb|)| hasta \verb|(| $c_{1}'$ \verb|;;| $c_{2}$ \verb|)|.
+Si es posible seguir una arista desde $c_{1}$ hasta otro nodo $c_{1}'$ (donde dicha arista está anotada con $a$, que es una tupla que contiene una función \textit{enabled} y una función \textit{transformer}) entonces es posible seguir una arista (también anotada con $a$) desde \verb|(| $c_{1}$ \verb|;;| $c_{2}$ \verb|)| hasta \verb|(| $c_{1}'$ \verb|;;| $c_{2}$ \verb|)|.
 
 Para un condicional también se tienen dos casos.
 Se tendrá la posibilidad de seguir una arista hacia el primer comando u otra arista hacia el segundo comando, dependiendo del valor de la condición.
 En el caso donde se sigue la arista que lleva hasta el primer comando, se va desde \verb|IF| $b$ \verb|THEN| $c_{1}$ \verb|ELSE| $c_{2}$ hasta $c_{1}$.
-Esta arista estará anotada con una función ``enabled'' dada por \verb|en_pos| que solo habilitará esta arista cuando la condición $b$ se evalúe a \verb|True| y un ``transformer'' dado por \verb|tr_eval|.
+Esta arista estará anotada con una función \textit{enabled} dada por \verb|en_pos| que solo habilitará esta arista cuando la condición $b$ se evalúe a \verb|True| y una función \textit{transformer} dado por \verb|tr_eval|.
 En el caso donde se sigue la arista que lleva hasta el segundo comando, se va desde \verb|IF| $b$ \verb|THEN| $c_{1}$ \verb|ELSE| $c_{2}$ hasta $c_{2}$.
-Esta arista estará anotada con una función ``enabled'' dada por \verb|en_neg| que solo habilitará esta arista cuando la condición $b$ se evalúe a \verb|False| y un ``transformer'' dado por \verb|tr_eval|.
+Esta arista estará anotada con una función \textit{enabled} dada por \verb|en_neg| que solo habilitará esta arista cuando la condición $b$ se evalúe a \verb|False| y una función \textit{transformer} dado por \verb|tr_eval|.
 
-En el caso de un ciclo siempre se puede seguir una arista que va desde \verb|WHILE| $b$ \verb|DO| $c$ hasta \verb|IF| $b$ \verb|THEN| $c$ \verb|;; WHILE| $b$ \verb|DO| $c$ \verb|ELSE SKIP| al hacer ``loop unrolling'' una vez.
-La arista tendrá una función ``enabled'' que siempre está habilitada y el ``transformer'' para el estado es \verb|tr_id|.
+En el caso de un ciclo siempre se puede seguir una arista que va desde \verb|WHILE| $b$ \verb|DO| $c$ hasta \verb|IF| $b$ \verb|THEN| $c$ \verb|;; WHILE| $b$ \verb|DO| $c$ \verb|ELSE SKIP| al expandir la defición del ciclo una vez.
+La arista tendrá una función \textit{enabled} que siempre está habilitada y la función \textit{transformer} para el estado es \verb|tr_id|.
 
 Se puede seguir una arista desde \verb|FREE| $X$ hasta \verb|SKIP|.
-Esta arista siempre está ``enabled'' y tiene un ``transformer'' dado por \verb|tr_free| llamado con $x$.
+Esta arista siempre está \textit{enabled} y tiene una función \textit{transformer} dado por \verb|tr_free| llamado con $x$.
 
 Se puede seguir una arista desde cualquiera de los dos comandos de retorno existentes hasta \verb|SKIP|.
-Esta arista siempre está ``enabled'' y tiene un ``transformer'' dado como resultado de \verb|tr_return| o \verb|tr_return_void| dependiendo de que comando de retorno sea.
-Nótese que al \textit{ejecutar} este comando en el CFG, seguir una arista desde un nodo que contiene un retorno hasta \verb|SKIP| desempilará el ``program pointer'' que apunta al nodo \verb|SKIP| y continuará la ``ejecución'' en el nodo apuntado por el próximo ``program pointer'' en la pila.
+Esta arista siempre está habilitada (la función \textit{enabled} retorna \verb|True|) y tiene una función \textit{transformer} dado como resultado de \verb|tr_return| o \verb|tr_return_void| dependiendo de que comando de retorno sea.
+Nótese que al \textit{ejecutar} este comando en el CFG, seguir una arista desde un nodo que contiene un retorno hasta \verb|SKIP| desempilará el \textit{program pointer} que apunta al nodo \verb|SKIP| y continuará la ``ejecución'' en el nodo apuntado por el próximo \textit{program pointer} en la pila.
 
 Finalmente, se puede seguir una arista desde cualquiera de los nodos de llamada a función hasta \verb|SKIP|.
-Esta arista siempre está ``enabled'' y tiene un ``transformer'' dado como resultado de \verb|tr_callfunl|, \verb|tr_callfun| o \verb|tr_callfunv| dependiendo de si es una llamada a función que retorne a una celda en memoria, una variable o sin retorno.
-Nótese que, también en este caso, al \textit{ejecutar} este comando en el CFG, seguir la arista desde una llamada a función hasta un nodo \verb|SKIP| empilará un nuevo ``program pointer'' que apunte al nodo con el cuerpo de la función y continuará la ``ejecución'' en el nodo apuntado por el próximo ``program pointer'' en la pila.
+Esta arista siempre está habilitada (la función \textit{enabled} retorna \verb|True|) y tiene una función \textit{transformer} dado como resultado de \verb|tr_callfunl|, \verb|tr_callfun| o \verb|tr_callfunv| dependiendo de si es una llamada a función que retorne a una celda en memoria, una variable o sin retorno.
+Nótese que, también en este caso, al \textit{ejecutar} este comando en el CFG, seguir la arista desde una llamada a función hasta un nodo \verb|SKIP| empilará un nuevo \textit{program pointer} que apunte al nodo con el cuerpo de la función y continuará la ``ejecución'' en el nodo apuntado por el próximo \textit{program pointer} en la pila.
 
 \subsection{Reglas de la semántica de pasos cortos}\label{subsection:rules_small_step}
 
@@ -974,14 +974,14 @@ Se puede dar un paso cuando las siguientes condiciones se cumplen:
   \item{La pila no está vacía}
   \item{Hay una arista en el CFG entre $c_{1}$ y $c_{2}$.}
   \item{El comando en el marco de pila en el tope de la pila en el estado inicial es $c_{1}$.}
-  \item{Al aplicar la función ``enabled'' sobre el estado, esta retorna \verb|True|.}
-  \item{Al aplicar el ``transformer'' al estado con el comando en marco de pila en el top de la pila actualizdo de $c_{1}$ a $c_{2}$, este retorna un nuevo estado $s_{2}$.}
+  \item{Al aplicar la función \textit{enabled} sobre el estado, esta retorna \verb|True|.}
+  \item{Al aplicar la función \textit{transformer} al estado con el comando en marco de pila en el top de la pila actualizdo de $c_{1}$ a $c_{2}$, este retorna un nuevo estado $s_{2}$.}
 \end{itemize}
 
 Si todas las condiciones mencionadas anteriormente se cumplen, entonces se puede tomar un paso corto desde el estado $s$ hasta $s_{2}$.
 
 Un paso corto también puede ser tomado al retornar de una función que no retorne valor alguno.
-Si el comando en el tope de la pila es \verb|SKIP|, la pila no está vacía y alicar el ``transformer'' en el estaod inicial $s$ produce un nuevo estado $s_{2}$, entonces podemos tomar un paso corto desde $s$ hasta $s_{2}$.
+Si el comando en el tope de la pila es \verb|SKIP|, la pila no está vacía y alicar la función \textit{transformer} en el estaod inicial $s$ produce un nuevo estado $s_{2}$, entonces podemos tomar un paso corto desde $s$ hasta $s_{2}$.
 
 El tipo para \verb|small_step| es de \verb|state| a \verb|state option|.
 La segunda configuración está encerrada en un tipo opción ya que tomar un paso corto puede resultar en una estado erróneo donde la ejecución se quedará atascada.
@@ -989,10 +989,10 @@ La segunda configuración está encerrada en un tipo opción ya que tomar un pas
 Tomar un paso corto puede fallar en cualquiera de los siguientes casos:
 
 \begin{itemize}
-  \item{La función ``enabled'' o el ``transformer'' retornan \verb|None| al ser evaluados sobre el estado inicial.
+  \item{La función \textit{enabled} o la función \textit{transformer} retornan \verb|None| al ser evaluados sobre el estado inicial.
   Esto indica que un estado erróneo fue alcanzado durante la evaluación de alguna de esas dos funciones.
   El estado erróneo se propaga al tomar un paso corto desde el estado $s$ hasta \verb|None| y luego la ejecución se queda atascada allí.}
-  \item{Si al aplicar el ``transformer'' \verb|tr_return_void| sobre el estado el mismo retorna un valor \verb|None|, el comando en el tope de la pila en el estado inicial es SKIP y la pila no está vacía, entonces también se propaga este estado erróneo \verb|None| al tomar un paso corto desde $s$ hasta \verb|None|.
+  \item{Si al aplicar la función \textit{transformer} \verb|tr_return_void| sobre el estado el mismo retorna un valor \verb|None|, el comando en el tope de la pila en el estado inicial es SKIP y la pila no está vacía, entonces también se propaga este estado erróneo \verb|None| al tomar un paso corto desde $s$ hasta \verb|None|.
   Esto indica que hubo un error al retornar de una función sin valor de retorno.}
 \end{itemize}
 
@@ -1038,14 +1038,14 @@ La notación de infijo para esto es escrito: $s_{0} \rightarrow* s_{f}$, lo cual
 \subsubsection*{Determinism}
 
 Para poder ejecutar la semántica dentro del ambiente de Isabelle/HOL, la misma debe ser determinística.
-Es por ello que se demuestra la propiedad de ``determinism'' para la semántica.
+Es por ello que se demuestra que la semántica es determinística.
 Con el fin de demostrar esa propiedad, una serie de lemas deben ser definidos y demostrados primero.
 
 Cada vez que se introduce un lema, junto a su número se encontrará un nombre en paréntesis.
 Este nombre corresponde al nombre del lema en el código fuente de Isabelle presentados con este trabajo.
 En el caso en que el lector esté interesado en la demostración exacta para un lema en particular él o ella puede buscar el lema correspondiente en los archivos y leer la prueba.
 
-Este primer lema indica que cada vez que se tiene un comando diferente a \verb|SKIP| hay siempre una arista ``enabled'' que se puede tomar en el CFG o un error ocurre al evaluar la función ``enabled''.
+Este primer lema indica que cada vez que se tiene un comando diferente a \verb|SKIP| hay siempre una arista habilitada (la función \textit{enabled} retorna \verb|True|) que se puede tomar en el CFG o un error ocurre al evaluar la función \textit{enabled}.
 
 \begin{lemma}[cfg\_has\_enabled\_action]
 $\newline$
@@ -1091,7 +1091,7 @@ El caso se resuelve automáticamente por Isabelle al indicar las reglas menciona
 
 El segundo caso es cuando $c\\neq\ \mathtt{SKIP}$.
 Este es el caso donde se ejecuta cualquier otro comando que no sea el retorno de una función.
-En este caso se utiliza el lema anterior~\ref{lemma:cfg_enabled_action} y se tiene que $\mathtt{cfg}\ c\ (en,tr)\ c'$ y o la función ``enabled'' falla ($\mathtt{en}\ s\ = \mathtt{None}$) o está habilidada ($\mathtt{en}|\ s\ = \mathtt{Some True}$).
+En este caso se utiliza el lema anterior~\ref{lemma:cfg_enabled_action} y se tiene que $\mathtt{cfg}\ c\ (en,tr)\ c'$ y o la función \textit{enabled} falla ($\mathtt{en}\ s\ = \mathtt{None}$) o está habilidada ($\mathtt{en}|\ s\ = \mathtt{Some True}$).
 
 Esto se demuestra mediante una separación por casos.
 En el primer caso se supone $\mathtt{cfg}\ c\ (en,tr)\ c'$ y $\mathtt{en}\ s\ = \mathtt{None}$.
@@ -1100,7 +1100,7 @@ Entonces se ha demostrado que existe un estado tal que $s\ \rightarrow\ \mathtt{
 
 En el siguiente caso se supone $\mathtt{cfg}\ c\ (en,tr)\ c'$ y $\mathtt{en}\ s\ = \mathtt{Some True}$.
 Este es el caso donde hay una arista que está habilitada para ser seguida y aún se deben revisar dos casos mas.
-Aplicar el ``transformer'' sobre el estado actualizado con el comando ($tr\ (upd\_com\ c'\ s)$) puede fallar o no.
+Aplicar la función \textit{transformer} sobre el estado actualizado con el comando ($tr\ (upd\_com\ c'\ s)$) puede fallar o no.
 En el caso donde falla (retorna \verb|None|) se puede tomar un paso a \verb|None| y se habrá probado que hay un estado al que $s$ puede tomar un paso corto, es decir \verb|None|.
 En el caso donde no falla, retornará $\mathtt{Some}\ s_{2}$.
 En este caso se puede tomar un paso a $\mathtt{Some}\ s_{2}$ y se habrá probado que hay un estado al cual $s$ puede tomar un paso corto, es decir $\mathtt{Some}\ s_{2}$.
@@ -1157,7 +1157,7 @@ La propiedad es demostrada automáticamente desplegando las definiciones de \ver
 El lema~\ref{lemma:en_neg_by_pos} establece que cada vez que la función \verb|en_neg| tenga un valor (diferente de None) sobre un estado, \verb|en_pos| tendrá el mismo resultado opuesto.
 En el caso donde una de las funciones falla, la otra fallará también y retornarán \verb|None|.
 Si no fallan, sus resultados serán opuestos, esto es, si una tiene \verb|Some True| como resultado, la otra tendrá \verb|Some False| como resultado.
-Este lema será útil al probar ``determinism''.
+Este lema será útil al probar que la semántica es determinística.
 
 \begin{lemma}[cfg\_determ]
 $\newline$
@@ -1181,7 +1181,7 @@ Todos los casos se demuestran automáticamente.
 El lema~\ref{lemma:cfg_determ} establece que CFG es determinístico.
 El único caso donde no lo es es en el caso del condicional, para el cual se agrega una alternativa extra en la conclusion.
 Puede pasar que se tenga una regla del CFG comanzando en un comando \verb|If| que tiene una arista a $c_{1}$ y también una arista a $c_{2}$.
-Esto no es realmente un problema dado que las funciones ``enabled'' garantizan que cuando esto ocurre, solamente una de las aristas puede ser tomada.
+Esto no es realmente un problema dado que las funciones \textit{enabled} garantizan que cuando esto ocurre, solamente una de las aristas puede ser tomada.
 
 
 \begin{lemma}[lift\_upd\_com]
@@ -1212,14 +1212,14 @@ $\mathtt{map\_option}\ (\mathtt{upd\_com}\ c)\ (\mathtt{tr\_eval}\ e\ s)$
 Es demostrado automáticamente desplegando la definición de \verb|tr_eval|.
 \end{proof}
 
-La función \verb|lift_transformer_nr| levanta la definición de un ``transformer'', que opera en el nivel de estados visibles, a estados.
-El lema~\ref{lemma:lift_upd_com} establece que no importa en que orden se aplique un ``transformer'' sobre un estado y se actualice el comando en el tope de la pila, dado que siempre produce el mismo resultado.
-Esto es porque la función que actualiza el comando solo modifica el comando en el tope de la pila y el ``transformer'' no puede accesar y modificar esa parte de la pila, ya que solo puede modificar el estado visible.
+La función \verb|lift_transformer_nr| levanta la definición de una función \textit{transformer}, que opera en el nivel de estados visibles, a estados.
+El lema~\ref{lemma:lift_upd_com} establece que no importa en que orden se aplique una función \textit{transformer} sobre un estado y se actualice el comando en el tope de la pila, dado que siempre produce el mismo resultado.
+Esto es porque la función que actualiza el comando solo modifica el comando en el tope de la pila y la función \textit{transformer} no puede accesar y modificar esa parte de la pila, ya que solo puede modificar el estado visible.
 
 El lema~\ref{lemma:tr_eval_upd_com} es una versión más específica del lema anterior que establece el mismo hecho específicamente para la función \verb|tr_eval|.
 
 
-Todos los lemas y definiciones anteriores son definidos con el fin de ser utilizados en la próxima demostración; ``determinism'' de la semántica de pasos cortos.
+Todos los lemas y definiciones anteriores son definidos con el fin de ser utilizados en la próxima demostración; la semántica de pasos cortos es determinística.
 \begin{lemma}[small\_step\_determ]
 $\newline$
 $s\ \rightarrow\ s'\ \wedge\ s\ \rightarrow\ s''\ \Longrightarrow\ s'\ =\ s''$
@@ -1313,15 +1313,15 @@ Existen dos tipos de pasos que se pueden tomar en el CFG.
 Se crea un nuevo tipo de datos par representarlos.
 
 
-Un paso $Base$ tiene un ``transformer'' y siempre está habilitada para seguir hasta un nuevo comando y un paso $Cond$ que, además del ``transformer'', también tiene una función ``enabled'' y dos comandos.
-Esta función ``enabled'' indica si se debe tomar un paso al primer o al segundo comando.
+Un paso $Base$ tiene una función \textit{transformer} y siempre está habilitada para seguir hasta un nuevo comando y un paso $Cond$ que, además de la función \textit{transformer}, también tiene una función \textit{enabled} y dos comandos.
+Esta función \textit{enabled} indica si se debe tomar un paso al primer o al segundo comando.
 También se define una función \verb|cfg_step| que dada el comando de inicio retorna que tipo de paso sigue en el CFG.
 
 La función \verb|fstep|, definida en la figura~\ref{fig:fstep_def}, indica como se toma un solo paso el la ejecución de la semántica.
 La ejecución de un paso en la semántica va desde un estado inicial a un nuevo estado que puede ser erróneo (\verb|None|) o uno válido (\verb|Some| $s$).
 Para ejecutar un comando \verb|SKIP| se llama a \verb|tr_return_void|.
 En cualquier otro comando se verifica que tipo de paso se debe tomar utilizando la función \verb|cfg_step| y, basado en esto, se decide que hacer.
-Si es un paso \verb|Base| se llama al ``transformer'' sobre el estado con el comando actualizado.
+Si es un paso \verb|Base| se llama a la función \textit{transformer} sobre el estado con el comando actualizado.
 Si es un paso \verb|Cond| se evalúa la condición y se llama a la función transformer sobre el estado con el comando actualizado.
 
 \subsubsection*{Equivalencia entre semántica de pasos cortos y ejecución de un solo paso}\label{subsubsection:equality_ss_ss}
@@ -1399,7 +1399,7 @@ $\mathtt{is\_term}\ \mathtt{(Some}\ cs\mathtt{)}\ \Longrightarrow\ \mathtt{inter
 \label{lemma:interp_term}
 \end{lemma}
 
-Para poder demostrar esto necesitamos un lema que ``unfolds the loop'' en la definición de nuestro interpretador:
+Para poder demostrar esto necesitamos un lema que expanda la definición del ciclo en la definición de nuestro interpretador:
 
 \begin{lemma}[interp\_unfold]
 $\newline$
@@ -1464,7 +1464,7 @@ $\mathtt{None}\ \rightarrow*\ z\ \longleftrightarrow\ z\ =\ \mathtt{None}$
 \end{lemma}
 
 \begin{proof}
-La demostración es por inducción sobre la clausura reflexiva transitiva (\verb|star|).
+La demostración es por inducción sobre la clausura reflexivo transitiva (\verb|star|).
 Los objetivos se resuelven automáticamente.
 \end{proof}
 

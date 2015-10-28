@@ -3,33 +3,33 @@
 
 En este capítulo se describe el proceso de \textit{pretty printing} (traducción) que ocurre en la semántica que permite exportar código C.
 Se utiliza la implementación de la clase Show de Haskell en Isabelle/HOL hecha por Sternagel y Thiemann~\cite{Show-AFP} como ayuda en el proceso de traducción.
-Sternagel y Thiemann implementan un ``type class'' para funciones ``to-string'' así como ``instantiations'' para los tipos estándar de Isabelle/HOL.
+Sternagel y Thiemann implementan un \textit{type class} para funciones ``to-string'' así como ``instantiations'' para los tipos estándar de Isabelle/HOL.
 Ademas permiten la derivación de funciones show para tipos de datos definidos por el usuario.
-Se ``instancia'' esta clase al crear una función ``show'' para cada uno de los tipos de datos que se definen prograsivamente hasta que sea posible imprimir un programa.
-Las siguientes secciones explicarán en detalle los \textit{strings} concretos que se obtienen como resultado de la traducción.
+Se instancia esta clase al crear una función \verb|show| para cada uno de los tipos de datos que se definen prograsivamente hasta que sea posible imprimir un programa.
+Las siguientes secciones explicarán en detalle las cadenas de caracteres concretos que se obtienen como resultado de la traducción.
 
 \section{Palabras}\label{section:pretty_words}
-La primera ``instanciación'' de \verb|shows| que se debe hacer es aquella para las palabras de modo que sea posible imprimir valores de este tipo.
-Para hacer \textit{pretty printing} de un valor del tipo palabra simplemente se castea ese valor a un tipo entero predefinido por Isabelle/HOL y se utiliza la función \verb|show| para ese tipo.
+La primera instanciación de \verb|shows| que se debe hacer es aquella para las palabras de modo que sea posible imprimir valores de este tipo.
+Para hacer \textit{pretty printing} de un valor del tipo palabra simplemente se hace \textit{casting} de ese valor a un tipo entero predefinido por Isabelle/HOL y se utiliza la función \verb|show| para ese tipo.
 Como resultado, las palabras serán impresas como enteros con signo.
 
 \section{Valores}\label{section:pretty_values}
 
-Aunque el tipo de datos \verb|val| y las valuaciones no son utilizadas en el proceso de generación de código, se considera útil tener un mecanismo para hacer \textit{pretty printing} de los mismos con fines de \textit{debugging}.
+Aunque el tipo de datos \verb|val| y las valuaciones no son utilizadas en el proceso de generación de código, se considera útil tener un mecanismo para hacer \textit{pretty printing} de los mismos con fines de depuración.
 
 \subsection{Tipo val}\label{subsection:pretty_val_type}
-El tipo \verb|val| es el primer tipo de datos definido por el usuario para el que se presenta una ``instanciación''.
-En la tabla~\ref{tab:pretty_val} se encuentra la equivalencia entre la sintaxis abstracta para el tipo \verb|val| y la representación en \textit{string}.
-Nótese que $w$, $base$ y $ofs$ representan palabras, naturales y enteros, por lo tanto sus funciones \verb|show| serán utilizadas para obtener su representación en \textit{string}, por ejemplo, la representación en \textit{string} de $\mathtt{I}\ 42$ sería $"42"$, la representación en \textit{string} de $\mathtt{A}\ (4,\ 2)$ sería $"4[2]"$.
+El tipo \verb|val| es el primer tipo de datos definido por el usuario para el que se presenta una instanciación.
+En la tabla~\ref{tab:pretty_val} se encuentra la equivalencia entre la sintaxis abstracta para el tipo \verb|val| y la representación en cadena de caracteres.
+Nótese que $w$, $base$ y $ofs$ representan palabras, naturales y enteros, por lo tanto sus funciones \verb|show| serán utilizadas para obtener su representación en cadena de caracters, por ejemplo, la representación en cadena de caracteres de $\mathtt{I}\ 42$ sería $"42"$, la representación en cadena de caracteres de $\mathtt{A}\ (4,\ 2)$ sería $"4[2]"$.
 Se puede realizar \verb|show| de una lista de valores al hacer \verb|show| de cada valor en una notación de listas, es decir, $[vname\ =\ valor, \dots, vname_n\ =\ valor_n]$.
 
-Se rodean con cuñas los parámetros ($"<\ >"$) para indicar que lo que está dentro de ellos es una representación en forma de \textit{string} resultante de aplicar una función \verb|show| en el parámetro y se continuará usando esta notación a lo largo del documento.
+Se rodean con cuñas los parámetros ($"<\ >"$) para indicar que lo que está dentro de ellos es una representación en forma de cadena de caracteres resultante de aplicar una función \verb|show| en el parámetro y se continuará usando esta notación a lo largo del documento.
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{|c|c|}
   \hline
-  \textbf{Sintaxis abstracta} & \textbf{Representación en \textit{string}} \\ [0.5ex]
+  \textbf{Sintaxis abstracta} & \textbf{Representación en cadena de caracteres} \\ [0.5ex]
   \hline \hline
   \verb|NullVal| & null \\
   \verb|I| $w$ & $<w>$ \\
@@ -44,14 +44,14 @@ Se rodean con cuñas los parámetros ($"<\ >"$) para indicar que lo que está de
 \subsection{Tipo val option}\label{subsection:pretty_val_option_type}
 
 Un \verb|val option| tiene el significado semántico de un valor inicializado y no inicializado.
-La tabla~\ref{tab:pretty_val_option} muestra la equivalencia entre la sintaxis abstracta y la representación en \textit{string}.
-Un valor inicializado simmplemente será el string resultante de llamar a la función \verb|show| sobre ese valor, mientras que la representación de un valor no inicializado será un $''?''$ para representar que el valor es aun desconocido.
+La tabla~\ref{tab:pretty_val_option} muestra la equivalencia entre la sintaxis abstracta y la representación en cadena de caracteres.
+Un valor inicializado simmplemente será la cadena de caracteres resultante de llamar a la función \verb|show| sobre ese valor, mientras que la representación de un valor no inicializado será un $''?''$ para representar que el valor es aun desconocido.
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{|c|c|}
   \hline
-  \textbf{Sintaxis abstracta} & \textbf{Representación en \textit{string}} \\ [0.5ex]
+  \textbf{Sintaxis abstracta} & \textbf{Representación en cadena de caracteres} \\ [0.5ex]
   \hline \hline
   \verb|Some| v & <$v$> \\
   \verb|None| & ? \\
@@ -78,19 +78,19 @@ Por ejemplo, si se toma la valuación $[foo \mapsto \mathtt{Some}(\mathtt{I}\ 15
 \section{Memoria}\label{section:pretty_memory}
 
 La memoria, al igual que los valores, no es un componente necesario para generar programas en C.
-No obstante, tener una manera de hacer \textit{pretty printing} de la memoria en cierto estado es útil al de realizar \textit{debugging}.
+No obstante, tener una manera de hacer \textit{pretty printing} de la memoria en cierto estado es útil al de realizar depuración.
 Para imprimir la memoria se debe saber como hacer \verb|show| del contenido de un bloque y de todo el bloque.
 
 Cuando se accesa un bloque a memoria se puede obtener tanto el contenido del bloque o un valor \verb|None| que indica un bloque libre en memoria.
-La tabla~\ref{tab:pretty_block_content} muestra la representación en \textit{string} de esto.
-Nótese que en el caso de un valor \verb|None| se imprime el \textit{string} \verb|free| rodeado de cuñas, siendo las mismas partes de la representación y una excepción a la notación descrita anteriormente.
+La tabla~\ref{tab:pretty_block_content} muestra la representación en cadena de caracteres de esto.
+Nótese que en el caso de un valor \verb|None| se imprime la cadena \verb|free| rodeada de cuñas, siendo las mismas parte de la representación y una excepción a la notación descrita anteriormente.
 Si el contenido del bloque es una lista de valores entonces se imprime la lista de valores.
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{|c|c|}
   \hline
-  \textbf{Sintaxis abstracta} & \textbf{Representación en \textit{string}} \\ [0.5ex]
+  \textbf{Sintaxis abstracta} & \textbf{Representación en cadena de caracteres} \\ [0.5ex]
   \hline \hline
   \verb|Some| content & <$content$> \\
   \verb|None| & <free> \\
@@ -106,10 +106,10 @@ Un bloque completo se imprime de la siguiente manera:
 <base>\ :\ <contenido\_bloque> 
 \end{equation*}
 
-donde $base$ es el primer componente de una dirección con la que se accesa al bloque y $contenido\_bloque$ es la representación en \textit{string} del contenido en el bloque número $base$..
+donde $base$ es el primer componente de una dirección con la que se accesa al bloque y $contenido\_bloque$ es la representación en cadena de caracteres del contenido en el bloque número $base$.
 
 Para imprimir la memoria completa se hace \verb|show| de cada bloque existente en memoria.
-por ejemplo, la representación en \textit{string} del estado de memoria: $[\mathtt{Some}\ [\mathtt{I}\ 13,\ \mathtt{None}],\ None,\ \mathtt{Some}\ [\mathtt{A}(2,3),\ None, \mathtt{I}\ 56]]$ sería:
+Por ejemplo, la representación en cadena de caracteres del estado de memoria: $[\mathtt{Some}\ [\mathtt{I}\ 13,\ \mathtt{None}],\ None,\ \mathtt{Some}\ [\mathtt{A}(2,3),\ None, \mathtt{I}\ 56]]$ sería:
 
 \begin{align*}
 0\ &:\ [13,\ ?] \\
@@ -121,12 +121,12 @@ por ejemplo, la representación en \textit{string} del estado de memoria: $[\mat
 \section{Expresiones}
 
 Para imprimir expresiones se deben poder imprimir operaciones unarias y binarias.
-También se debe poder imprimir ``casts'' desde y hacia apuntadores.
+También se debe poder imprimir valores a los que se les ha hecho \textit{casting} desde y hacia apuntadores.
 Se utiliza el tipo \verb|intptr_t| de C, el cual es lo suficientemente grande como para guardar el valor de un entero asi como el de un apuntador.
 Esto se hace debido a que solo se tienen valores enteros en el lenguaje y las direcciones y los valores enteros son disjuntos al nivel de semántica.
 
-En el nivel de lenguaje C se le debe poder indicar al compilador cuando un valor debe ser interpretado como una dirección y hacerle ``cast'' como tal.
-Se permite este ``casting'' entre direcciones y enteros durante el proceso de traducción dado que se conoce con seguridad cuando un valor debe ser interpretado como una dirección y cuando debe ser interpretado como un entero, mientras que C no.
+En el nivel de lenguaje C se le debe poder indicar al compilador cuando un valor debe ser interpretado como una dirección y hacerle \textit{cast} como tal.
+Se permite este \textit{casting} entre direcciones y enteros durante el proceso de traducción dado que se conoce con seguridad cuando un valor debe ser interpretado como una dirección y cuando debe ser interpretado como un entero, mientras que C no.
 
 \paragraph*{Operaciones unarias y binarias}
 Al hacer \textit{pretty printing} de operaciones binarias se utilizan paréntesis alrededor de cada expresión que se imprime.
@@ -139,7 +139,7 @@ Ejemplos de esto se muestran en la tabla~\ref{tab:pretty_bin_op}.
 \centering
 \begin{tabular}{|c|c|}
   \hline
-  \textbf{Sintaxis abstracta} & \textbf{Representación en \textit{string}} \\ [0.5ex]
+  \textbf{Sintaxis abstracta} & \textbf{Representación en cadena de caracteres} \\ [0.5ex]
   \hline \hline
   \verb|Plus| (\verb|Const| $11$) (\verb|Const| $11$) & ($11\ +\ 11$) \\
   \verb|Subst| (\verb|Const| $9$) (\verb|Const| $5$) & ($9\ -\ 5$) \\
@@ -159,7 +159,7 @@ Ejemplos de esto se muestran en la tabla~\ref{tab:pretty_un_op}.
 \centering
 \begin{tabular}{|c|c|}
   \hline
-  \textbf{Sintaxis abstracta} & \textbf{Representación en \textit{string}} \\ [0.5ex]
+  \textbf{Sintaxis abstracta} & \textbf{Representación en cadena de caracteres} \\ [0.5ex]
   \hline \hline
   \verb|Minus| (\verb|Const| $11$) & $-\ (11)$ \\
   \verb|Not| (\verb|Const| $0$) & $!\ (0)$ \\
@@ -171,22 +171,22 @@ Ejemplos de esto se muestran en la tabla~\ref{tab:pretty_un_op}.
 \end{table}
 
 \paragraph*{Casts}
-Dado que los valores con los que se trabaja deben ser interpretados en C algunas veces como enteros y otras como apuntadores, se debe poder imprimir un ``cast'' explícito entre esos dos tipos en el programa generado.
-Se incluyen ``casts'' a apuntadores cuando se trata con operaciones de referencia, desreferencia y acceso a arreglos.
-Se quiere ``castear'' a entero en el caos de asignación de memoria.
-Una asignación de memoria retorna un apuntador, pero para poder asignarlo a una variable se debe ``castear'' como un entero.
-Dado que todas las variables del programa se declaran con el tipo \verb|intptr_t| y no \verb|intptr_t *|, se debe hacer esto, además se sabe que al trabajar con direcciones las mismas serán interpretadas de la manera correcta ya que se agregan ``casts'' a apuntadores.
+Dado que los valores con los que se trabaja deben ser interpretados en C algunas veces como enteros y otras como apuntadores, se debe poder imprimir un \textit{cast} explícito entre esos dos tipos en el programa generado.
+Se incluyen \textit{casts} a apuntadores cuando se trata con operaciones de referencia, desreferencia y acceso a arreglos.
+Se quiere hacer \textit{casting} a entero en el caso de asignación de memoria.
+Una asignación de memoria retorna un apuntador, pero para poder asignarlo a una variable se le debe hacer \textit{casting} como un entero.
+Dado que todas las variables del programa se declaran con el tipo \verb|intptr_t| y no \verb|intptr_t *|, se debe hacer esto, además se sabe que al trabajar con direcciones las mismas serán interpretadas de la manera correcta ya que se agregan \textit{casts} a apuntadores.
 
 
-Un ``cast'' a una dirección se imprime de la siguiente manera: $(\mathtt{intptr\_t}\ *) <expresion>$.
-Un ``cast'' a un valor entero se imprime de la siguiente manera: $(\mathtt{intptr\_t}) <expresion>$.
-En la tabla~\ref{tab:pretty_casts} se encuentran ejemplos del \textit{pretty printing} de ``casts''.
+Un \textit{cast} a una dirección se imprime de la siguiente manera: $(\mathtt{intptr\_t}\ *) <expresion>$.
+Un \textit{cast} a un valor entero se imprime de la siguiente manera: $(\mathtt{intptr\_t}) <expresion>$.
+En la tabla~\ref{tab:pretty_casts} se encuentran ejemplos del \textit{pretty printing} de \textit{casts}.
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{|c|c|}
   \hline
-  \textbf{Sintaxis abstracta} & \textbf{Representación en \textit{string}} \\ [0.5ex]
+  \textbf{Sintaxis abstracta} & \textbf{Representación en cadena de caracteres} \\ [0.5ex]
   \hline \hline
   \verb|Deref| (\verb|V| $foo$) & $*((\mathtt{intptr\_t}\ *)\ $foo$)$ \\
   \verb|Ref| (\verb|V| $foo$)   & $((\mathtt{intptr\_t}\ *)\ \&($foo$))$ \\
@@ -194,7 +194,7 @@ En la tabla~\ref{tab:pretty_casts} se encuentran ejemplos del \textit{pretty pri
   \hline
 \end{tabular}
 
-\caption{Ejemplos de \textit{pretty printing} para ``casts''}
+\caption{Ejemplos de \textit{pretty printing} para \textit{casts}}
 \label{tab:pretty_casts}
 \end{table}
 
@@ -211,14 +211,14 @@ Se define el código de salida 3 como un código de salida erróneo que signific
 
 
 \paragraph*{Expresiones}
-En la tabla~\ref{tab:pretty_expressions} se presenta la representación en \textit{string} para cada una de las expresiones.
+En la tabla~\ref{tab:pretty_expressions} se presenta la representación en cadena de caracteres para cada una de las expresiones.
 Se utilizan operaciones simples como operandos tales como variables o valores constantes por simplicidad, sin embargo las expresiones pueden estar compuestas por términos más complejos.
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{|c|c|}
   \hline
-  \textbf{Sintaxis abstracta} & \textbf{Representación en \textit{string}} \\ [0.5ex]
+  \textbf{Sintaxis abstracta} & \textbf{Representación en cadena de caracteres} \\ [0.5ex]
   \hline \hline
   \verb|Const| $42$ & $42$ \\
   \verb|Null| & (\verb|intptr_t| *) $0$ \\
@@ -250,22 +250,22 @@ Se utilizan operaciones simples como operandos tales como variables o valores co
 
 \section{Comandos}
 
-Primeramente, se necesita un mecanismo que permita imprimir comandos ``indentados'' para facilitar la generación de código.
-Se definen dos abreviaciones auziliares que imprimen espacios en blanco para ``indentación'' al inicio de un término.
+Primeramente, se necesita un mecanismo que permita imprimir comandos indentados para facilitar la generación de código.
+Se definen dos abreviaciones auziliares que imprimen espacios en blanco para indentación al inicio de un término.
 La razon por la que se definen dos abreviaciones es porque una de ellas también imprime un terminador $";"$ luego del término, mientras que la otra no.
 
 Las llamadas a funciones se imprimen siguiendo el siguiente formato: $<nombre\_funcion>\ ([<argumento_0, argumento_1, \dots, <argumento_n>])$ donde los corchetes ($[]$) indican que los argumentos son opcionales.
 
 Los comandos en Chlose se imprimen como se muestra en los ejemplos de la tabla~\ref{tab:pretty_commands}.
-Se utiliza $''$ para indicar un \textit{string} vacio.
-El nivel correcto de ``indentación'' se indica en los parámetros de la función que se encarga de realizar el \textit{pretty printing}, acá esos son omitidos y en su lugar se indica donde la ``indentación'' aumenta.
-La ``indentación'' aumenta al imprimir comandos que se encuentren dentro de un bloque, por ejemplo: las ramas de un condicional o el cuerpo de un ciclo.
+Se utiliza $''$ para indicar una cadena vacia.
+El nivel correcto de indentación se indica en los parámetros de la función que se encarga de realizar el \textit{pretty printing}, acá esos son omitidos y en su lugar se indica donde la indentación aumenta.
+La indentación aumenta al imprimir comandos que se encuentren dentro de un bloque, por ejemplo: las ramas de un condicional o el cuerpo de un ciclo.
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{|c|l|}
   \hline
-  \textbf{Sintaxis abstracta} & \textbf{Representación en \textit{string}} \\ [0.5ex]
+  \textbf{Sintaxis abstracta} & \textbf{Representación en cadena de caracteres} \\ [0.5ex]
   \hline \hline
   \verb|SKIP| & $''$ \\
   \hline
@@ -324,16 +324,16 @@ Para hacerlo, se imprime la definición de una función de acuerdo al siguiente 
 \end{split}
 \end{equation*}
 
-El retorno, los argumentos y las variables locales es de tipo \verb|intptr_t| dado que, como se mencionó anteriormente, solo se tiene un tipo en el proceso de traducción y se realizan ``casts'' hacia y desde apuntadores cuando son necesarios.
+El retorno, los argumentos y las variables locales es de tipo \verb|intptr_t| dado que, como se mencionó anteriormente, solo se tiene un tipo en el proceso de traducción y se realizan \textit{casts} hacia y desde apuntadores cuando son necesarios.
 
 Un ejemplo de la traducción de la declaración de una función para una función factorial se encuentra en la tabla~\ref{tab:pretty_function_fact}.
-En este ejemplo se evita el uso de $''\ ''$ para representar \textit{strings} en Isabelle/HOL y simplemente se escribe el \textit{string} sin las comillas.
+En este ejemplo se evita el uso de $''\ ''$ para representar cadenas de caracteres en Isabelle/HOL y simplemente se escribe la cadena de caracteres sin las comillas.
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{|l|l|}
   \hline
-  \textbf{Sintaxis abstracta} & \textbf{Representación en \textit{string}} \\ [0.5ex]
+  \textbf{Sintaxis abstracta} & \textbf{Representación en cadena de caracteres} \\ [0.5ex]
   \hline \hline
   \verb|definition factorial_decl| $::$ \verb|fun_decl|  & \verb|intptr_t fact(intptr_t n) {| \\
   \verb|where "factorial_decl| $\equiv$                  & \verb|  intptr_t r;| \\
@@ -362,18 +362,18 @@ En este ejemplo se evita el uso de $''\ ''$ para representar \textit{strings} en
 \section{Estados}
 
 Al ejecutar un programa dentro del ambitente de Isabelle/HOL a menudo se quieren inspeccionar los estados.
-En esta sección se define una forma sencilla de inspeccionar los estados al tener una representación en \textit{string} para los mimsmos.
+En esta sección se define una forma sencilla de inspeccionar los estados al tener una representación en cadena de caracteres para los mimsmos.
 
 Primero se describe como se imprime una ubicación de retorno.
 Se instancia la clase \verb|show| para el tipo \verb|return_loc|.
-En la tabla~\ref{tab:pretty_rloc} se encuentra la equivalencia entre la sintaxis abstracta para el tipo \verb|return_loc| y su representación en \textit{string}.
-Donde $<base>$ y $<ofs>$ son el resultado de aplicar la función \verb|show| sobre $base$ y $ofs$ y $<invalid>$ es un \textit{string} literal que incluye las cuñas.
+En la tabla~\ref{tab:pretty_rloc} se encuentra la equivalencia entre la sintaxis abstracta para el tipo \verb|return_loc| y su representación en cadena de caracteres.
+Donde $<base>$ y $<ofs>$ son el resultado de aplicar la función \verb|show| sobre $base$ y $ofs$ y $<invalid>$ es una cadena de caracteres literal que incluye las cuñas.
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{|c|c|}
   \hline
-  \textbf{Sintaxis abstracta} & \textbf{Representación en \textit{string}} \\ [0.5ex]
+  \textbf{Sintaxis abstracta} & \textbf{Representación en cadena de caracteres} \\ [0.5ex]
   \hline \hline
   \verb|Ar| $(base,\ ofs)$ & <$base$>[<$ofs$>] \\
   \verb|Vr| $w$ & $w$ \\
@@ -398,7 +398,7 @@ Un ejemplo de \textit{pretty printing} para un estado se muestra en la tabla~\re
 \centering
 \begin{tabular}{|l|l|}
   \hline
-  \textbf{Sintaxis abstracta} & \textbf{Representación en \textit{string}} \\ [0.5ex]
+  \textbf{Sintaxis abstracta} & \textbf{Representación en cadena de caracteres} \\ [0.5ex]
   \hline \hline
   $(\ [\ (x\ ::=\ \mathtt{Const}\ 4;;\ y\ ::=\ \mathtt{Const}\ 25,$                                            & \verb|x = (4);| \\
   $\ \ \ \ \ \ [z\ \mapsto\ \mathtt{Some}\ (\mathtt{I}\ 0)],\ \mathtt{Invalid}),$                              & \verb|y = (25);| \\
@@ -432,12 +432,12 @@ En esta sección se discute la traducción de un programa completo.
 
 \paragraph*{Header files and bound checks}
 
-En el código C que será exportado se quiere incluir los ``header files'' para las liberías estándar de C (\verb|stdlib.h| y \verb|stdio.h|).
-Además se incluyen dos ``header files'' adicionales, una permite el uso del tipo \verb|intptr_t| y la otra es donde se encuentran los macros con las definiciones de los límites de los tipos enteros.
+En el código C que será exportado se quiere incluir los archivos de cabecera para las liberías estándar de C (\verb|stdlib.h| y \verb|stdio.h|).
+Además se incluyen dos archivos de cabecera adicionales, una permite el uso del tipo \verb|intptr_t| y la otra es donde se encuentran los macros con las definiciones de los límites de los tipos enteros.
 Estas son \verb|limits.h| y \verb|stdint.h|, respectivamente.
-También se desea incluir el ``header file'' que define ciertos macros utilizados por el arnés de pruebas con fines de pruebas, este tema será tratado con más detalle en el capítulo~\ref{chapter:testing}.
-Por último, se incluye el ``header file'' que contiene la función para manejar las llamadas a \verb|malloc|.
-Antes de generar alguna otra parte del programa se quiere imprimir las directivas para incluir los ``header files'' mencionados anteriormente.
+También se desea incluir el archivo de cabecera que define ciertos macros utilizados por el arnés de pruebas con fines de pruebas, este tema será tratado con más detalle en el capítulo~\ref{chapter:testing}.
+Por último, se incluye el archivo de cabecera que contiene la función para manejar las llamadas a \verb|malloc|.
+Antes de generar alguna otra parte del programa se quiere imprimir las directivas para incluir los archivos de cabecera mencionados anteriormente.
 
 
 Además, el proceso de traducción genera un programa que será compilable y ejecutable.
@@ -460,7 +460,7 @@ definition "dflt_type_min_bound_name $\equiv$ dflt_type_bound_name $@$ ''_MIN''"
 definition "dflt_type_max_bound_name $\equiv$ dflt_type_bound_name $@$ ''_MAX''"
 \end{lstlisting}
 
-donde $@$ representa la operación ``append'' entre \textit{strings}.
+donde $@$ representa la operación \textit{append} entre cadenas de caracteres.
 Nótese que la precision del tipo utilizado como \verb|dflt_type| debe corresponder a la precisión definida en \verb|int_width|.
 
 \paragraph*{Global variables}
@@ -477,7 +477,7 @@ La impresión de variables globales se hace de la misma manera que para las vari
 
 \paragraph*{Programas}
 
-Para imprimir un programa se imprimen las directivas \verb|include| para los ``header files'', luego la verificación de los límites para los enteros, las declaraciones de las variables globales y, por último, se imprime cada función en el programa separado por un caracter de salto de línea.
+Para imprimir un programa se imprimen las directivas \verb|include| para los archivos de cabecera, luego la verificación de los límites para los enteros, las declaraciones de las variables globales y, por último, se imprime cada función en el programa separado por un caracter de salto de línea.
 En la figura~\ref{fig:factorial_isabelle} se encuentra la definición de un programa factorial en Isabelle y en la figura~\ref{fig:factorial_c} se encuentra el código C generado para la misma.
 
 La verificación de los límites para los enteros para el límite inferior tiene una solución temporal ya que el valor de \verb|INTPTR_MIN| excede el límite superior para los enteros del preprocesador lo cual causa \textit{overflow} y una advertencia al compilar.~\footnote{Interpreta el número negativo como $-(numero)$ y produce una advertencia que indica que no puede representar $numero$.}
@@ -586,7 +586,7 @@ Para garantizar esto se define una función que prepara un programa para su expo
 
 
 Esta función toma un programa y verifica que sea válido, de acuerdo a la definición de validez dada en~\ref{section:programs_commands}.
-Si no es válido, se retorna un valor \verb|None|, en caso contrario se genera el \textit{string} que contiene el programa en C con la función \verb|shows_prog|.~\footnote{No se incluye el código para las funciones show en este documento sino que se explica como funcionan. Los archivos de Isabelle pueden ser chequeados para detalles de implementación.}
+Si no es válido, se retorna un valor \verb|None|, en caso contrario se genera la cadena de caracteres que contiene el programa en C con la función \verb|shows_prog|.~\footnote{No se incluye el código para las funciones show en este documento sino que se explica como funcionan. Los archivos de Isabelle pueden ser chequeados para detalles de implementación.}
 
 Se exporta código C a archivos externos.
 El nombre del archivo está dado por el nombre del programa en su definición.
@@ -620,13 +620,13 @@ Se define una función en ML dentro de Isabelle que exporta el código C de un p
       (error "Invalid program, no code is generated."; thy)
 \end{lstlisting}
 
-El primer parámetro de la función \verb|export_c_code| es un \verb|string option| esto corresponde a la representación en \textit{string} del código C generado por el programa.
+El primer parámetro de la función \verb|export_c_code| es un \verb|string option| esto corresponde a la representación en cadena de caracteres del código C generado por el programa.
 Si recibe un valor \verb|None| significa que la función \verb|prepare_export| falló y no se debe generar un programa en C.
 El segundo parámetro es la ruta al directorio al cual se quiere exportar el programa, este parámetro es una ruta relativa al directorio donde se encuentra la teoría de Isabelle que contiene las directivas para hacer \textit{pretty printing}.
 El tercer parámetro es el nombre del programa.
 El último parámetro es el contexto de la teoría actual.
 
-Si la ruta dada es un \textit{string} vacío el código generado se imprimirá a la vista de salida de Isabelle.
+Si la ruta dada es una cadena vacía el código generado se imprimirá a la vista de salida de Isabelle.
 Esta función crea un nuevo archivo con el nombre indicado en los parámetros con ``\verb|.c|'' agregado al final (es decir, $<nombre>\mathtt{.c}$) en el directorio indicado por el parámetro de la ruta.
 El usuario puede entonces encontrar el código generado en el directorio indicado.
 

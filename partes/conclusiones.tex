@@ -7,7 +7,7 @@ En este trabajo se logró formalizar exitosamente la semántica para un lenguaje
 Chloe tiene las siguientes características: variables, arreglos, aritmética de apuntadores, ciclos, condicionales, funciones y memoria dinámica.
 Se formalizó una semántica de pasos cortos en el probador de teoremas Isabelle/HOL para Chloe y se demostró que la misma es determinística.
 Además, se presenta un interpretador para el lenguaje, lo que permite que los programas escritos en Chloe sean ejecutados en el entorno de Isabelle/HOL.
-Para escribir el interpretador eran necesarias las demostraciones de ``determinismo'' para la semántica.
+Para escribir el interpretador era necesario demostrar que la semántica era determinística.
 
 Otro resultado de este trabajo fue la presentación de un generador de código para el lenguaje Chloe.
 Este generador de código traduce programas de la semántica formal a código C real que puede ser ejecutado.
@@ -33,7 +33,7 @@ Para garantizar que la semántica de un programa no es cambiada por el proceso d
 Estos chequeos tienen la finalidad de verificar que el estado final de un programa ejecutado en el interpretador dentro de Isabelle/HOL es equivalente al estado final del programa ejecutado y compilado.
 Dos estados son considerados equivalentes cuando las variables globales y la memoria dinámica accesible, al final de la ejecución, tienen el mismo contenido.
 Para ello, se escribe un arnés de pruebas en Isabelle que traduce las pruebas que se deben hacer a un conjunto de macros en C que se definen fuera de Isabelle/HOL, y se incluyen en el proceso de compilación, que verifican la equivalencia entre estados finales.
-Con el fin de no correr estas pruebas manualmente se crea un ``bash script'' que corre todas las pruebas existentes automáticamente.
+Con el fin de no correr estas pruebas manualmente se crea un \textit{bash script} que corre todas las pruebas existentes automáticamente.
 
 \section{Trabajo futuro}
 
@@ -50,12 +50,12 @@ Dado que Chloe posee apuntadores como una de sus características, sería necesa
 Al extender el trabajo en esta dirección sería posible demostrar propiedades de correctitud parcial y total para los programas.
 
 Una de las características que no se encuentran incluidas en el alcance del trabajo es un sistema de tipos estático que sea demostrado como correcto y sólido.
-Esto permitiría razonar sobre ``type safety'' para los programas escritos en Chloe.
+Esto permitiría razonar sobre seguridad de tipos para los programas escritos en Chloe.
 
-Existe un ``framework'' llamado Isabelle Refinement Framework~\cite{Refine_Monadic-AFP}, que proporciona una manera de formular algoritmos no deterministicos en un estilo monádico y refinarlos para obtener un algoritmo ejecutable.
+Existe un marco de trabajo llamado Isabelle Refinement Framework~\cite{Refine_Monadic-AFP}, que proporciona una manera de formular algoritmos no deterministicos en un estilo monádico y refinarlos para obtener un algoritmo ejecutable.
 Proporciona herramientas para razonar sobre estos programas.
-Otra fuente de trabajo futuro sería vincular este lenguaje al Isabelle Refinement Framework, de modo que lso programas del ``framework'' puedan ser refinados a programas en Chloe.
+Otra fuente de trabajo futuro sería vincular este lenguaje al Isabelle Refinement Framework, de modo que los programas del marco de trabajo puedan ser refinados a programas en Chloe.
 
 Por último, el conjunto de características que actualmente son compatibles con Chloe es limitado.
 Otra forma de meejorar los resultados de este trabajo es aumentar el conjunto de características compatibles con Chloe.
-Esto puede incluir expandir el conjunto de expresiones e instrucciones (por ejemplo, agregar compatibilidad para structs y unions), agregar operaciones de I/O o agregar soporte para concurrencia.
+Esto puede incluir expandir el conjunto de expresiones e instrucciones (por ejemplo, agregar compatibilidad para structs y unions), agregar operaciones de entrada y salida o agregar soporte para concurrencia.

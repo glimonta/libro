@@ -93,21 +93,21 @@ Se tienen cuatro tipos de instrucciones de prueba diferentes que se pueden gener
 
 \begin{itemize}
   \item{\verb|Discover| representa la instrucción que agrega un bloque a la lista de bloques \textit{visitados}.
-  El \verb|string| es la representación en \textit{string} de la expresión en C y el \verb|nat| representa el número de identificación del bloque de memoria actual.
+  El \verb|string| es la representación en cadena de caracteres de la expresión en C y el \verb|nat| representa el número de identificación del bloque de memoria actual.
   Las direcciones reales para los bloques de memoria asignada cambiarán con cada ejecución del programa en la máquina.
   La instrucción \verb|discover| empareja la dirección real para el inicio de un bloque con el númrero de bloque correspondiente en la representación abstracta.
   Para ello se generan variables locales con la función \verb|base_var_name| llamadas \verb|__test_harness_x_|$n$ donde $n$ es el número de identificación del bloque y en esas variables se guarda la dirección real del inicio del bloque para una ejecución en particular.}
   \item{\verb|Assert_Eq| representa la instrucción que chequea que el valor de una expresión sea el mismo valor entero que se espera que tenga.
-  El \verb|string| es la representación en \textit{string} de la expresión en C y el \verb|int_val| representa el valor que se espera que esa expresión tenga de acuerdo al estado final en la ejecución de la semántica.}
+  El \verb|string| es la representación en cadena de caracteres de la expresión en C y el \verb|int_val| representa el valor que se espera que esa expresión tenga de acuerdo al estado final en la ejecución de la semántica.}
   \item{\verb|Assert_Eq_Null| representa la instrucción que chequea que el valor de una expresión sea \verb|NULL|.
-  El \verb|string| es la representación en \textit{string} de la expresión en C.}
+  El \verb|string| es la representación en cadena de caracteres de la expresión en C.}
   \item{\verb|Assert_Eq_Pointer| representa la instrucción que chequea que el valor de un apuntador apunte al mismo boloque al que se espera que apunte.
-  El \verb|string| es la representación en \textit{string} de la expresión en C y el \verb|nat| representa el número de identificación del bloque de memoria.}
+  El \verb|string| es la representación en cadena de caracteres de la expresión en C y el \verb|nat| representa el número de identificación del bloque de memoria.}
 \end{itemize}
 
 Se tienen también ciertas funciónes auxiliares que asisten en el proceso de generación de pruebas.
-La función \verb|adjust_addr| toma un desplazamiento y una representación en \textit{string} de una expresión en C (cuya evaluación resulta en un apuntador) y produce una representación en \textit{string} que ajusta la dirección al inicio del bloque al sustraer el desplazamiento de la misma.
-La función \verb|ofs_addr| toma un desplazamiento y la representación en \textit{string} de una expresión en C (cuya evaluación resulta en un apuntador) y produce una representación en \textit{string} que ajusta la dirección para que apunte a la celda especificada por el desplazamiento al sumarle el mismo a la dirección.
+La función \verb|adjust_addr| toma un desplazamiento y una representación en cadena de caracteres de una expresión en C (cuya evaluación resulta en un apuntador) y produce una representación en cadena de caracteres que ajusta la dirección al inicio del bloque al sustraer el desplazamiento de la misma.
+La función \verb|ofs_addr| toma un desplazamiento y la representación en cadena de caracteres de una expresión en C (cuya evaluación resulta en un apuntador) y produce una representación en cadena de caracteres que ajusta la dirección para que apunte a la celda especificada por el desplazamiento al sumarle el mismo a la dirección.
 Por último, la función \verb|base_var_name| dado un número natural $n$ produce la variable que se utiliza para el proceso de pruebas, la cual guarda la dirección que apunta al inicio del bloque $n$.
 Esta variable siempre tendrá el prefijo \verb|__test_harness_x_| mas el número $n$.
 Por ejemplo, para el número de bloque $2$ la función produce: ``\verb|__test_harness_x_2|''.
@@ -163,7 +163,7 @@ Para hacer esto se deben seguir los apuntadores en un orden determinado y se deb
 De esta manera al encontrar un apuntadora a un bloque de memoria que ya fue chequeado (o \textit{visitado}) se puede parar y comparar los apuntadores en lugar de seguir los apuntadores de manera cíclica indefinidamente, chequeando una y otra vez partes de la memoria que ya fueron revisadas.
 Los apuntadores se siguen en el orden dado por el algoritmo de búsqueda en profundidad (DFS)~\footnote{Por sus siglas en inglés \textit{Depth-First Search}}.
 En la figura~\ref{fig:dfs_test} se presenta el algoritmo utilizado para seguir un apuntador.
-El algoritmo toma un conjunto de números naturales que son los bloques que ya han sido visitados, una dirección (la que se está siguiendo) y una representación en \textit{string} de la expresión en C (que debería contener la misma dirección).
+El algoritmo toma un conjunto de números naturales que son los bloques que ya han sido visitados, una dirección (la que se está siguiendo) y una representación en cadena de caracteres de la expresión en C (que debería contener la misma dirección).
 Produce un nuevo conjunto de bloques visitados y una lista de instrucciones de prueba que se deben generar.
 
 El algoritmo opera de la siguiente manera:
@@ -184,13 +184,13 @@ Al retornar de esta llamada, se retorna el nuevo conjunto de visitados resultant
 \section{Arnés de prueba en C}
 
 Con el fin de apoyar el proceso de pruebas en C se deben tener algunos macros que corresponden a aquellas instrucciones generadas en Isabelle.
-Se crea un ``header file'' en C donde se definen los macros necesarios para realizar las pruebas así como algunas variables útiles.
+Se crea un archivo de cabecera en C donde se definen los macros necesarios para realizar las pruebas así como algunas variables útiles.
 
-Este ``header file'' se presenta en la figura~\ref{fig:header_test_harness}.
+Este archivo de cabecera se presenta en la figura~\ref{fig:header_test_harness}.
 Allí se pueden encontrar las definiciones para los macros correspondientes a las instrucciones \verb|Discover|, \verb|Assert_Eq|, \verb|Assert_Eq_Null| y \verb|Assert_Eq_Ptr|.
-Para guardar el conjunto de bloques visitados se utiliza un ``hash set''.
-La implementación del ``hash set'' fue hecha por Sergey Avseyev y se encuentra en línea~\cite{hashset}.
-Se definen variables que contienen el número total de pruebas, el número de pruebas exitosas y fallidas y el ``hash set'' de bloques visitados.
+Para guardar el conjunto de bloques visitados se utiliza un \textit{hash set}.
+La implementación del \textit{hash set} fue hecha por Sergey Avseyev y se encuentra en línea~\cite{hashset}.
+Se definen variables que contienen el número total de pruebas, el número de pruebas exitosas y fallidas y el \textit{hash set} de bloques visitados.
 
 
 \begin{figure}
@@ -227,7 +227,7 @@ int __test_harness_failed = 0;
 \end{figure}
 
 
-Las instrucciones de pruebas son traducidas mediante ``pretty printing'' a macros de C utilizando la función \verb|test_instructions|:
+Las instrucciones de pruebas son traducidas mediante \textit{pretty printing} a macros de C utilizando la función \verb|test_instructions|:
 
 \begin{lstlisting}[mathescape=true, frame=single]
 definition tests_instructions :: "test_instr list $\Rightarrow$ nat $\Rightarrow$ shows" where
@@ -304,13 +304,13 @@ where "emit_globals_tests $\equiv$ $\lambda$vnames ($\sigma$,$\gamma$,$\mu$).
 En la sección~\ref{section:exporting_c_code} se describe una forma de exportar programas en C.
 Existe una segunda manera de exportar programas en C donde además se genera código C para verificar la igualdad de los estados finales.
 
-Anteriormente, se definió la manera en que cada construcción necesaria para las pruebas se imprime (``pretty printing''), ahora se describe como se genera el código con las pruebas.
+Anteriormente, se definió la manera en que cada construcción necesaria para las pruebas se imprime (\textit{pretty printing}), ahora se describe como se genera el código con las pruebas.
 
 Se tiene una función similar a \verb|prepare_export| que prepara un programa para ser exportado con pruebas generadas, se define en la figura~\ref{fig:prepare_test_export} (donde $\Downarrow$ representa el caracter de salto de línea).
 Primero, se obtiene el código del programa sin pruebas utilizando la función \verb|prepare_export|.
 Solo se generan las pruebas para programas válidos cuya ejecución produzca un estao final, por lo tanto se debe verficar esto mediante la ejecución del programa.
 Luego, se crea una lista de pruebas para las variables globales.
-Más adelante, se genera el \textit{string} para las declaraciones de variables, un \textit{string} para inicializar el ``hash set'' y el \textit{string} para las llamadas a los macros definidos en C.
+Más adelante, se genera la cadena de caracteres para las declaraciones de variables, una cadena de caracteres para inicializar el \textit{hash set} y la cadena de caracteres para las llamadas a los macros definidos en C.
 Se tienen tres variables en el arnés de pruebas en C que llevan la cuenta de cuantas pruebas son ejecutadas, cuantas fallan y cuantas son exitosas.
 Se quiere obtener algún tipo de información sobre el resultado de correr las pruebas generadas para el código.
 Para ello se genera código que imprime a la salida estándar (luego de ejecutar el programa) los resultados del proceso de pruebas, es decir, el número de pruebas exitosas y fallidas.
@@ -341,14 +341,14 @@ where "prepare_test_export prog $\equiv$ do {
 
 
 Con el fin de exportar el código con las pruebas agregadas, se define una nueva función en ML llamada \verb|generate_c_test_code|, su definición se encuentra en la figura~\ref{fig:generate_c_test_code}.
-El primer parámetro de la función es de tipo \verb|(string, string) option| que corresponde a la tupla que contiene la representación en \textit{string} del programa en código C y las pruebas para ese programa, respectivamente.
+El primer parámetro de la función es de tipo \verb|(string, string) option| que corresponde a la tupla que contiene la representación en cadena de caracteres del programa en código C y las pruebas para ese programa, respectivamente.
 Si la función recibe un valor \verb|None|, significa que la función \verb|prepare_test_export| falló y no se debe generar un programa en C.
 El segundo parámetro es la ruta al directorio al que se quiere exportar el programa.
 Este parámetro es una ruta relativa al directorio donde se encuentra la teoría de Isabelle que contiene las directivas para hacer \textit{pretty printing}.
 El tercer parámetro es el nombre del programa.
 El último parámetro es el contexto de la teoría actual.
 
-Si la ruta dada es un \textit{string} vacío el código generado se imprimirá a la vista de salida de Isabelle.
+Si la ruta dada es una cadena de caracteres vacía el código generado se imprimirá a la vista de salida de Isabelle.
 Esta función crea un nuevo archivo con el nombre indicado en los parámetros con ``\verb|.c|'' agregado al final (es decir, $<nombre>\mathtt{.c}$) en el directorio indicado por el parámetro de la ruta.
 El usuario puede entonces encontrar el código generado en el directorio indicado.
 
@@ -454,11 +454,11 @@ Es posible ver estos de manera facil en la vista llamada `Theories' de la interf
 \subsection{Ejecución de pruebas en C}
 
 Cuando se genera código exitosamente, se desea compilar y correr las pruebas de manera automática.
-Se tiene un Makefile que compila cada prueba en la \textit{suite} así como también un ``shell script'' de bash que corre cada prueba en la \textit{suite}.
+Se tiene un Makefile que compila cada prueba en la \textit{suite} así como también un \textit{shell script} de \textit{bash} que corre cada prueba en la \textit{suite}.
 El resultado de ejecutar las pruebas será el número de pruebas exitosas y/o fallidas.
 Cuando una prueba falla, el resultado se imprime en color rojo para hacerlo mas visible al usuario.
-Además, otros comportamientos son atrapados por el ``script'' y mostrados al usuario, tales como errores por falta de memoria, ``segmentation faults'' y programas que terminen con alguno de los códigos de salida reservados~\cite{bash-scripting}.
-Este ``script'' se presenta en la figura~\ref{fig:bash_script}.
+Además, otros comportamientos son atrapados por el \textit{script} y mostrados al usuario, tales como errores por falta de memoria, \textit{segmentation faults} y programas que terminen con alguno de los códigos de salida reservados~\cite{bash-scripting}.
+Este \textit{script} se presenta en la figura~\ref{fig:bash_script}.
 
 \begin{figure}
 \begin{lstlisting}
@@ -504,7 +504,7 @@ fi
 done
 \end{lstlisting}
 
-\caption{Shell script para la ejecución de pruebas}
+\caption{\textit{Shell script} para la ejecución de pruebas}
 \label{fig:bash_script}
 \end{figure}
 
