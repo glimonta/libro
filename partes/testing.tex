@@ -11,8 +11,7 @@ Al generar programas se puede simplemente genera el código C por si solo o se p
 En las siguientes secciones se describen los arneses de pruebas utilizados para generar las pruebas para el código.
 Además se da una descripción mas detallada del significado que tiene que dos estados finales sean equivalentes.
 Por último se habla un conjunto de pruebas y programas de ejemplos escritos en la semántica.
-Sólo se genera código para programas válidos.
-Esto significa que se irá a un estado erróneo si surge algún comportamiento indefinido.
+Sólo se genera código para programas válidos; esto es, se irá a un estado erróneo si surge algún comportamiento indefinido.
 En este conjunto de pruebas se incluyen programas que se espera que alcancen un estado erróneo ya que presentan comportamiento indefinido o casos bordes.
 Para estos programas \textit{incorrectos} no se generará código C.
 También se presentan programas de ejemplo, tales como algoritmos de ordenamiento, para demostrar como funciona la semántica y el proceso de generación de código.
@@ -58,7 +57,6 @@ Se presenta aquí la idea intuitiva detrás de la generación de pruebas y en la
 
 \section{Arnés de prueba en Isabelle/HOL}
 
-Esta sección introduce el arnés de pruebas en Isabelle que asiste en la generación de pruebas para los programas.
 Primero, se define un nuevo tipo de datos por cada tipo de instrucción que se puede generar.
 Esta definición se encuentra en la figura~\ref{fig:test_harness_datatype}.
 
@@ -113,6 +111,7 @@ Esta variable siempre tendrá el prefijo \verb|__test_harness_x_| mas el número
 Por ejemplo, para el número de bloque $2$ la función produce: ``\verb|__test_harness_x_2|''.
 
 
+\begin{comment}
 \begin{figure}
 \begin{lstlisting}[mathescape=true]
 context fixes $\mu$ :: mem begin
@@ -157,12 +156,13 @@ end
 \caption{DFS para generación de pruebas}
 \label{fig:dfs_test}
 \end{figure}
+\end{comment}
 
 Anteriormente se mencionó que los apuntadores deben ser seguidos hasta que se alcance o bién un entero o un valor \verb|NULL| o hasta que se alcance un apuntador que ya haya sido seguido.
 Para hacer esto se deben seguir los apuntadores en un orden determinado y se deben mantener un conjunto de bloques ya \textit{visitados}.
 De esta manera al encontrar un apuntadora a un bloque de memoria que ya fue chequeado (o \textit{visitado}) se puede parar y comparar los apuntadores en lugar de seguir los apuntadores de manera cíclica indefinidamente, chequeando una y otra vez partes de la memoria que ya fueron revisadas.
 Los apuntadores se siguen en el orden dado por el algoritmo de búsqueda en profundidad (DFS)~\footnote{Por sus siglas en inglés \textit{Depth-First Search}}.
-En la figura~\ref{fig:dfs_test} se presenta el algoritmo utilizado para seguir un apuntador.
+En el apéndice~\ref{ap:dfs_test} se presenta el algoritmo utilizado para seguir un apuntador.
 El algoritmo toma un conjunto de números naturales que son los bloques que ya han sido visitados, una dirección (la que se está siguiendo) y una representación en cadena de caracteres de la expresión en C (que debería contener la misma dirección).
 Produce un nuevo conjunto de bloques visitados y una lista de instrucciones de prueba que se deben generar.
 
@@ -185,14 +185,14 @@ Al retornar de esta llamada, se retorna el nuevo conjunto de visitados resultant
 
 Con el fin de apoyar el proceso de pruebas en C se deben tener algunos macros que corresponden a aquellas instrucciones generadas en Isabelle.
 Se crea un archivo de cabecera en C donde se definen los macros necesarios para realizar las pruebas así como algunas variables útiles.
-
-Este archivo de cabecera se presenta en la figura~\ref{fig:header_test_harness}.
+Este archivo de cabecera se presenta en el apéndice~\ref{ap:header_test_harness}.
 Allí se pueden encontrar las definiciones para los macros correspondientes a las instrucciones \verb|Discover|, \verb|Assert_Eq|, \verb|Assert_Eq_Null| y \verb|Assert_Eq_Ptr|.
 Para guardar el conjunto de bloques visitados se utiliza un \textit{hash set}.
 La implementación del \textit{hash set} fue hecha por Sergey Avseyev y se encuentra en línea~\cite{hashset}.
 Se definen variables que contienen el número total de pruebas, el número de pruebas exitosas y fallidas y el \textit{hash set} de bloques visitados.
 
 
+\begin{comment}
 \begin{figure}
 \begin{lstlisting}[mathescape=true]
 #include <stdlib.h>
@@ -225,6 +225,7 @@ int __test_harness_failed = 0;
 \caption{Header file test\_harness.h}
 \label{fig:header_test_harness}
 \end{figure}
+\end{comment}
 
 
 Las instrucciones de pruebas son traducidas mediante \textit{pretty printing} a macros de C utilizando la función \verb|test_instructions|:
@@ -458,8 +459,9 @@ Se tiene un Makefile que compila cada prueba en la \textit{suite} así como tamb
 El resultado de ejecutar las pruebas será el número de pruebas exitosas y/o fallidas.
 Cuando una prueba falla, el resultado se imprime en color rojo para hacerlo mas visible al usuario.
 Además, otros comportamientos son atrapados por el \textit{script} y mostrados al usuario, tales como errores por falta de memoria, \textit{segmentation faults} y programas que terminen con alguno de los códigos de salida reservados~\cite{bash-scripting}.
-Este \textit{script} se presenta en la figura~\ref{fig:bash_script}.
+Este \textit{script} se presenta en el apéndice~\ref{ap:bash_script}.
 
+\begin{comment}
 \begin{figure}
 \begin{lstlisting}
 #!/bin/bash
@@ -507,6 +509,7 @@ done
 \caption{\textit{Shell script} para la ejecución de pruebas}
 \label{fig:bash_script}
 \end{figure}
+\end{comment}
 
 \section{Resultados}\label{section:results}
 

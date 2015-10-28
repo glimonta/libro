@@ -33,7 +33,7 @@ Se rodean con cuñas los parámetros ($"<\ >"$) para indicar que lo que está de
   \hline \hline
   \verb|NullVal| & null \\
   \verb|I| $w$ & $<w>$ \\
-  \verb|A| $(base,\ ofs)$ & <$base$>[<$ofs$>] \\
+  \verb|A| $(base,\ ofs)$ & $<base>$[$<ofs>$] \\
   \hline
 \end{tabular}
 
@@ -53,7 +53,7 @@ Un valor inicializado simmplemente será la cadena de caracteres resultante de l
   \hline
   \textbf{Sintaxis abstracta} & \textbf{Representación en cadena de caracteres} \\ [0.5ex]
   \hline \hline
-  \verb|Some| v & <$v$> \\
+  \verb|Some| v & $<v>$ \\
   \verb|None| & ? \\
   \hline
 \end{tabular}
@@ -92,8 +92,8 @@ Si el contenido del bloque es una lista de valores entonces se imprime la lista 
   \hline
   \textbf{Sintaxis abstracta} & \textbf{Representación en cadena de caracteres} \\ [0.5ex]
   \hline \hline
-  \verb|Some| content & <$content$> \\
-  \verb|None| & <free> \\
+  \verb|Some| content & $<content>$ \\
+  \verb|None| & $<$free$>$ \\
   \hline
 \end{tabular}
 
@@ -375,9 +375,9 @@ Donde $<base>$ y $<ofs>$ son el resultado de aplicar la función \verb|show| sob
   \hline
   \textbf{Sintaxis abstracta} & \textbf{Representación en cadena de caracteres} \\ [0.5ex]
   \hline \hline
-  \verb|Ar| $(base,\ ofs)$ & <$base$>[<$ofs$>] \\
+  \verb|Ar| $(base,\ ofs)$ & $<base>$[$<ofs>$] \\
   \verb|Vr| $w$ & $w$ \\
-  \verb|Invalid| & <invalid> \\
+  \verb|Invalid| & $<$invalid$>$ \\
   \hline
 \end{tabular}
 
