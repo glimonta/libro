@@ -23,11 +23,15 @@
 % Para incluir hipervínculos
 \usepackage{hyperref}
 \hypersetup{urlcolor=blue, colorlinks=false}
+\usepackage{cleveref}
 
 % Para más símbolos matemáticos
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
+
+\newtheorem*{lemmano}{Lema:}
+\newtheorem*{theoremno}{Teorema:}
 
 % Para colocar teoremas en cajas
 \usepackage{mdframed}
@@ -248,6 +252,11 @@ Eugenio, Gaudy, Santiago y Juana, sin ustedes esto no hubiera sido posible, grac
 \input{./partes/apendiceDFS}
 \input{./partes/apendiceHarnessC}
 \input{./partes/apendiceShellScript}
+\input{./partes/apendiceDefFuncion}
+\input{./partes/apendiceCFGrules}
+\input{./partes/apendiceFactorialEjemplo}
+\input{./partes/apendiceDeterminismProof}
+\input{./partes/apendiceInterpreterProof}
 %\input{./partes/apendiceA}
 %\input{./partes/apendiceB}
 \addtocontents{toc}{\vspace{2em}}

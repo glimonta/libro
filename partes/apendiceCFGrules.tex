@@ -1,0 +1,29 @@
+\chapter{Reglas del CFG}
+\label{ap:cfg_rules}
+\lhead{Apéndice A. \emph{Reglas del CFG}}
+
+\begin{lstlisting}[frame=single, mathescape=true]
+type_synonym cfg_label = enabled $\times$ transformer
+
+inductive cfg :: com $\Rightarrow$ cfg_label $\Rightarrow$ com $\Rightarrow$ bool where
+
+  Assign: cfg ($x$ ::= $a$) (en_always,tr_assign $x$ $a$) SKIP
+| Assignl: cfg ($x$ ::==  $a$) (en_always,tr_assignl $x$ $a$) SKIP
+| Seq1: cfg (SKIP;; $c_{2}$) (en_always, tr_id) $c_{2}$
+| Seq2: $[\![$cfg $c_{1}$ $a$ $c_{1}'$ $]\!]$ $\Longrightarrow$ cfg ($c_{1}$;; $c_{2}$) $a$ ($c_{1}'$;; $c_{2}$)
+| IfTrue: cfg (IF $b$ THEN $c_{1}$ ELSE $c_{2}$) (en_pos $b$, tr_eval $b$) $c_{1}$
+| IfFalse: cfg (IF $b$ THEN $c_{1}$ ELSE $c_{2}$) (en_neg $b$, tr_eval $b$) $c_{2}$
+| While: cfg (WHILE $b$ DO $c$) (en_always, tr_id)
+    (IF $b$ THEN $c$;; WHILE $b$ DO $c$ ELSE SKIP)
+| Free: cfg (FREE $x$) (en_always, tr_free $x$) SKIP
+
+| Return: cfg (Return $a$) (en_always, tr_return $a$) SKIP
+| Returnv: cfg Returnv (en_always, tr_return_void) SKIP
+
+| Callfunl: cfg (Callfunl $e$ $f$ params)
+    (en_always, tr_callfunl proc_table $e$ $f$ params) SKIP
+| Callfun: cfg (Callfun $x$ $f$ params)
+    (en_always, tr_callfun proc_table $x$ $f$ params) SKIP
+| Callfunv: cfg (Callfunv $f$ params)
+    (en_always, tr_callfunv proc_table $f$ params) SKIP
+\end{lstlisting}

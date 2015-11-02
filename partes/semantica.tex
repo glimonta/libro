@@ -466,8 +466,8 @@ La declaración de una función se considera válida si y solo si los parámetro
 
 \section{Programas}\label{section:programs_commands}
 
-Un programa en Chloe consiste en un nombre, una lista de variables globales y una lista de funciones como se muestra en la figura~\ref{fig:prog_def}.
-En esa misma figura se encuentra la definición de una condición que todo programa válido debe cumplir.
+Un programa en Chloe consiste en un nombre, una lista de variables globales y una lista de funciones.
+En el apéndice~\ref{ap:prog_def} se encuentra la definición de un programa y su definición de validez.
 
 Un programa se considera válido si cumple con todas las siguientes condiciones:
 
@@ -481,6 +481,9 @@ Un programa se considera válido si cumple con todas las siguientes condiciones:
 \end{itemize}
 
 
+\begin{comment}
+
+Pasada a anexos
 
 \begin{figure}
   \begin{lstlisting}[frame=single, mathescape=true]
@@ -528,6 +531,8 @@ Un programa se considera válido si cumple con todas las siguientes condiciones:
   \caption{Definiciones de un programa}
   \label{fig:prog_def}
 \end{figure}
+
+\end{comment}
 
 
 \section{Restricciones}\label{subsection:restrictions_commands}
@@ -680,7 +685,7 @@ type_synonym state = stack_frame list $\times$ valuation $\times$ mem
 \subsection{Estado inicial}\label{subsection:initial_state}
 
 Con el fin de construir un estado inicial se deben definir ciertos componentes.
-En la figura~\ref{fig:prog_def} se encuentran definiciones para la configuración inicial de la pila, las variables globales y la memoria.
+En el apéndice~\ref{ap:prog_def} se encuentran definiciones para la configuración inicial de la pila, las variables globales y la memoria.
 La configuración inicial para la pila consiste en la pila que contiene únicamente el marco de pila para la función main del programa.
 La configuración inicial para la valuación global es una función donde cada posible nombre de variable se mapea al valor correspondiente a una variable no definida (\verb|None|).
 La configuración inicial de la memoria dinámica es la memoria vacia, dado que nada ha sido asignado.
@@ -893,9 +898,13 @@ Un \textit{program pointer} al cuerpo de una función se empilará cuando una ll
 Un \textit{program pointer} se desempilará de la pila cuando exista una instrucción \verb|return|.
 Este concepto será importante al hablar de llamadas a funciones y retornos de funciones más adelante.
 
-En la figura~\ref{fig:cfg_rules} se encuentra una definición inductiva para CFG, donde se pueden ver las reglas para formar aristas entre comandos.
+En el apéndice~\ref{ap:cfg_rules} se encuentra una definición inductiva para CFG, donde se pueden ver las reglas para formar aristas entre comandos.
 Se puede seguir una arista en el CFG desde una asignación a una variable a \verb|SKIP|.
 Esta arista siempre está habilitada (la función \textit{enabled} retorna \verb|True|) y la función \textit{transformer} para actualizar el estado es el resultado de llamar a \verb|tr_assign| con los parámetros específicos para el comando.
+
+\begin{comment}
+
+Pasado a apéndices
 
 \begin{figure} 
   \begin{lstlisting}[frame=single, mathescape=true]
@@ -924,9 +933,11 @@ Esta arista siempre está habilitada (la función \textit{enabled} retorna \verb
       (en_always, tr_callfunv proc_table $f$ params) SKIP
   \end{lstlisting}
 
-  \caption{CFG rules}
+  \caption{Reglas del CFG}
   \label{fig:cfg_rules}
 \end{figure}
+
+\end{comment}
 
 Del mismo modo, una arista del CFG puede ser seguida desde una asignación a una celda en memoria hasta \verb|SKIP|, esta arista siempre está habilitada (la función \textit{enabled} retorna \verb|True|) y la función \textit{transformer} para actualizar el estado es el resultado de llamar a \verb|tr_assignl| con los parámetros específicos para el comando.
 
@@ -1037,7 +1048,7 @@ La notación de infijo para esta nueva definición se escribe como \verb|Some| $
 De esta manera, se ha levantado la definición de pasos cortos al tipo \verb|state option| y se puede definir la ejecución de un programa como la clausura reflexiva y transitiva de \verb|small_step'|, usando el operador \verb|star| de Isabelle.
 La notación de infijo para esto es escrito: $s_{0} \rightarrow* s_{f}$, lo cual significa que se puede ir desde el estado $s_{0}$ hasta $s_{f}$ en cero o mas pasos cortos.
 
-\subsubsection*{Determinism}
+\subsubsection*{Determinismo}
 
 Para poder ejecutar la semántica dentro del ambiente de Isabelle/HOL, la misma debe ser determinística.
 Es por ello que se demuestra que la semántica es determinística.
@@ -1047,6 +1058,8 @@ Cada vez que se introduce un lema, junto a su número se encontrará un nombre e
 Este nombre corresponde al nombre del lema en el código fuente de Isabelle presentados con este trabajo.
 En el caso en que el lector esté interesado en la demostración exacta para un lema en particular él o ella puede buscar el lema correspondiente en los archivos y leer la prueba.
 
+Dado que las demostraciones de los siguientes lemas no son el enfoque principal de este trabajo, las mismas se presentan en el apéndice~\ref{ap:determinism}
+
 Este primer lema indica que cada vez que se tiene un comando diferente a \verb|SKIP| hay siempre una arista habilitada (la función \textit{enabled} retorna \verb|True|) que se puede tomar en el CFG o un error ocurre al evaluar la función \textit{enabled}.
 
 \begin{lemma}[cfg\_has\_enabled\_action]
@@ -1055,6 +1068,7 @@ $c$ $\neq$ \verb|SKIP| $\Longrightarrow$ $\exists\ c'\ en\ tr$. \verb|cfg| $c\ (
 \label{lemma:cfg_enabled_action}
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 La prueba es por inducción en el comando.
 A excepción de dos casos, la prueba es demostrada automáticamente.
@@ -1069,6 +1083,7 @@ En el caso donde es \verb|True| entonces el caso está resuelto.
 El caso difícil es cuando la evaluación de \verb|en_pos| es \verb|False|, semanticamente, esto significa que se debe tomar la rama del else.
 Por lo tanto cuando $\mathtt{en\_pos}\ b\ s$ es \verb|False|, $\mathtt{en\_neg}\ b\ s$ siempre se evaluará como \verb|True|, esto significa qe el comando siempre tendrá una arista habilitada que puede seguir, es decir, $\mathtt{en\_neg}\ b\ s$ y la demostración de este caso está completa.
 \end{proof}
+\end{comment}
 
 A continuación se quiere demostra que mientras la pila no esté vacia, la semántica de pasos cortos siempre puede tomar un paso.
 Se utilizará el lema anterior en la prueba para este nuevo lema.
@@ -1080,6 +1095,7 @@ $\neg$ \verb|is_empty_stack| $s$ $\Longrightarrow$ $\exists\ x.\ s\ \rightarrow\
 \label{lemma:can_take_step}
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 De las supociiones sabemos que la pila no está vacia, por lo tanto se puede reescribir el estado de la siguiente manera: $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
 Luego se puede hacer una prueba por casos.
@@ -1107,6 +1123,7 @@ En el caso donde falla (retorna \verb|None|) se puede tomar un paso a \verb|None
 En el caso donde no falla, retornará $\mathtt{Some}\ s_{2}$.
 En este caso se puede tomar un paso a $\mathtt{Some}\ s_{2}$ y se habrá probado que hay un estado al cual $s$ puede tomar un paso corto, es decir $\mathtt{Some}\ s_{2}$.
 \end{proof}
+\end{comment}
 
 Se definen varios lemas que serán útiles más adelante.
 
@@ -1117,9 +1134,11 @@ $\neg$ \verb|cfg SKIP| $a\ c$
 \label{lemma:stuck_at_skip}
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 La propiedad es demostrada automáticamente.
 \end{proof}
+\end{comment}
 
 
 \begin{lemma}[ss\_empty\_stack\_stuck]
@@ -1128,9 +1147,11 @@ $\newline$
 \label{lemma:ss_empty_stack_stuck}
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 La propiedad es demostrada automáticamente.
 \end{proof}
+\end{comment}
 
 
 \begin{lemma}[ss'\_SKIP\_stuck]
@@ -1139,9 +1160,11 @@ $\newline$
 \label{lemma:ss'_empty_stack_stuck}
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 La propiedad es demostrada automáticamente.
 \end{proof}
+\end{comment}
 
 Los lemas~\ref{lemma:ss_empty_stack_stuck} y~\ref{lemma:ss'_empty_stack_stuck} definen el estado final en el que la semántica se quedará atascada, la semántica se quedará atascada cuando no existan mas marcos de pila en la pila.
 
@@ -1152,9 +1175,11 @@ $\newline$
 \label{lemma:en_neg_by_pos}
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 La propiedad es demostrada automáticamente desplegando las definiciones de \verb|en_neg| y \verb|en_pos|.
 \end{proof}
+\end{comment}
 
 El lema~\ref{lemma:en_neg_by_pos} establece que cada vez que la función \verb|en_neg| tenga un valor (diferente de None) sobre un estado, \verb|en_pos| tendrá el mismo resultado opuesto.
 En el caso donde una de las funciones falla, la otra fallará también y retornarán \verb|None|.
@@ -1175,10 +1200,12 @@ $\exists\ b.\ a1\ = (\mathtt{en\_neg}\ b,\ \mathtt{tr\_eval}\ b)\ \wedge\ a2\ = 
 \label{lemma:cfg_determ}
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 La demostración es por inducción sobre el comando, con los casos generados automáticamente por Isabelle de las reglas de \verb|cfg|.
 Todos los casos se demuestran automáticamente.
 \end{proof}
+\end{comment}
 
 El lema~\ref{lemma:cfg_determ} establece que CFG es determinístico.
 El único caso donde no lo es es en el caso del condicional, para el cual se agrega una alternativa extra en la conclusion.
@@ -1196,9 +1223,11 @@ $\mathtt{map\_option}\ (\mathtt{upd\_com}\ c)\ (\mathtt{lift\_transformer\_nr}\ 
 \label{lemma:lift_upd_com}
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 Es demostrado automáticamente desplegando la definición de \verb|lift_transformer_nr|.
 \end{proof}
+\end{comment}
 
 \begin{lemma}[tr\_eval\_upd\_com]
 $\newline$
@@ -1210,9 +1239,11 @@ $\mathtt{map\_option}\ (\mathtt{upd\_com}\ c)\ (\mathtt{tr\_eval}\ e\ s)$
 \label{lemma:tr_eval_upd_com}
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 Es demostrado automáticamente desplegando la definición de \verb|tr_eval|.
 \end{proof}
+\end{comment}
 
 La función \verb|lift_transformer_nr| levanta la definición de una función \textit{transformer}, que opera en el nivel de estados visibles, a estados.
 El lema~\ref{lemma:lift_upd_com} establece que no importa en que orden se aplique una función \textit{transformer} sobre un estado y se actualice el comando en el tope de la pila, dado que siempre produce el mismo resultado.
@@ -1228,12 +1259,14 @@ $s\ \rightarrow\ s'\ \wedge\ s\ \rightarrow\ s''\ \Longrightarrow\ s'\ =\ s''$
 \label{lemma:small_step_determ}
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 La demostración es una prueba por casos sobre la semántica de pasos cortos.
 Se obtienen 4 casos, cada uno correspondiente a cada regla en la semántica de pasos cortos.
 Los objetivos de prueba generados por las reglas \verb|Return_void| y \verb|Return_void_None| se resuelven automáticamente.
 Los objetivos de prueba generados por las reglas \verb|Base| y \verb|None| se resuelven automáticamente luego de agregar los lemas~\ref{lemma:en_neg_by_pos} y ~\ref{lemma:tr_eval_upd_com}.
 \end{proof}
+\end{comment}
 
 Luego solo queda demostrar que \verb|small_step'| es tambien determinística.
 
@@ -1243,10 +1276,12 @@ $s\ \rightarrow'\ s'\ \wedge\ s\ \rightarrow'\ s''\ \Longrightarrow\ s'\ =\ s''$
 \label{lemma:small_step'_determ}
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 La demostración es una prueba por casos sobre la semántica de pasos cortos.
 Se demuestra automáticamente mediante el uso del lema~\ref{lemma:small_step_determ}.
 \end{proof}
+\end{comment}
 
 
 \section{Interpretador}\label{section:interpreter}
@@ -1341,9 +1376,11 @@ $s\ \rightarrow\ s'\ \Longrightarrow\ \mathtt{fstep}\ s\ =\ s'$
 \label{lemma:fstep1}
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 La demostración es por inducción sobre la semántica de pasos cortos.
 \end{proof}
+\end{comment}
 
 Luego se considera la dirección opuesta:
 
@@ -1353,9 +1390,11 @@ $\neg\ \mathtt{is\_empty\_stack}\ s\ \Longrightarrow\ s\ \rightarrow\ (\mathtt{f
 \label{lemma:fstep2}
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 La demostración se hace automáticamente mediante una prueba por casos sobre el resultado de ``\verb|tr_return_void| $s$'' y utilizando los lemas~\ref{lemma:can_take_step} y~\ref{lemma:fstep1}.
 \end{proof}
+\end{comment}
 
 Ambas direcciones juntas (lema~\ref{lemma:fstep1} y lema~\ref{lemma:fstep2}) permiten demostrar la equivalencia planteada al inicio:
 
@@ -1367,6 +1406,8 @@ $\neg\ \mathtt{is\_empty\_stack}\ \Longrightarrow\ s\ \rightarrow\ s'\ \longleft
 
 
 \subsection{Ejecución e interpretación}\label{subsection:exec_interp}
+
+Al igual que en la sección anterior las demostraciones para los lemas de esta sección se encuentran en el apéndice~\ref{ap:interpreter}.
 
 Con el fin de ejecutar un programa se define un interpretador.
 
@@ -1414,9 +1455,11 @@ $\mathtt{\}})$
 \label{lemma:interp_unfold}
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 La demostración es hecha automáticamente.
 \end{proof}
+\end{comment}
 
 Con el lema~\ref{lemma:interp_unfold}, la demostración del lema~\ref{lemma:interp_term} se hace automáticamente.
 
@@ -1465,10 +1508,12 @@ $\mathtt{None}\ \rightarrow*\ z\ \longleftrightarrow\ z\ =\ \mathtt{None}$
 \label{lemma:none_star_preserved}
 \end{lemma}
 
+\begin{comment}
 \begin{proof}
 La demostración es por inducción sobre la clausura reflexivo transitiva (\verb|star|).
 Los objetivos se resuelven automáticamente.
 \end{proof}
+\end{comment}
 
 Finalmente se tiene la propiedad de correctitud para el interpretador.
 El teorema~\ref{theorem:interp_correct} establece qeu si la ejecución de $cs$ termina, entonces esa ejecución produce $cs'$ si y solo si $cs'$ es el resultado que se obtiene de ejecutar el programa en el interpretador.
@@ -1479,6 +1524,8 @@ $\mathtt{terminates}\ cs\ \Longrightarrow\ (\mathtt{yields}\ cs\ cs')\ \longleft
 \label{theorem:interp_correct}
 \end{theorem}
 
+\begin{comment}
 \begin{proof}
 La demostración se hace suponiendo el antecedente y demostrando cada dirección de la igualdad por separado.
 \end{proof}
+\end{comment}

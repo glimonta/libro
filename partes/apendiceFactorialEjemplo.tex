@@ -1,0 +1,87 @@
+\chapter{Ejemplo de \textit{pretty printing}: Factorial}
+\label{ap:factorial_ejemplo}
+\lhead{Apéndice A. \emph{Ejemplo de \textit{pretty printing}: Factorial}}
+
+Factorial se define de la siguiente manera en Isabelle:
+
+\begin{lstlisting}[mathescape=true]
+  definition factorial_decl :: fun_decl
+    where "factorial_decl $\equiv$
+      ( fun_decl.name = fact,
+        fun_decl.params = [n],
+        fun_decl.locals = [r, i],
+        fun_decl.body =
+          r ::= (Const 1);;
+          i ::= (Const 1);;
+          (WHILE (Less (V i) (Plus (V n) (Const 1))) DO
+            (r ::= (Mult (V r) (V i));;
+            i ::= (Plus (V i) (Const 1)))
+          );;
+          RETURN (V r)
+      )"
+
+  definition main_decl :: fun_decl
+    where "main_decl $\equiv$
+      ( fun_decl.name = main,
+        fun_decl.params = [],
+        fun_decl.locals = [],
+        fun_decl.body =
+          n ::= Const 5;;
+          r ::= fact ([V n])
+      )"
+
+  definition p :: program
+    where "p $\equiv$
+      ( program.name = fact,
+        program.globals = [n, r],
+        program.procs = [factorial_decl, main_decl]
+      )"
+\end{lstlisting}
+
+
+Mediante el uso del proceso de \textit{pretty printing} se genera el siguiente código en lenguaje C:
+
+\begin{lstlisting}[mathescape=true]
+  #include <stdlib.h>
+  #include <stdio.h>
+  #include <limits.h>
+  #include <stdint.h>
+  #include "../test_harness.h"
+  #include "../malloc_lib.h"
+  #ifndef INTPTR_MIN
+    #error ("Macro INTPTR_MIN undefined")
+  #endif
+  #ifndef INTPTR_MAX
+    #error ("Macro INTPTR_MAX undefined")
+  #endif
+  #if ( INTPTR_MIN + 1 != -9223372036854775807 )
+    #error ("Assertion INTPTR_MIN + 1 == -9223372036854775807 failed")
+  #endif
+  #if ( INTPTR_MAX != 9223372036854775807 )
+    #error ("Assertion INTPTR_MAX == 9223372036854775807 failed")
+  #endif
+
+
+  intptr_t n;
+  intptr_t r;
+
+  intptr_t fact(intptr_t n) {
+    intptr_t r;
+    intptr_t i;
+    r = (1);
+    i = (1);
+    while ((i) < ((n) + (1))) {
+      r = ((r) * (i));
+      i = ((i) + (1));
+    }
+    return(r);
+  }
+
+  intptr_t main() {
+    n = (5);
+    (r) = (fact(n));
+  }
+\end{lstlisting}
+
+Nótese que la verificación de los límites para los enteros para el límite inferior tiene una solución temporal ya que el valor de \verb|INTPTR_MIN| excede el límite superior para los enteros del preprocesador lo cual causa \textit{overflow} y una advertencia al compilar.~\footnote{Interpreta el número negativo como $-(numero)$ y produce una advertencia que indica que no puede representar $numero$.}
+Para elimiar esta advertencia, se compara el valor de \verb|INTPTR_MIN + 1| al de \verb|INT_MIN + 1|.

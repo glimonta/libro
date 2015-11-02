@@ -1,0 +1,65 @@
+\chapter{Demostraciones de lemas para el interpretador}
+\label{ap:interpreter}
+\lhead{Apéndice A. \emph{Demostraciones de lemas para el interpretador}}
+
+
+Demostración del lema~\ref{lemma:fstep1}
+\begin{lemmano}[fstep1]
+$\newline$
+$s\ \rightarrow\ s'\ \Longrightarrow\ \mathtt{fstep}\ s\ =\ s'$
+\end{lemmano}
+
+\begin{proof}
+La demostración es por inducción sobre la semántica de pasos cortos.
+\end{proof}
+
+Luego se considera la dirección opuesta:
+
+Demostración del lema~\ref{lemma:fstep2}
+\begin{lemmano}[fstep2]
+$\newline$
+$\neg\ \mathtt{is\_empty\_stack}\ s\ \Longrightarrow\ s\ \rightarrow\ (\mathtt{fstep}\ s)$
+\end{lemmano}
+
+\begin{proof}
+La demostración se hace automáticamente mediante una prueba por casos sobre el resultado de ``\verb|tr_return_void| $s$'' y utilizando los lemas~\ref{lemma:can_take_step} y~\ref{lemma:fstep1}.
+\end{proof}
+
+
+Demostración del lema~\ref{lemma:interp_unfold}
+\begin{lemmano}[interp\_unfold]
+$\newline$
+$\mathtt{interp}\ \mathtt{proc\_table}\ cs = ($
+$\newline$
+$\mathtt{if}\ \mathtt{is\_term}\ (\mathtt{Some}\ cs)\ \mathtt{then}\ \mathtt{Some}\ cs$
+$\newline$
+$\mathtt{else}\ \mathtt{do\{}\ cs \leftarrow\ \mathtt{fstep}\ \mathtt{proc\_table}\ cs\mathtt{;}\ \mathtt{interp}\ \mathtt{proc\_table}\ cs$
+$\mathtt{\}})$
+\end{lemmano}
+
+\begin{proof}
+La demostración es hecha automáticamente.
+\end{proof}
+
+
+Demostración del lema~\ref{lemma:none_star_preserved}
+\begin{lemmano}[None\_star\_preserved]
+$\newline$
+$\mathtt{None}\ \rightarrow*\ z\ \longleftrightarrow\ z\ =\ \mathtt{None}$
+\end{lemmano}
+
+\begin{proof}
+La demostración es por inducción sobre la clausura reflexivo transitiva (\verb|star|).
+Los objetivos se resuelven automáticamente.
+\end{proof}
+
+
+Demostración del lema~\ref{theorem:interp_correct}
+\begin{theoremno}[interp\_correct]
+$\newline$
+$\mathtt{terminates}\ cs\ \Longrightarrow\ (\mathtt{yields}\ cs\ cs')\ \longleftrightarrow\ (cs'\ =\ \mathtt{interp}\ \mathtt{proc\_table}\ cs)$
+\end{theoremno}
+
+\begin{proof}
+La demostración se hace suponiendo el antecedente y demostrando cada dirección de la igualdad por separado.
+\end{proof}
