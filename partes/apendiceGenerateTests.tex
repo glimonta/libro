@@ -1,0 +1,42 @@
+\chapter{Generación de código en C con pruebas}
+\label{ap:generate_c_test_code}
+\lhead{Apéndice A. \emph{Generación de código en C con pruebas}}
+
+\begin{lstlisting}[mathescape=true]
+  fun generate_c_test_code (SOME (code,test_code)) rel_path name thy =
+    let
+      val code = code |> String.implode
+      val test_code = test_code |> String.implode
+    in
+      if rel_path="" orelse name="" then
+        (writeln (code ^ " <rem last line> " ^ test_code); thy)
+      else let
+        val base_path = Resources.master_directory thy
+        val rel_path = Path.explode rel_path
+        val name_path = Path.basic name |> Path.ext "c"
+
+        val abs_path = Path.appends [base_path, rel_path, name_path]
+        val abs_path = Path.implode abs_path
+
+        val _ = writeln ("Writing to file " ^ abs_path)
+
+        val os = TextIO.openOut abs_path;
+        val _ = TextIO.output (os, code);
+        val _ = TextIO.flushOut os;
+        val _ = TextIO.closeOut os;
+
+        val _ = Isabelle_System.bash ("sed -i '$\mathtt{\$}$d ' " ^ abs_path);
+
+        val os = TextIO.openAppend abs_path;
+        val _ = TextIO.output (os, test_code);
+        val _ = TextIO.flushOut os;
+        val _ = TextIO.closeOut os;
+      in thy end
+    end
+
+  | generate_c_test_code NONE _ _ _ =
+      error "Invalid program or failed execution"
+
+  fun expect_failed_test (SOME _) = error "Expected Failed test"
+    | expect_failed_test NONE = ()
+\end{lstlisting}

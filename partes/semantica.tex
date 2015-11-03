@@ -418,7 +418,7 @@ A lo largo del trabajo se continuará utilizando la sintaxis concreta para facil
 \centering
 \begin{tabular}{|c|c|}
   \hline
-  \textbf{Abstract syntax} & \textbf{Concrete syntax} \\ [0.5ex]
+  \textbf{Sintaxis abstracta} & \textbf{Sintaxis concreta} \\ [0.5ex]
   \hline \hline
   \verb|Assignl| $y$ $a$ & $y$ \verb|::==| $a$ \\
   \verb|Assign| $x$ $a$ & $x$ \verb|::=| $a$ \\
@@ -1048,7 +1048,7 @@ La notación de infijo para esta nueva definición se escribe como \verb|Some| $
 De esta manera, se ha levantado la definición de pasos cortos al tipo \verb|state option| y se puede definir la ejecución de un programa como la clausura reflexiva y transitiva de \verb|small_step'|, usando el operador \verb|star| de Isabelle.
 La notación de infijo para esto es escrito: $s_{0} \rightarrow* s_{f}$, lo cual significa que se puede ir desde el estado $s_{0}$ hasta $s_{f}$ en cero o mas pasos cortos.
 
-\subsubsection*{Determinismo}
+\subsubsection*{Determinísmo}
 
 Para poder ejecutar la semántica dentro del ambiente de Isabelle/HOL, la misma debe ser determinística.
 Es por ello que se demuestra que la semántica es determinística.

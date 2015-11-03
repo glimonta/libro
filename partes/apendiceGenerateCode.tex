@@ -1,0 +1,30 @@
+\chapter{Generación de código en C}
+\label{ap:generate_c_code}
+\lhead{Apéndice A. \emph{Generación de código en C}}
+
+\begin{lstlisting}
+  fun export_c_code (SOME code) rel_path name thy =
+    let
+      val str = code |> String.implode;
+    in
+      if rel_path="" orelse name="" then
+        (writeln str; thy)
+      else let
+        val base_path = Resources.master_directory thy
+        val rel_path = Path.explode rel_path
+        val name_path = Path.basic name |> Path.ext "c"
+
+        val abs_path = Path.appends [base_path, rel_path, name_path]
+        val abs_path = Path.implode abs_path
+
+        val _ = writeln ("Writing to file " ^ abs_path)
+
+        val os = TextIO.openOut abs_path;
+        val _ = TextIO.output (os, str);
+        val _ = TextIO.flushOut os;
+        val _ = TextIO.closeOut os;
+        in thy end
+      end
+  | export_c_code NONE _ _ thy =
+      (error "Invalid program, no code is generated."; thy)
+\end{lstlisting}

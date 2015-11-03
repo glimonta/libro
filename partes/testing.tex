@@ -255,7 +255,7 @@ definition tests_instructions :: "test_instr list $\Rightarrow$ nat $\Rightarrow
 \end{lstlisting}
 
 
-Para cada bloque para el cual se genera una instrucción \verb|Discover| se debe también imprimir (``pretty print'') una declaración para cada una de las variables utilizadas en las pruebas.
+Para cada bloque para el cual se genera una instrucción \verb|Discover| se debe también imprimir (\textit{pretty print}) una declaración para cada una de las variables utilizadas en las pruebas.
 Esto se hace de la siguiente manera:
 
 \begin{lstlisting}[mathescape=true, frame=single]
@@ -341,7 +341,8 @@ where "prepare_test_export prog $\equiv$ do {
 \end{figure}
 
 
-Con el fin de exportar el código con las pruebas agregadas, se define una nueva función en ML llamada \verb|generate_c_test_code|, su definición se encuentra en la figura~\ref{fig:generate_c_test_code}.
+Con el fin de exportar el código con las pruebas agregadas, se define una nueva función en ML llamada \verb|generate_c_test_code|, su definición se encuentra en el apéndice~\ref{ap:generate_c_test_code}.
+Esta función toma cuatro parámetros.
 El primer parámetro de la función es de tipo \verb|(string, string) option| que corresponde a la tupla que contiene la representación en cadena de caracteres del programa en código C y las pruebas para ese programa, respectivamente.
 Si la función recibe un valor \verb|None|, significa que la función \verb|prepare_test_export| falló y no se debe generar un programa en C.
 El segundo parámetro es la ruta al directorio al que se quiere exportar el programa.
@@ -358,6 +359,7 @@ Esta función escribe el código C para un programa en un archivo y le agrega la
 La función \verb|expect_failed_test| es muy similar a la función \verb|expect_failed_export| presentada en la sección~\ref{section:exporting_c_code} pero con un mensaje de error diferente.
 Esta función genera un error en Isabelle si se genera código a partir del programa para el cual se esperaba una falla y no realizará acción alguna cuando no se genere código.
 
+\begin{comment}
 \begin{figure}
 \begin{lstlisting}[mathescape=true]
   fun generate_c_test_code (SOME (code,test_code)) rel_path name thy =
@@ -401,6 +403,7 @@ Esta función genera un error en Isabelle si se genera código a partir del prog
 \caption{Generación de código en C con pruebas}
 \label{fig:generate_c_test_code}
 \end{figure}
+\end{comment}
 
 
 \subsection{Pruebas incorrectas}
