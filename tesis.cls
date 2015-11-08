@@ -52,10 +52,10 @@
 \setlength{\parskip}{2.0ex plus0.5ex minus0.2ex}
 
 \usepackage{paquetes/vmargin}
-\setmarginsrb           { 1.5in}  % left margin
-                        { 0.6in}  % top margin
-                        { 1.0in}  % right margin
-                        { 0.8in}  % bottom margin
+\setmarginsrb           {   3cm}  % left margin
+                        { 2.5cm}  % top margin
+                        { 2.5cm}  % right margin
+                        { 2.5cm}  % bottom margin
                         {  20pt}  % head height
                         {0.25in}  % head sep
                         {   9pt}  % foot height

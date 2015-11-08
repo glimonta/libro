@@ -1,4 +1,4 @@
-\documentclass[letterpaper, 12pt, oneside]{tesis}
+\documentclass[letterpaper, 11pt, oneside]{tesis}
 
 % Paquetes para idioma
 \usepackage[spanish, es-tabla]{babel}
@@ -38,6 +38,9 @@
 
 % Para texto Lorem Ipsum
 \usepackage{blindtext}
+
+% Para APA
+\usepackage{natbib}
 
 % Para quotes
 \usepackage{csquotes}
@@ -84,17 +87,17 @@
 Presentado ante la Ilustre Universidad Simón Bolívar \\
 como requisito parcial para optar al título de \\
 Ingeniero de Computación}
-    \date{Sartenejas, @mes de 2015}
+    \date{Sartenejas, noviembre de 2015}
 \end{titlepage}
 
 \begin{document}
 \frontmatter
 \maketitle
-\setstretch{1.3}
+\setstretch{1.4}
 
 % Se incluye el acta de evaluación, verificar que se corresponda
 % con el formato aceptado actualmente por el Decanato.
-\input{./partes/acta} 
+% \input{./partes/acta} 
 
 % El resumen debe ser de una sola página
 \addtotoc{Resumen}
@@ -128,22 +131,21 @@ Finalmente, una \textit{suite} de pruebas se presenta junto con programas de eje
 
 % Iniciar nueva página luego del resumen
 \clearpage
-\setstretch{1.3}
+\setstretch{1.4}
 
 % Agradecimientos
 \acknowledgements{
 \addtocontents{toc}{\vspace{1em}}
 
-Me gustaría expresar mi gratitud a mi supervisor, Prof. Tobias Nipkow, cuyo conocimiento y pasión en esta área de investigación ha sido una fuente de inspiración y motivación desde el inicio de mi año de intercambio en la Technische Universität München.
+Me gustaría expresar mi gratitud a mi tutor Federico Flaviani por su ayuda con este proyecto y su gran apoyo, sobretodo en las fases finales.
+
+Me gustaría agradecer a mi supervisor, Prof. Tobias Nipkow, cuyo conocimiento y pasión en esta área de investigación ha sido una fuente de inspiración y motivación desde el inicio de mi año de intercambio en la Technische Universität München.
 También quisiera agradecerle por la brindar la oportunidad de trabajar en esta interesante área de investigación.
 
 Además, me gustaría dar un agradecimiento especial a mi asesor, Dr. Peter Lammich, por su orientación y apoyo constante durante este proyecto.
 Él me guió a lo largo de este proyecto y me dió consejos y conocimientos útiles.
-Aprendí muchas cosas de él y su apoyo hizo de este viaje un paseo divertido.
 
-Me gustaría agradecer a mi tutor Federico Flaviani por su ayuda con este proyecto y su apoyo, sobretodo en las fases finales.
-
-Por otra parte, deseo ofrecer mi mas sincero agradecimiento a Antti Sonkeri, Carlos Pérez y José Luis Jiménez por su valiosa ayuda al leer los primeros borradores de este trabajo.
+Por otra parte, deseo ofrecer mi mas sincero agradecimiento a Antti Sonkeri y Carlos Pérez por su valiosa ayuda al leer los primeros borradores de este trabajo.
 
 También me gustaría agradecer de todo corazón a John Delgado y a Manuel Gómez por su amistad y apoyo constante a lo largo de los últimos años.
 
@@ -174,48 +176,38 @@ Eugenio, Gaudy, Santiago y Juana, sin ustedes esto no hubiera sido posible, grac
 %\renewcommand*\listalgorithmname{Índice de algoritmos}
 %\listofalgorithms
 
-\setstretch{1.5}
+\setstretch{1.4}
 \clearpage
-\lhead{\emph{Acrónimos y símbolos}}
-\listofsymbols{ll}
-{
-
-    % Aquí van las siglas
-    \textbf{SIGLAS} & \textbf{S}iglas \textbf{I}sla \textbf{G}rafo 
-                      \textbf{L}aos \textbf{A}ve \textbf{S}erpiente\\
-    \textbf{ACM} & \textbf{A}ssociation for \textbf{C}omputing \textbf{M}achinery\\
-    &\\
-    \hline
-    &\\
-
-    % Aquí van los símbolos
-    $\iff$ & doble implicación, si y sólo si\\
-    $\Rightarrow$ & implicación lógica\\
-    $[u:=v]$ & sustitución textual de $u$ por $v$
-}
+%\lhead{\emph{Acrónimos y símbolos}}
+%\listofsymbols{ll}
+%{
+%
+%    % Aquí van las siglas
+%    \textbf{SIGLAS} & \textbf{S}iglas \textbf{I}sla \textbf{G}rafo 
+%                      \textbf{L}aos \textbf{A}ve \textbf{S}erpiente\\
+%    \textbf{ACM} & \textbf{A}ssociation for \textbf{C}omputing \textbf{M}achinery\\
+%    &\\
+%    \hline
+%    &\\
+%
+%    % Aquí van los símbolos
+%    $\iff$ & doble implicación, si y sólo si\\
+%    $\Rightarrow$ & implicación lógica\\
+%    $[u:=v]$ & sustitución textual de $u$ por $v$
+%}
 
 %% ----------------------------------------------------------------
 % End of the pre-able, contents and lists of things
 % Begin the Dedication page
 
-\setstretch{1.3}  % Return the line spacing back to 1.3
+\setstretch{1.4}  % Return the line spacing back to 1.3
 
 \pagestyle{empty}  % Page style needs to be empty for this page
 
 \dedicatory{
     \textbf{Dedicatoria} \bigskip
 
-    A:
-
-    Mis padres, Eugenio y Gaudy, por el apoyo contínuo a lo largo de este trayecto, los amo.
-    
-    Mi hermano, Santiago, por siempre hacerme reir con sus ocurrencias.
-    
-    Antti, por darme apoyo y motivación en todo momento.
-    
-    John, Manuel y Vanessa, por brindarme su amistad y estar allí para mi.
-    
-    Mis familiares y amigos que por razones de espacio no menciono aquí, ustedes saben quienes son.
+    A todos mis familiares y amigos que ayudaron a hacer posible este trabajo.
 }
 
 \addtocontents{toc}{\vspace{2em}}
@@ -244,20 +236,21 @@ Eugenio, Gaudy, Santiago y Juana, sin ustedes esto no hubiera sido posible, grac
 \label{Bibliography}
 \bibliography{bibliografia}
 \lhead{\emph{Bibliografía}}
-\bibliographystyle{alpha}
+\bibliographystyle{apalike}
 \addtocontents{toc}{\vspace{2em}}
 
 % Apéndices
 \appendix
-\input{./partes/apendiceDFS}
-\input{./partes/apendiceHarnessC}
-\input{./partes/apendiceShellScript}
 \input{./partes/apendiceDefFuncion}
 \input{./partes/apendiceCFGrules}
-\input{./partes/apendiceFactorialEjemplo}
 \input{./partes/apendiceDeterminismProof}
 \input{./partes/apendiceInterpreterProof}
 \input{./partes/apendicePrettyPrinting}
+\input{./partes/apendiceGenerateCode}
+\input{./partes/apendiceDFS}
+\input{./partes/apendiceHarnessC}
+\input{./partes/apendiceShellScript}
+\input{./partes/apendiceFactorialEjemplo}
 \input{./partes/apendiceGenerateTests}
 %\input{./partes/apendiceA}
 %\input{./partes/apendiceB}
