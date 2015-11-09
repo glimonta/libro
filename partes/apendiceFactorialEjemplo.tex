@@ -84,4 +84,4 @@ Mediante el uso del proceso de \textit{pretty printing} se genera el siguiente c
 \end{lstlisting}
 
 Nótese que la verificación de los límites para los enteros para el límite inferior tiene una solución temporal ya que el valor de \verb|INTPTR_MIN| excede el límite superior para los enteros del preprocesador lo cual causa \textit{overflow} y una advertencia al compilar.~\footnote{Interpreta el número negativo como $-(numero)$ y produce una advertencia que indica que no puede representar $numero$.}
-Para elimiar esta advertencia, se compara el valor de \verb|INTPTR_MIN + 1| al de \verb|INT_MIN + 1|.
+Para eliminar esta advertencia, se compara el valor de \verb|INTPTR_MIN + 1| al de \verb|INT_MIN + 1|.

@@ -18,9 +18,9 @@ Dado que C es mas cercano a la máquina en comparación con otros lenguajes de a
 Debido a su eficiencia, a menudo es usado en el desarrollo de compiladores, librerías e interpretadores para otros lenguajes de programación.
 
 Desafortunadamente, parte de la semántica para el lenguaje C descrita en el estándar~\cite{c99} es propensa a ambigüedades debido al uso del idioma inglés para describir el comportamiento de un programa.
-El uso de constructores matemáticos formales eliminaría estas ambigüedades, aunque la formalización de la semántica para la totalidad del lenguaje C no es una tarea facil y de hecho es una que ha sido objeto de mucha investigación en el área de la semántica.
+El uso de constructores matemáticos formales eliminaría estas ambigüedades, aunque la formalización de la semántica para la totalidad del lenguaje C no es una tarea fácil y de hecho es una que ha sido objeto de mucha investigación en el área de la semántica.
 
-A pesar de que la semántica definida en el presente trabajo cubre un subconjunto limitado del lenguaje C, es lo suficientemente expresiva como para permitir la implementación de algorítmos tales como algorítmos de ordenamiento, búsqueda en arboles, etc.
+A pesar de que la semántica definida en el presente trabajo cubre un subconjunto limitado del lenguaje C, es lo suficientemente expresiva como para permitir la implementación de algoritmos tales como algoritmos de ordenamiento, búsqueda en arboles, etc.
 
 Otro de los objetivos de este trabajo es hacer que la semántica formal sea ejecutable en el ambiente de Isabelle/HOL.
 La semántica formalizada es determinística, lo que permite la definición de un interpretador que pueda, efectivamente, ejecutar la semántica.
@@ -43,7 +43,7 @@ Para garantizar esto, se escribe una librería para el arnés de pruebas en C qu
 FIXME! no se si está bien este título.
 \end{comment}
 
-\subsection{Semántica de un lenguaje de programción}
+\subsection{Semántica de un lenguaje de programación}
 
 En esta sección se da una breve introducción a los conceptos relacionados a semántica con los que el lector debe estar familiarizado para leer el contenido de este trabajo.
 
@@ -52,7 +52,7 @@ En esta sección se da una breve introducción a los conceptos relacionados a se
 La semántica de un lenguaje de programación es el significado de programas en ese lenguaje.
 Según Tennent~\cite{tennent}, para poder definir y respaldar el significado de un programa en un lenguaje de programación, se necesita una teoría matemática de la semántica de los lenguajes de programación que sea rigurosa.
 
-Como es señalado por Nielson y Nielson~\cite{nielson}, el carácter riguroso de este estudio se debe al hecho de que puede revelar ambigüedades o complejidades subyacientes en los documentos definidos en lenguaje natural, y también que este rigor matemático es necesario para pruebas de correctitud.
+Como es señalado por Nielson y Nielson~\cite{nielson}, el carácter riguroso de este estudio se debe al hecho de que puede revelar ambigüedades o complejidades subyacentes en los documentos definidos en lenguaje natural, y también que este rigor matemático es necesario para pruebas de correctitud.
 Para muchos lenguajes de programación grandes, por ejemplo el lenguaje C, su documento de referencia (donde la semántica del lenguaje se explica) se encuentra escrito en lenguaje natural.
 Dada la ambigüedad presente en el lenguaje natural, esto puede llevar a dificultades cuando se intenta razonar sobre los programas escritos en esos lenguajes de programación.
 
@@ -85,7 +85,7 @@ A continuación se presentan los enfoques más utilizados:
 
 Una semántica se define utilizando el enfoque operacional cuando el foco se pone en \textit{cómo} se ejecuta un programa.
 Se puede considerar como una abstracción de la ejecución del programa en una máquina~\cite{nielson}.
-Dado un programa, su explicacion operacional representa cómo se ejecuta el mismo dado un estado inicial.
+Dado un programa, su explicación operacional representa cómo se ejecuta el mismo dado un estado inicial.
 
 Tomando el ejemplo dado anteriormente, dar una interpretación de semántica operacional para ese programa se reduce a definir cómo las instrucciones de asignación y secuenciación se ejecutan.
 En un primer enfoque intuitivo se pueden distinguir dos reglas básicas:
@@ -138,13 +138,13 @@ s_{3} &= [x\mapsto7, y\mapsto5, z\mapsto5]
 La ejecución de $z:=x$ en el estado $s_{0}$ producirá el estado $s_{1}$ y la ejecución de $x:=y$ en el estado $s_{1}$ producirá el estado $s_{2}$.
 Por lo tanto la ejecución de $z:=x; x:=y$ en el estado $s_{0}$ producirá el estado $s_{2}$.
 Además, la ejecución de $y:=z$ en el estado $s_{2}$ producirá el estado $s_{3}$.
-Finalemnte, la ejecución de todo el programa $z:=x; x:=y; y:=z$ en el estado $s_{0}$ producirá el estado $s_{3}$.
+Finalmente, la ejecución de todo el programa $z:=x; x:=y; y:=z$ en el estado $s_{0}$ producirá el estado $s_{3}$.
 
 \paragraph{Semántica de pasos cortos}
 
 A veces es deseable tener mayor información con respecto a los estados intermedios de un programa, es por eso que la semántica de pasos cortos existe.
 
-Este tipo de semántica representa pequeños pasos de ejecución atómicos en un programa y permite razonar sobre qué tanto ha sido ejecutado de un programa y explicitamente inspeccionar ejecuciones parciales~\cite{nipkow}
+Este tipo de semántica representa pequeños pasos de ejecución atómicos en un programa y permite razonar sobre qué tanto ha sido ejecutado de un programa y explícitamente inspeccionar ejecuciones parciales~\cite{nipkow}
 
 En este ejemplo se comienza desde el programa completo y se toman pequeños pasos (denotados por ``$\Rightarrow$'') que produce el resto del programa que queda por ejecutar luego de ejecutar un paso corto y el estado resultante luego de ejecutar el mismo, hasta que todo el programa es ejecutado.
 
@@ -162,13 +162,13 @@ Suponiendo que se tiene un estado donde la variable $x$ tiene el valor $5$, la v
 Lo que sucede aquí es que en en primer paso, la instrucción $z:=x$ se ejecuta y el valor de la variable $z$ cambia a $5$, $x$ e $y$ permanecen sin cambios.
 Luego de la ejecución de la primera instrucción, queda el programa $x:=y; y:=z$.
 Se ejecuta la segunda instrucción $x:=y$ y el valor de $x$ cambia a $7$, $y$ y $z$ permanecen sin cambios.
-Entonces, queda el programa $y:=z$, despues de ejecutar esta instrucción final, el valor de $y$ cambia a $5$, $x$ y $z$ permanecen sin cambios.
+Entonces, queda el programa $y:=z$, después de ejecutar esta instrucción final, el valor de $y$ cambia a $5$, $x$ y $z$ permanecen sin cambios.
 
 Por último, se tiene que el comportamiento de este programa es intercambiar los valores de $x$ e $y$ utilizando $z$ como una variable temporal.
 
 
 \subsubsection*{Semántica denotacional}
-La semántica denotacional deja de centrarse en \textit{como} se ejecuta un programa y redirige su enfoce hacia el \textit{efecto} de ejecutar el programa.
+La semántica denotacional deja de centrarse en \textit{como} se ejecuta un programa y redirige su enfoque hacia el \textit{efecto} de ejecutar el programa.
 Este enfoque sirve de ayuda pues da un \textit{significado} a los programas en un lenguaje~\cite{nipkow}.
 Este enfoque se modela mediante el uso de funciones matemáticas.
 Se tiene una función por cada construcción en el lenguaje, que define su significado, y estas funciones operan sobre estados.
@@ -205,7 +205,7 @@ S [\![ z:=x; & x:=y; y:=z ]\!]([x\mapsto5, y\mapsto7, z\mapsto0])\\
 El enfoque está en el estado resultante que representa el efecto que el programa tuvo en un estado inicial.
 Es más sencillo razonar sobre los programas utilizando este enfoque ya que es similar a razonar sobre objetos matemáticos.
 Aunque es importante tomar en cuenta que el establecimiento de una base matemática firme para hacerlo no es una tarea trivial.
-El enfoque denotacional puede ser facilmente adaptado para representar algunas propiedades de los programas.
+El enfoque denotacional puede ser fácilmente adaptado para representar algunas propiedades de los programas.
 Ejemplos de esto son inicialización de variables, plegamiento de constantes (\textit{constant folding}) y alcance de código~\cite{nielson}.
 
 
@@ -214,7 +214,7 @@ Ejemplos de esto son inicialización de variables, plegamiento de constantes (\t
 \begin{comment}
 FIXME construcción
 \end{comment}
-Tambien conocida como Lógica de Hoare, este enfoque final se utiliza cuando el interés recae en probar propiedades de los programas.
+También conocida como Lógica de Hoare, este enfoque final se utiliza cuando el interés recae en probar propiedades de los programas.
 Se puede hablar de \textit{correctitud parcial} de un programa con respecto a una construcción, una precondición y una postcondición siempre que la siguiente implicación se cumpla:
 
 \begin{displayquote}
@@ -273,17 +273,17 @@ La ventaja de usar este enfoque es que se cuenta con una manera fácil de demost
 Hoy en día se cuenta con la existencia de demostradores de teoremas automatizados que ayudan en la formalización y demostración de diferentes programas.
 Las pruebas escritas en papel y lápiz son propensas a errores y los seres humanos son mas fáciles de engañar que a una máquina.
 Por lo tanto se deben aprovechar los recursos ofrecidos por una máquina para permitir que realice el trabajo pesado.
-Razonar sobre la semántica de un lenguaje de programación sin el uso de herramientas automátizadas se convierte en una gran tarea y, como se dijo antes, propensa a errores, por no hablar de que la certeza sobre la correctitud de las demostraciones disminuye.
+Razonar sobre la semántica de un lenguaje de programación sin el uso de herramientas automatizadas se convierte en una gran tarea y, como se dijo antes, propensa a errores, por no hablar de que la certeza sobre la correctitud de las demostraciones disminuye.
 
 Mediante el uso de un demostrador de teoremas, en el caso de este trabajo Isabelle/HOL~\cite{isabelle-tutorial}, se puede estar seguro de que nos resultados demostrados son correctos.
-En el entorno de Isabelle/HOL se pueden hacer definiciones lógicas y demostrar lemmas y teoremas sobre esas definiciones de una manera sólida.
+En el entorno de Isabelle/HOL se pueden hacer definiciones lógicas y demostrar lemas y teoremas sobre esas definiciones de una manera sólida.
 La semántica para el lenguaje utilizado en este trabajo está formalizada en Isabelle/HOL, así como las pruebas que acompañan a estas definiciones.
 Las definiciones de la semántica formal y pruebas que lo acompañan están escritas en Isabelle/HOL.
-No se especificarán los detalles de Isabelle/HOL en esta sección sino que se remite al lector al libro \textit{Concrete Semantics with Isabelle/HOL}~\cite{nipkow} en el que se muestra una introducción a Isabelle/HOL y demotración de teoremas.
+No se especificarán los detalles de Isabelle/HOL en esta sección sino que se remite al lector al libro \textit{Concrete Semantics with Isabelle/HOL}~\cite{nipkow} en el que se muestra una introducción a Isabelle/HOL y demostración de teoremas.
 
 Por otra parte, Isabelle/HOL también cuenta con herramientas de generación de código~\cite{isabelle-codegen} que permiten la generación de código ejecutable en SML correspondiente a la especificación HOL de la semántica.
 Este código generado permitirá mas adelante la ejecución de la semántica definida.
-Tambien, Isabelle/HOL permite que código escrito en Isabelle/ML esté embebido en las teorías~\cite{isabelle-implementation}, lo cual facilita el proceso de traducción a lenguaje C.
+También, Isabelle/HOL permite que código escrito en Isabelle/ML esté embebido en las teorías~\cite{isabelle-implementation}, lo cual facilita el proceso de traducción a lenguaje C.
 
 \subsection{Chloe}\label{subsection:chloe}
 
@@ -295,9 +295,9 @@ Este lenguaje tiene las siguientes características: variables, arreglos, aritm�
 El alcance de este proyecto se limitó a las características mencionadas anteriormente y hay varias características que actualmente no son soportadas por el lenguaje.
 Estas características son: un sistema estático de tipos que este probado que sea correcto y sólido, concurrencia, operaciones I/O, goto, etiquetas, break y continue.
 
-Si bien será conveniente en el fururo tener las características que actualmente no cubre el alcance de este trabajo, el actual conjunto de características soportadas por Chloe son suficientes para mostrar ejemplos relevantes de programas y tiene suficiente poder expresivo como para ser Turing-completo.
+Si bien será conveniente en el futuro tener las características que actualmente no cubre el alcance de este trabajo, el actual conjunto de características soportadas por Chloe son suficientes para mostrar ejemplos relevantes de programas y tiene suficiente poder expresivo como para ser Turing-completo.
 
 
 \section{Estructura del documento}\label{section:document_structure}
 
-El resto de este documento se divide de la siguiente manera: el capítulo~\ref{chapter:previous} abarca los trabajos previos y relacionados al presente, el capítulo~\ref{chapter:semantics} abarca los detalles de la sintaxis y la semántica de pasos cortos definida para Chloe, el capítulo~\ref{chapter:pretty} abarca el proceso de traducción de un programa en la semántica de Chloe a un programa en C, a este proceso se le llama \textit{pretty printing}, el capítulo~\ref{chapter:testing} abarca el conjunto de pruebas que verifican la correctitud del proceso de traducción y finalmente, el capítulo~\ref{chapter:conclusion} encapsula el resultado del trabajo y las conclusiones finales del mismo, asi como también detalla la dirección a seguir para realizar trabajo a futuro a partir del presente.
+El resto de este documento se divide de la siguiente manera: el capítulo~\ref{chapter:previous} abarca los trabajos previos y relacionados al presente, el capítulo~\ref{chapter:semantics} abarca los detalles de la sintaxis y la semántica de pasos cortos definida para Chloe, el capítulo~\ref{chapter:pretty} abarca el proceso de traducción de un programa en la semántica de Chloe a un programa en C, a este proceso se le llama \textit{pretty printing}, el capítulo~\ref{chapter:testing} abarca el conjunto de pruebas que verifican la correctitud del proceso de traducción y finalmente, el capítulo~\ref{chapter:conclusion} encapsula el resultado del trabajo y las conclusiones finales del mismo, así como también detalla la dirección a seguir para realizar trabajo a futuro a partir del presente.

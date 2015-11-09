@@ -13,13 +13,13 @@ La prueba es por inducción en el comando.
 A excepción de dos casos, la prueba es demostrada automáticamente.
 Esos dos casos son los comandos \verb|Seq| y \verb|If|.
 En el caso de \verb|Seq| se debe hacer una prueba por casos sobre el primer comando de la secuenciación para poder diferenciar los casos cuando es \verb|SKIP| y cuando no.
-En ambos casos existe una regla en la defición de CFG que asegura que hay una arista habilitada que se puede tomar y el caso se soluciona automáticamente.
+En ambos casos existe una regla en la definición de CFG que asegura que hay una arista habilitada que se puede tomar y el caso se soluciona automáticamente.
 
 En el caso de \verb|If| se debe hacer una prueba por casos sobre el valor de $\mathtt{en\_pos}\ b\ s$.
 Puede fallar y retornar un valor \verb|None|, entonces el caso está resuelto.
-Si no falla entonces se debe chequear el valor booleano retornado por la función \verb|en_pos|.
+Si no falla entonces se debe chequear el valor retornado por la función \verb|en_pos|.
 En el caso donde es \verb|True| entonces el caso está resuelto.
-El caso difícil es cuando la evaluación de \verb|en_pos| es \verb|False|, semanticamente, esto significa que se debe tomar la rama del else.
+El caso difícil es cuando la evaluación de \verb|en_pos| es \verb|False|, semánticamente, esto significa que se debe tomar la rama del \verb|else|.
 Por lo tanto cuando $\mathtt{en\_pos}\ b\ s$ es \verb|False|, $\mathtt{en\_neg}\ b\ s$ siempre se evaluará como \verb|True|, esto significa qe el comando siempre tendrá una arista habilitada que puede seguir, es decir, $\mathtt{en\_neg}\ b\ s$ y la demostración de este caso está completa.
 \end{proof}
 
@@ -31,12 +31,12 @@ $\neg$ \verb|is_empty_stack| $s$ $\Longrightarrow$ $\exists\ x.\ s\ \rightarrow\
 \end{lemmano}
 
 \begin{proof}
-De las supociiones sabemos que la pila no está vacia, por lo tanto se puede reescribir el estado de la siguiente manera: $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
+De las suposiciones sabemos que la pila no está vacía, por lo tanto se puede reescribir el estado de la siguiente manera: $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
 Luego se puede hacer una prueba por casos.
 Se tiene el caso donde $c\ =\ \mathtt{SKIP}$ y el caso donde $c\\neq\ \mathtt{SKIP}$.
 
 El caso donde $c\ =\ \mathtt{SKIP}$ es el caso en el que se está retornando de la ejecución de una función.
-Se tiene que la pila no está vacia, que $c\ =\ \mathtt{SKIP}$ y que $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
+Se tiene que la pila no está vacía, que $c\ =\ \mathtt{SKIP}$ y que $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
 Este caso corresponde a las reglas \verb|Return_void| y \verb|Return_void_None| en la definición de \verb|small_step|.
 En ambos casos la semántica puede tomar un paso, bien sea a un nuevo estado $s'$ o a \verb|None|.
 El caso se resuelve automáticamente por Isabelle al indicar las reglas mencionadas y las suposiciones.
@@ -47,7 +47,7 @@ En este caso se utiliza el lema anterior~\ref{lemma:cfg_enabled_action} y se tie
 
 Esto se demuestra mediante una separación por casos.
 En el primer caso se supone $\mathtt{cfg}\ c\ (en,tr)\ c'$ y $\mathtt{en}\ s\ = \mathtt{None}$.
-Este es el caso donde la evaluación de la función falla, se sabe que este caso toma un paso corto a None dado por el caso \verb|None| de la definción de \verb|small_step|.
+Este es el caso donde la evaluación de la función falla, se sabe que este caso toma un paso corto a \verb|None| dado por el caso \verb|None| de la definición de \verb|small_step|.
 Entonces se ha demostrado que existe un estado tal que $s\ \rightarrow\ \mathtt{None}$.
 
 En el siguiente caso se supone $\mathtt{cfg}\ c\ (en,tr)\ c'$ y $\mathtt{en}\ s\ = \mathtt{Some True}$.

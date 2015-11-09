@@ -15,7 +15,7 @@ En las secciones siguientes se procederá a describir la sintaxis y la semántic
 
 \subsection{Sintaxis}\label{subsection:syntax_expressions}
 
-En esta sección se describe la \textbf{sintaxis abstracta} de las expressiones en el lenguaje Chloe.
+En esta sección se describe la \textbf{sintaxis abstracta} de las expresiones en el lenguaje Chloe.
 
 \begin{figure}
   \begin{lstlisting}[frame=single]
@@ -44,11 +44,11 @@ En esta sección se describe la \textbf{sintaxis abstracta} de las expressiones 
                 | Indexl exp exp
   \end{lstlisting}
 
-  \caption{Chloe expressions}
+  \caption{Expresiones de Chloe}
   \label{fig:chloe_expressions}
 \end{figure}
 
-En la figura~\ref{fig:chloe_expressions} se encuentra el tipo de datos creado en isabelle para las expresiones, donde \verb|int| es el tipo predefinido para los enteros y \verb|vname| significa nombre de la variable.
+En la figura~\ref{fig:chloe_expressions} se encuentra el tipo de datos creado en Isabelle para las expresiones, donde \verb|int| es el tipo predefinido para los enteros y \verb|vname| significa nombre de la variable.
 
 Se definen dos nuevos tipos de datos, uno para las expresiones y otro para las expresiones del lado izquierdo.
 Es importante diferenciar entre estos dos tipos en el caso en que se trabaja con expresiones que contienen apuntadores.
@@ -65,7 +65,7 @@ En la primera expresión \verb|*bar| se encuentra del lado derecho de la asignac
 Por otra parte, en la segunda expresión \verb|*baz| se encuentra del lado izquierdo de la asignación, en este caso se quiere que \verb|*baz| produzca una dirección a la cual se le pueda asignar el valor \verb|1|.
 
 Esto también ocurre con el acceso a arreglos.
-Para modelar correctamente la semántica de las expresiones en Chloe, es necesario contar con esta distinción entre expresiones del lado izquierdo (\textit{l-values}) y expresioness del lado derecho (\textit{r-values}).
+Para modelar correctamente la semántica de las expresiones en Chloe, es necesario contar con esta distinción entre expresiones del lado izquierdo (\textit{l-values}) y expresiones del lado derecho (\textit{r-values}).
 En las siguientes secciones al referirse a expresiones del lado derecho o \textit{r-values} se utilizará simplemente el nombre expresiones y se utilizará expresión del LHS (por sus siglas en ingles \textit{left-hand-side}) en lugar de \textit{l-values} o expresiones del lado izquierdo al referirse a dichas expresiones.
 \begin{comment}
 FIXME mosca! esto está mal traducido!
@@ -75,7 +75,7 @@ Chloe soporta expresiones constantes, apuntadores a \textit{null} y variables, a
 También cuenta con una expresión \verb|New| que corresponde a una llamada a \verb|malloc| en C.
 Tiene operadores de desreferencia, referencia y acceso a arreglos.
 En C, estos son los operadores \verb|*|, \verb|&| y \verb|[]|, respectivamente.
-Finalmente, como expresiones del LHS se tienen las operaciones de desreferencia y accesso a arreglos.
+Finalmente, como expresiones del LHS se tienen las operaciones de desreferencia y acceso a arreglos.
 \begin{comment}
 FIXME mosca! esto está mal traducido!
 \end{comment}
@@ -98,7 +98,7 @@ type_synonym int_val = int_width word
 
 El termino \verb|int_width| se refiere a la precisión del valor entero.
 En el caso de este trabajo se supone un valor de 64 ya que se trabaja con una arquitectura de 64 bits.
-Este parametro le indica a la semántica que debe suponer que se trabaja con una arquitectura de 64 bits donde los límites inferiores y superiores para un entero se definen en la figura~\ref{fig:int_bounds}.
+Este parámetro le indica a la semántica que debe suponer que se trabaja con una arquitectura de 64 bits donde los límites inferiores y superiores para un entero se definen en la figura~\ref{fig:int_bounds}.
 
 \begin{figure}
   \begin{lstlisting}[frame=single, mathescape=true]
@@ -106,13 +106,13 @@ Este parametro le indica a la semántica que debe suponer que se trabaja con una
   abbreviation INT_MAX :: int where INT_MAX $\equiv$  ((2^(int_width - 1)) - 1)
   \end{lstlisting}
 
-  \caption{Integer lower and upper bounds}
+  \caption{Límites inferiores y superiores para los enteros}
   \label{fig:int_bounds}
 \end{figure}
 
-Cuando se trabaja con una arquitectura diferente, este parametro puede ser cambiado con el fin de cumplir con los requerimientos de la arquitectura.
+Cuando se trabaja con una arquitectura diferente, este parámetro puede ser cambiado con el fin de cumplir con los requerimientos de la arquitectura.
 
-Tambien, los enteros se definen como palabras de longitud \verb|int_width| (en este caso \verb|64|).
+También, los enteros se definen como palabras de longitud \verb|int_width| (en este caso \verb|64|).
 Debido a que no se utiliza el tipo predefinido \verb|int| en Isabelle, para poder trabajar con palabras y soportar la generación de código para las mismas se utiliza la entrada \textit{Native Word} en el \textit{Archive of Formal Proofs}~\cite{Native_Word-AFP}.
 
 De ahora en adelante se referirá a las palabras de longitud 64 que se utilizan para representar a los enteros en Chloe como simplemente enteros.
@@ -164,7 +164,7 @@ Las funcionalidades de las operaciones de gestión de memoria se describen a con
 
 \begin{itemize}
   \item{\verb|new_block| es la función que se encarga de asignar un nuevo bloque de memoria dinámica de un tamaño determinado.
-    Esta función fallará en el caso donde el tamaño dado sea menor o oigual a cero, también puede fallar si un valor de un tipo diferente a entero es dado.
+    Esta función fallará en el caso donde el tamaño dado sea menor o o igual a cero, también puede fallar si un valor de un tipo diferente a entero es dado.
     Al ser ejecutada exitosamente, la función retorna la dirección de inicio del nuevo bloque junto con la memoria modificada.}
   \item{\verb|free| es la función que se encarga de liberar un bloque de memoria dinámica.
     Esta función fallará en el caso donde la dirección dada no sea válida en memoria.
@@ -251,7 +251,7 @@ Un estado visible es una tupla que contiene una función de valuación para las 
 
 \paragraph*{}
 Ahora se puede introducir la semántica para las expresiones en Chloe.
-Como fue expresado antes, la semántica de una expresión es su valor y el efecto que tiene la misma sobre el estado de un programa, por lo tanto se definen dos funciónes de evaluación, una que calcula el valor de una expresión y una que calcula el valro de una expresión del LHS.
+Como fue expresado antes, la semántica de una expresión es su valor y el efecto que tiene la misma sobre el estado de un programa, por lo tanto se definen dos funciones de evaluación, una que calcula el valor de una expresión y una que calcula el valor de una expresión del LHS.
 Estas funciones se definen de la siguiente manera:
 
 \begin{lstlisting}[frame=single, mathescape=true]
@@ -268,7 +268,7 @@ Un fallo puede ocurrir en cualquier momento al evaluar una expresión y si un fa
 La evaluación de una expresión puede fallar por diversas razones que incluyen, pero no están limitadas a, variables no definidas, operandos ilegales en operaciones, acceso a partes inválidas de memoria y \textit{overflow}.
 Por lo tanto, si hay un error temprano en la semántica de evaluación de expresiones, será detectado y propagado como un valor \verb|None| que indica un estado erróneo.
 
-Las funciones \verb|eval| y \verb|eval_l| dependen de otras funciones definidas con el find e calcular correctamente los valores de las expresiones.
+Las funciones \verb|eval| y \verb|eval_l| dependen de otras funciones definidas con el fin de calcular correctamente los valores de las expresiones.
 La definición de todas las funciones auxiliares para \verb|eval| y \verb|eval_l| se encuentra en la figura~\ref{fig:aux_fun_eval}.
 A excepción de \verb|div_towards_zero| y \verb|mod_towards_zero|, cada una de estas operaciones pueden fallar, por lo que su tipo de retorno es $\tau$ \verb|option|.
 Los valores de este tipo son o \verb|None| cuando la operación falla o $\verb|Some|(v)$ donde $v$ es de tipo $\tau$.
@@ -301,7 +301,7 @@ Las funcionalidades de las funciones auxiliares son las siguientes:
 
 \begin{itemize}
 \item{La función \verb|detect_overflow| detecta el \textit{overflow} en enteros.
-Toma como parametro un valor del tipo entero predefinido por Isabelle y chequea si existe \textit{overflow}con los límites mostrados en la figura~\ref{fig:int_bounds}.
+Toma como parámetro un valor del tipo entero predefinido por Isabelle y chequea si existe \textit{overflow}con los límites mostrados en la figura~\ref{fig:int_bounds}.
 Esta función fallará cuando se detecte \textit{overflow}.
 Al ser ejecutada exitosamente, la función retorna el valor correspondiente al entero dado como parámetro.}
 
@@ -312,12 +312,12 @@ Con el fin de calcular el valor de dicha variable, esta función chequea la valu
 En el caso en el que la variable no se encuentre definida en el alcance local, la función procederá a chequear el alcance global y retornará el valor de la variable.}
 
 \item{La función \verb|plus_val| calcula el valor de la suma entre dos valores.
-Esta función falla cuando se detecta \textit{overflow} o cuando operandos distintos a dos enteros o una dirección y un entero (en ese orden específico) son dados como parametros a la función.
+Esta función falla cuando se detecta \textit{overflow} o cuando operandos distintos a dos enteros o una dirección y un entero (en ese orden específico) son dados como parámetros a la función.
 Al ser ejecutada exitosamente con dos valores de tipo entero como parámetros, la función retorna un valor entero correspondiente a la suma de los operandos.
 Al ser ejecutada exitosamente con una dirección y un entero como parámetros, la función retorna una dirección correspondiente a la suma del desplazamiento entero al valor original de la dirección.}
 
 \item{La función \verb|subst_val| calcula el valor de una sustracción entre dos valores.
-Esta función falla cuando se detecta \textit{overflow} o cuando operandos distintos a dos enteros o una dirección y un entero (en ese orden específico) son dados como parametros a la función.
+Esta función falla cuando se detecta \textit{overflow} o cuando operandos distintos a dos enteros o una dirección y un entero (en ese orden específico) son dados como parámetros a la función.
 Al ser ejecutada exitosamente con dos valores de tipo entero como parámetros, la función retorna un valor correspondiente a la resta de los operandos.
 Al ser ejecutada exitosamente con una dirección y un entero como parámetros, la función retorna una dirección correspondiente a la resta del desplazamiento entero al valor original de la dirección.}
 
@@ -337,7 +337,7 @@ Al ser ejecutada exitosamente, la función retorna un valor entero correspondien
 La función falla cuando se detecta \textit{overflow} o una división por cero o cuando operandos distintos a dos enteros son dados como parámetros a la función.
 Al ser ejecutada exitosamente, la función retorna un valor entero correspondiente al resultado de la operación de módulo entre los dos operandos.}
 
-\item{La función \verb|mult_val| calcula el valor de la multipliación entre dos valores.
+\item{La función \verb|mult_val| calcula el valor de la multiplicación entre dos valores.
 La función falla cuando se detecta \textit{overflow} o cuando operandos distintos a dos enteros son dados como parametros a la función. 
 Al ser ejecutada exitosamente, la función retorna un valor entero correspondiente a la multiplicación de los operandos de la función.}
 
@@ -349,12 +349,12 @@ Al ser ejecutada exitosamente, la función retorna un valor entero \verb|I| $1$ 
 La función falla cuando un operando distinto a un entero es dado como parámetro.
 Al ser ejecutada exitosamente, la función retorna un valor entero \verb|I| $1$ cuando el operando dado es un entero de valor \verb|I| $0$ y retorna un valor entero \verb|I| $0$ cuando el operando dado es un entero de valor diferente de \verb|I| $0$.}
 
-\item{La función \verb|to_bool| retorna un valor de tipo booleano predefinido en Isabelle dado un operando.
+\item{La función \verb|to_bool| retorna un valor de tipo lógico predefinido en Isabelle dado un operando.
 La función se utiliza para calcular evaluación de corto circuito para las operaciones \verb|And| y \verb|Or|.
 La función falla cuando un operando distinto a un entero es dado como parámetro.
 Al ser ejecutada exitosamente, la función retorna \verb|False| cuando el parámetro dado tiene un valor igual a \verb|I| $0$ y retorna \verb|True| de lo contrario.}
 
-\item{La función \verb|eq_val| calcula el valor resultante de relizar la comparación de igualdad entre dos valores.
+\item{La función \verb|eq_val| calcula el valor resultante de realizar la comparación de igualdad entre dos valores.
 La función falla cuando operandos diferentes a dos enteros o dos direcciones son dados como parámetros.
 Al ser ejecutada exitosamente con dos valores enteros como parámetros, la función retorna un valor entero \verb|I| $1$ si ambos operandos son iguales y un valor entero \verb|I| $0$ de lo contrario.
 Al ser ejecutada exitosamente con dos direcciones como parámetros, la función retorna un valor entero \verb|I| $1$ si ambas direcciones son iguales y un valor entero \verb|I| $0$ de lo contrario.
@@ -367,14 +367,14 @@ Dos direcciones son consideradas como iguales cuando ambos componentes de la tup
 \section{Comandos}\label{section:commands}
 
 En la siguiente sección se discutirá la sintaxis y semántica de los comandos en Chloe, así como las funciones y los programas escritos en el lenguaje.
-Ademas, se discutirán algunas suposiciones que la semantica toma que causan restricciones en la misma.
+Ademas, se discutirán algunas suposiciones que la semántica toma que causan restricciones en la misma.
 
 \subsection{Sintaxis}\label{subsection:syntax_commands}
 
-Chloe contiene los siguientes constructores: asignación, secuenciación, condicionales, ciclos, SKIP\footnote{El comando SKIP es el equivalente a noop ya que no realiza operación algna. Se utiliza con el fin de poder expresar otros constructores sintácticos como lo es un condicional sin una rama ELSE}, liberación de memoria, instrucción \verb|return| y funciones.
+Chloe contiene los siguientes constructores: asignación, secuenciación, condicionales, ciclos, SKIP\footnote{El comando SKIP es el equivalente a noop ya que no realiza operación alguna. Se utiliza con el fin de poder expresar otros constructores sintácticos como lo es un condicional sin una rama ELSE}, liberación de memoria, instrucción \verb|return| y funciones.
 Las expresiones son aquellas descritas en la sección anterior (~\ref{section:expressions}).
 
-Aquí se procede a describir la \textit{sintaxis abstracta} de loc omandos en el lenguaje Chloe.
+Aquí se procede a describir la \textit{sintaxis abstracta} de los comandos en el lenguaje Chloe.
 
 \begin{figure}
   \begin{lstlisting}[frame=single, mathescape=true]
@@ -402,11 +402,11 @@ Aquí se procede a describir la \textit{sintaxis abstracta} de loc omandos en el
 En la figura~\ref{fig:chloe_commands} se encuentra la definición del tipo de datos creado en Isabelle para los comandos, donde \verb|lexp| y \verb|exp| son las expresiones descritas en la sección anterior (~\ref{section:expressions}), \verb|vname| representa los nombres de variables y \verb|fname| representa los nombres de funciones.
 
 Para la asignación se definen dos comandos diferentes, uno de ellos permite la asignación a una variable, mientras que el otro permite la asignación a una ubicación en memoria.
-Se necesitan ambos comandos dado que el dominio definidos para las direcciones y los valores enteros es disjunto, por lo tanto, una dirección no puede representar un valor entero y viceversa.
+Se necesitan ambos comandos dado que el dominio definido para las direcciones y los valores enteros es disjunto, por lo tanto, una dirección no puede representar un valor entero y viceversa.
 
-También se tienen dos comandos de retorno, uno de ellos permite retornar de una funcion que posee un valor de retorno, mientras que el otro es para retornar de una función que no lo posee.
+También se tienen dos comandos de retorno, uno de ellos permite retornar de una función que posee un valor de retorno, mientras que el otro es para retornar de una función que no lo posee.
 
-Finalemnte, se tienen tres comandos diferentes para llamadas a funciones.
+Finalmente, se tienen tres comandos diferentes para llamadas a funciones.
 Uno de ellos (\verb|Callfunv|) es para funciones que no poseen un valor de retorno.
 Los otros dos dependen de lo que se haga con el valor de retorno de la función, si el valor de retorno debe ser asignado a una variable se utiliza el comando \verb|Callfun| y si el retorno debe ser asignado a una celda en memoria se utiliza el comando \verb|Callfunl|.
 
@@ -443,7 +443,7 @@ A lo largo del trabajo se continuará utilizando la sintaxis concreta para facil
 En Chloe se tienen funciones que devuelven valores y aquellas que no tienen valor de retorno.
 Para las funciones que devuelven un valor es necesario saber que ocurre con ese valor de retorno.
 Al retornar de una llamada a función, el valor de retorno o bien debe ser asignado a una variable o a una celda en memoria o debe ser ignorado.
-En esta sección no se entrará en detalles para explicar esta decisión de diseño sino que se retrasará hasta la sección~\ref{subsection:cfg} donde se podrá explcar el razonamiento detras de esta decisión de una manera mas adecuada.
+En esta sección no se entrará en detalles para explicar esta decisión de diseño sino que se retrasará hasta la sección~\ref{subsection:cfg} donde se podrá explicar el razonamiento detrás de esta decisión de una manera mas adecuada.
 
 Como es visible en la definición de la figura~\ref{fig:fun_def}, una función consiste en un nombre, los parámetros formales, las variables locales y el cuerpo de la función, que es un comando, potencialmente grande, en el lenguaje Chloe.
 También se define un predicado que comprueba si una declaración de una función es válida o no.
@@ -476,7 +476,7 @@ Un programa se considera válido si cumple con todas las siguientes condiciones:
   \item{Los nombres de las funciones en el programa son diferentes entre si.}
   \item{Cada declaración de función para cada función en el programa debe ser válida.}
   \item{La función main debe estar definida.}
-  \item{Ninguno de los nombres de las variables o nombres de funcion en el programa debe ser una palabra clave reservada del lenguaje C o una palabra clave reservada para \textit{testing}.\footnote{Dado que se quiere generar código C de la semántica de Chloe, se debe garantizar que ni los nombres de las variables ni de las funciones son alguna de las palabras claves reservadas en C o alguna de las palabras claves reservadas que se utilizan como nombres de variables en el proceso de \textit{testing}.}}
+  \item{Ninguno de los nombres de las variables o nombres de función en el programa debe ser una palabra clave reservada del lenguaje C o una palabra clave reservada para \textit{testing}.\footnote{Dado que se quiere generar código C de la semántica de Chloe, se debe garantizar que ni los nombres de las variables ni de las funciones son alguna de las palabras claves reservadas en C o alguna de las palabras claves reservadas que se utilizan como nombres de variables en el proceso de \textit{testing}.}}
   \item{Las variables globales y los nombres de las funciones en un programa no pueden ser iguales.}
 \end{itemize}
 
@@ -551,9 +551,9 @@ Se pasará a un estado erróneo si la semántica encuentra comportamiento que se
 
 \section{Estados}\label{section:states}
 
-En lenguajes más simples, que solo admiten un conjunto limitado de características tales como asinación, secuenciación de instrucciones, condicionales, ciclos y valores enteros, la representación del estado consite simplemente en una función que mapea los nombres de variables a valores.
+En lenguajes más simples, que solo admiten un conjunto limitado de características tales como asignación, secuenciación de instrucciones, condicionales, ciclos y valores enteros, la representación del estado consiste simplemente en una función que mapea los nombres de variables a valores.
 En Chloe ese no es el caso, al incluir funciones, memoria dinámica y apuntadores al conjunto de características admitidas, la representación del estado del programa deja de ser una simple función que mapea nombres de variables a valores.
-En esta sección se detallan los componentes de la represntación de un estado.
+En esta sección se detallan los componentes de la representación de un estado.
 Anteriormente, en la sección~\ref{subsection:semantics_expressions} se explico el concepto de un ``estado visible'', aquí se aclara la diferencia entre ese estado visible y un estado real, también se detallan los componentes del estado de un programa.
 
 \subsection{Valuación}\label{subsection:valuation}
@@ -588,7 +588,7 @@ La ubicación de retorno se encuentra en el marco de pila del llamador, es decir
 Para aclarar esto podemos tomar el ejemplo de código en la figura~\ref{fig:stack_example}.
 Es un programa sencillo donde una función que suma el valor de sus dos parámetros se define y luego se llama desde la función main.
 Antes de la llamada a función, el marco de pila perteneciente a la función main tiene una ubicación de retorno $Invalid$ y luego de la llamada a función la ubicación de retorno cambia a la variable $x$.
-Observe que el marco de pila que cambia su ubicación de retorno es aquel correpondiente a main, esto es porque el llamador es el que debe guardar la ubicación de retorno donde espera guardar el valor de retorno de una función llamada.
+Observe que el marco de pila que cambia su ubicación de retorno es aquel correspondiente a main, esto es porque el llamador es el que debe guardar la ubicación de retorno donde espera guardar el valor de retorno de una función llamada.
 Una ubicación de retorno $Invalid$ indica que el llamador no espera guardar resultado alguno, es decir, el llamador no ha llamado aun a alguna función o la función llamada no tiene valor de retorno.
 
 \begin{figure}
@@ -598,7 +598,7 @@ Una ubicación de retorno $Invalid$ indica que el llamador no espera guardar res
   type_synonym stack_frame = com $\times$ valuation $\times$ return_loc
   \end{lstlisting}
 
-  \caption{Stack definitions}
+  \caption{Definiciones relacionadas a la pila}
   \label{fig:stack_def}
 \end{figure}
 
@@ -688,9 +688,9 @@ Con el fin de construir un estado inicial se deben definir ciertos componentes.
 En el apéndice~\ref{ap:prog_def} se encuentran definiciones para la configuración inicial de la pila, las variables globales y la memoria.
 La configuración inicial para la pila consiste en la pila que contiene únicamente el marco de pila para la función main del programa.
 La configuración inicial para la valuación global es una función donde cada posible nombre de variable se mapea al valor correspondiente a una variable no definida (\verb|None|).
-La configuración inicial de la memoria dinámica es la memoria vacia, dado que nada ha sido asignado.
+La configuración inicial de la memoria dinámica es la memoria vacía, dado que nada ha sido asignado.
 
-Luego de definir todos estso componentes, la configuracion del estado inicial es dada por la tupla que contiene la configuración inicial de la pila, las variables globales y la memoria dinámica.
+Luego de definir todos estos componentes, la configuración del estado inicial es dada por la tupla que contiene la configuración inicial de la pila, las variables globales y la memoria dinámica.
 
 
 \begin{figure}
@@ -731,8 +731,8 @@ Por lo tanto, una función transformadora sobre estados, con excepción de las l
 
 El marco de pila en el tope de la pila corresponde a la función actual que está siendo ejecutada y el comando en ese marco de pila corresponde al comando (o programa) en Chloe que está siendo ejecutado.
 Cada vez que se ejecuta un comando o se toma un paso en la semántica de pasos cortos, este comando se actualiza para contener el próximo comando a ejecutar.
-Con el fin de demostrar que la semántica de pasos cortos es determinística se debe demostrar que cada vez que se tiene una pila de ejecución no vacía, el orden en que se aplica el transformador de evaluación\footnote{Este transformador es la función eval levantada para trabajar en estados en lugar de estados visibles, se discutirá con mayor detalle en la sección~\ref{section:small_step}} y la función que actualiza el comando a ejecutar a continuación es irrelevante para el estado final resultante.
-Es por ello que se introduce una definición separada para un estado visible aparte de la de un estado regular, es una vista del mismo estado completo pero con informacion limitada.
+Con el fin de demostrar que la semántica de pasos cortos es determinística se debe demostrar que cada vez que se tiene una pila de ejecución no vacía, el orden en que se aplica el transformador de evaluación\footnote{Este transformador es la función eval levantada para trabajar en estados en lugar de estados visibles, se discutirá con mayor detalle en la sección~\ref{section:small_step} } y la función que actualiza el comando a ejecutar a continuación es irrelevante para el estado final resultante.
+Es por ello que se introduce una definición separada para un estado visible aparte de la de un estado regular, es una vista del mismo estado completo pero con información limitada.
 
 \section{Semántica de pasos cortos}\label{section:small_step}
 
@@ -752,7 +752,7 @@ Estas funciones son llamadas \textit{enabled} y \textit{transformer}.
 A continuación se describen en detalle las definiciones para estas funciones.
 
 
-\paragraph*{Enabled functions}\label{paragraph:enabled}
+\paragraph*{Funciones \textit{enabled}}\label{paragraph:enabled}
 
 Una función \textit{enabled} es una función parcial que se define como sigue:
 
@@ -777,8 +777,8 @@ En el caso de un condicional, la ejecución puede continuar o bien siguiendo la 
 Siempre habrá una arista que puede ser seguida luego de un nodo que contenga un condicional.
 
 Una lista de las funciones \textit{enabled} que son utilizadas se presenta en la figura ~\ref{fig:enabled_def}.
-La funcion \verb|truth_value_of| mapea un valor a un valor booleano, es decir \verb|True| o \verb|False|.
-Tambien se encuentran las funciones \verb|en_always| que siempre retorna \verb|True|, \verb|en_pos| que solo retorna \verb|True| cuando el valor real (calculado con \verb|truth_value_of|) de una expresión dada como parámetro se evalúa como \verb|True| y \verb|en_neg| que solo retorna \verb|True| cuando el valor real (calculado con \verb|truth_value_of|) de una expresión dada como parámetro se evalua como \verb|False|.
+La función \verb|truth_value_of| mapea un valor a un valor de tipo lógico, es decir \verb|True| o \verb|False|.
+También se encuentran las funciones \verb|en_always| que siempre retorna \verb|True|, \verb|en_pos| que solo retorna \verb|True| cuando el valor real (calculado con \verb|truth_value_of|) de una expresión dada como parámetro se evalúa como \verb|True| y \verb|en_neg| que solo retorna \verb|True| cuando el valor real (calculado con \verb|truth_value_of|) de una expresión dada como parámetro se evalúa como \verb|False|.
 Estas funciones serán utilizadas mas tarde en la definición del CFG.
 
 \begin{figure}
@@ -800,7 +800,7 @@ Estas funciones serán utilizadas mas tarde en la definición del CFG.
 \end{figure}
 
 
-\paragraph*{Transformer functions}\label{paragraph:transformer}
+\paragraph*{Funciones \textit{transfomer}}\label{paragraph:transformer}
 
 Una función \textit{transformer} es una función parcial que se define como sigue:
 
@@ -822,44 +822,44 @@ Se procede a describir de una manera aproximada el efecto que tendrán estas fun
 En primer lugar se tiene la función \textit{transformer} para una asignación producida por \verb|tr_assign|, se encarga de evaluar la expresión que se quiere asignar y luego realizar una operación \verb|write| al estado.
 Retorna el estado resultante de realizar dicha evaluación y la operación \verb|write|.
 
-El ``transformador'' para una asignación a una celda en memoria producida por \verb|tr_assignl|, se encarga de evaluar la expresión del LHS para obtener la ubicación de memoria donde se guardará el valor, evaluar la expresión para obtener el nuevo valor y guardar el valor en memoria.
-Retorna el estado resultatnte de realizar dichas evaluaciones y la opración \verb|store|.
+La función \textit{transformer} para una asignación a una celda en memoria producida por \verb|tr_assignl|, se encarga de evaluar la expresión del LHS para obtener la ubicación de memoria donde se guardará el valor, evaluar la expresión para obtener el nuevo valor y guardar el valor en memoria.
+Retorna el estado resultante de realizar dichas evaluaciones y la operación \verb|store|.
 
-El ``transformador'' para una evaluación producido por \verb|tr_eval|, se encarga de evaluar una expresión.
+La función \textit{transformer} para una evaluación producido por \verb|tr_eval|, se encarga de evaluar una expresión.
 Retorna el estado resultante de realizar dicha evaluación.
 
-El ``transformador'' para una operación de liberación de memoria producido por \verb|tr_free|, se encarga de evaluar la expresión del LHS que recibe como parametro con el fin de obtener una dirección y liberar el bloque correspondiente a esta dirección en memoria.
+La función \textit{transformer} para una operación de liberación de memoria producido por \verb|tr_free|, se encarga de evaluar la expresión del LHS que recibe como parámetro con el fin de obtener una dirección y liberar el bloque correspondiente a esta dirección en memoria.
 Retorna el estado resultante de realizar dicha evaluación y la liberación de memoria.
 
 Cuando se realiza una llamada a función se debe chequear que los parámetros formales y los parámetros reales dados a la función tengan el mismo tipo y que cada parámetro formal tenga un parámetro real correspondiente.
 Dado que no se posee un sistema de tipos estático solamente se chequeara la segunda condición mencionada.
 Ademas, el orden de evaluación de los parámetros dados a una función es de izquierda a derecha.
-Los parámetros siempre se evaluan siguiendo un orden de derecha a izquierda.
+Los parámetros siempre se evalúan siguiendo un orden de derecha a izquierda.
 Finalmente, cuando se llama a una función también se deben mapear los parámetros formales a los valores de los parámetros dados y considerarlos como variables locales en el alcance de la función.
 
-Se tiene una función \verb|call_function| que produce un ``transformador'' para cualquier llamada a función, este ``transformador'' verifica que el número de parámetros formales y parámetros dados sea el mismo, evalua los parámetros dados de izquierda a derecha, crea un nuevo marco de pila que contiene el cuerpo de la función, la valuación de las variables locales (la cual incluye los parámetros mapeados a sus valores dados y las variables locales mapeadas al valor que representa no inicializado) y la ubicación de retorno \verb|Invalid|, retorna el estado resultante de realizar dichas operaciones sobre el estado.
+Se tiene una función \verb|call_function| que produce una función \textit{transformer} para cualquier llamada a función, esta verifica que el número de parámetros formales y parámetros dados sea el mismo, evalúa los parámetros dados de izquierda a derecha, crea un nuevo marco de pila que contiene el cuerpo de la función, la valuación de las variables locales (la cual incluye los parámetros mapeados a sus valores dados y las variables locales mapeadas al valor que representa no inicializado) y la ubicación de retorno \verb|Invalid|, retorna el estado resultante de realizar dichas operaciones sobre el estado.
 
 Cuando se llama a una función, el llamador tiene que cambiar su marco de pila con el fin de actualizar el valor de la ubicación de retorno en el marco de pila actual.
-Se definen diferentes funciones que realizan ese cambio dependiendo del tipo de llamada a función y producen un ``transformador'' llamando a \verb|call_function|.
+Se definen diferentes funciones que realizan ese cambio dependiendo del tipo de llamada a función y producen una función \textit{transformer} llamando a \verb|call_function|.
 
 Las diferentes funciones que se definen son \verb|tr_callfunl|, \verb|tr_callfun| y \verb|tr_callfunv|.
 Se utiliza \verb|tr_callfunl| cuando la ubicación de retorno de una función es una celda en memoria.
 En este caso, la función evalúa primero la expresión del LHS para obtener la dirección de retorno y la utiliza para actualizar la ubicación de retorno del marco de pila antes de llamar a \verb|call_function|.
-El ``tranformador'' resultante retornará el estado resultante de realizar esta evaluación, actualizar el marco de pila y las operaciones hechas por \verb|call_function|.
+La función \textit{transformer} resultante retornará el estado resultante de realizar esta evaluación, actualizar el marco de pila y las operaciones hechas por \verb|call_function|.
 Es importante resaltar que la evaluación de la expresión del LHS que retorna una dirección debe ser la primera que se realiza, esto es con el fin de evitar comportamiento no deseado, ya que la función llamada podría cambiar el estado.
 
 Se utiliza \verb|tr_callfun| cuando la ubicación de retorno de la función es una variable.
-En este caso la función actualiza la ubicación de retorno del marco de pila con el nombre de la variable antes de llamar a \verb|call_function|, el ``transformador'' resultante retornará el estado resultante de actualizar el marco de pila y las operaciónes hechas por \verb|call_function|.
+En este caso la función actualiza la ubicación de retorno del marco de pila con el nombre de la variable antes de llamar a \verb|call_function|, la función \textit{transformer} resultante retornará el estado resultante de actualizar el marco de pila y las operaciones hechas por \verb|call_function|.
 
 Se utiliza \verb|tr_callfunl| cuando no se espera que la función llamada retorne un valor.
-En este caso, la función actualiza la ubicación de retorno del marco de pila con \verb|Invalid| antes de llamar a \verb|call_function|, el ``transformador'' resultante retorna el estado resultante de actualizar el marco de pila y las operaciones hechas por \verb|call_function|.
+En este caso, la función actualiza la ubicación de retorno del marco de pila con \verb|Invalid| antes de llamar a \verb|call_function|, la función \textit{transformer} resultante retorna el estado resultante de actualizar el marco de pila y las operaciones hechas por \verb|call_function|.
 
-Se tiene una función \verb|tr_return| que produce un ``transformador'' para una llamada a \verb|return| que retorna una expresión de una funcion, este ``transformador'' desempila el marco de pila en el tope de la pila (el cual pertenece a la función de la que se retorna), evalua el valor correspondiente a la expresión retornada y, si la pila no está vacía, busca el valor de retorno y dependiendo de si es una dirección, una variable o una ubicación \verb|Invalid| retorna el estado resultante de guardar el valor en memoria, guardar el valor en una variable o retornar el estado como estaba, respectivamente.
+Se tiene una función \verb|tr_return| que produce una función \textit{transformer} para una llamada a \verb|return| que retorna una expresión de una función, esta desempila el marco de pila en el tope de la pila (el cual pertenece a la función de la que se retorna), evalúa el valor correspondiente a la expresión retornada y, si la pila no está vacía, busca el valor de retorno y dependiendo de si es una dirección, una variable o una ubicación \verb|Invalid| retorna el estado resultante de guardar el valor en memoria, guardar el valor en una variable o retornar el estado como estaba, respectivamente.
 Nótese que si la función retorna un valor pero su ubicación de retorno es \verb|Invalid| entonces el valor retornado es ignorado en lugar de ser considerado como una ejecución errónea.
 
 Finalmente, se tiene una función \verb|tr_return_void| que produce una función \textit{transformer} para una llamada a \verb|return| en una función que no retorna un valor.
-Este ``transformador'' se encarga de desempilar el marco de pila en el tope de la pila (el cual pertenece a la función de la que se retorna).
-Posteriormente, si la pila no está vacia, obtiene la ubicación de retorno.
+Esta función \textit{transformer} se encarga de desempilar el marco de pila en el tope de la pila (el cual pertenece a la función de la que se retorna).
+Posteriormente, si la pila no está vacía, obtiene la ubicación de retorno.
 Si la ubicación de retorno es una ubicación diferente de \verb|Invalid|, retorna un valor \verb|None| que indica un estado erróneo.
 Sin embargo, si la ubicación de retorno es, en efecto, \verb|Invalid| entonces retorna el estado resultante de desempilar el último marco de pila.
 
@@ -883,7 +883,7 @@ FIXME
   tr_return_void :: transformer
   \end{lstlisting}
 
-  \caption{Transformer functions}
+  \caption{Funciones \textit{transformer}}
   \label{fig:transformer_def}
 \end{figure}
 
@@ -893,7 +893,7 @@ FIXME
 Para poder hablar de ejecuciones siguiendo las aristas del CFG se debe introducir un nuevo concepto.
 Si se toma la definición de un CFG dada al inicio de esta sección, se tiene que para poder hablar de una ejecución de un comando siguiendo las aristas del CFG se debe tener un \textit{program pointer} que apunte al nodo actual.
 También se debe introducir el concepto de una pila.
-Se tiene una pila de \textit{program pointers} que acompaña el CFG y se desempilará un nuevo ``program pointer '' de la pila una vez que se haya \textit{seguido} el \textit{program pointer} actual hasta un nodo que contenga \verb|SKIP|.
+Se tiene una pila de \textit{program pointers} que acompaña el CFG y se desempilará un nuevo \textit{program pointer} de la pila una vez que se haya \textit{seguido} el \textit{program pointer} actual hasta un nodo que contenga \verb|SKIP|.
 Un \textit{program pointer} al cuerpo de una función se empilará cuando una llamada a función sea realizada.
 Un \textit{program pointer} se desempilará de la pila cuando exista una instrucción \verb|return|.
 Este concepto será importante al hablar de llamadas a funciones y retornos de funciones más adelante.
@@ -954,7 +954,7 @@ Esta arista estará anotada con una función \textit{enabled} dada por \verb|en_
 En el caso donde se sigue la arista que lleva hasta el segundo comando, se va desde \verb|IF| $b$ \verb|THEN| $c_{1}$ \verb|ELSE| $c_{2}$ hasta $c_{2}$.
 Esta arista estará anotada con una función \textit{enabled} dada por \verb|en_neg| que solo habilitará esta arista cuando la condición $b$ se evalúe a \verb|False| y una función \textit{transformer} dado por \verb|tr_eval|.
 
-En el caso de un ciclo siempre se puede seguir una arista que va desde \verb|WHILE| $b$ \verb|DO| $c$ hasta \verb|IF| $b$ \verb|THEN| $c$ \verb|;; WHILE| $b$ \verb|DO| $c$ \verb|ELSE SKIP| al expandir la defición del ciclo una vez.
+En el caso de un ciclo siempre se puede seguir una arista que va desde \verb|WHILE| $b$ \verb|DO| $c$ hasta \verb|IF| $b$ \verb|THEN| $c$ \verb|;; WHILE| $b$ \verb|DO| $c$ \verb|ELSE SKIP| al expandir la definición del ciclo una vez.
 La arista tendrá una función \textit{enabled} que siempre está habilitada y la función \textit{transformer} para el estado es \verb|tr_id|.
 
 Se puede seguir una arista desde \verb|FREE| $X$ hasta \verb|SKIP|.
@@ -988,13 +988,13 @@ Se puede dar un paso cuando las siguientes condiciones se cumplen:
   \item{Hay una arista en el CFG entre $c_{1}$ y $c_{2}$.}
   \item{El comando en el marco de pila en el tope de la pila en el estado inicial es $c_{1}$.}
   \item{Al aplicar la función \textit{enabled} sobre el estado, esta retorna \verb|True|.}
-  \item{Al aplicar la función \textit{transformer} al estado con el comando en marco de pila en el top de la pila actualizdo de $c_{1}$ a $c_{2}$, este retorna un nuevo estado $s_{2}$.}
+  \item{Al aplicar la función \textit{transformer} al estado con el comando en marco de pila en el tope de la pila actualizado de $c_{1}$ a $c_{2}$, este retorna un nuevo estado $s_{2}$.}
 \end{itemize}
 
 Si todas las condiciones mencionadas anteriormente se cumplen, entonces se puede tomar un paso corto desde el estado $s$ hasta $s_{2}$.
 
 Un paso corto también puede ser tomado al retornar de una función que no retorne valor alguno.
-Si el comando en el tope de la pila es \verb|SKIP|, la pila no está vacía y alicar la función \textit{transformer} en el estaod inicial $s$ produce un nuevo estado $s_{2}$, entonces podemos tomar un paso corto desde $s$ hasta $s_{2}$.
+Si el comando en el tope de la pila es \verb|SKIP|, la pila no está vacía y aplicar la función \textit{transformer} en el estaod inicial $s$ produce un nuevo estado $s_{2}$, entonces podemos tomar un paso corto desde $s$ hasta $s_{2}$.
 
 El tipo para \verb|small_step| es de \verb|state| a \verb|state option|.
 La segunda configuración está encerrada en un tipo opción ya que tomar un paso corto puede resultar en una estado erróneo donde la ejecución se quedará atascada.
@@ -1033,7 +1033,7 @@ Tomar un paso corto puede fallar en cualquiera de los siguientes casos:
   where $s_{0}$ $\rightarrow*$ $s_{f}$ ==  star small_step' $s_{0}$ $s_{f}$
   \end{lstlisting}
 
-  \caption{Small-step rules}
+  \caption{Reglas de la semántica de pasos cortos}
   \label{fig:small_step_rules}
 \end{figure}
 
@@ -1041,7 +1041,7 @@ Se ha definido como tomar un solo paso en la semántica.
 Con el fin de tomar mas de un solo paso y definir la ejecución de un programa en la semántica se debe levantar la definición de \verb|small_step| a \verb|state option| tanto en el estado inicial como en el final.
 
 También se define (en la figura~\ref{fig:small_step_rules}) una nueva definición \verb|small_step'| basada en la definición previa para \verb|small_step|.
-Esta definición basicamente dice que si un paso corto puede ser tomado desde el estado $s$ hasta $s'$ entonces un paso corto puede ser tomado desde \verb|Some| $s$ hasta $s'$.
+Esta definición básicamente dice que si un paso corto puede ser tomado desde el estado $s$ hasta $s'$ entonces un paso corto puede ser tomado desde \verb|Some| $s$ hasta $s'$.
 Nótese que $s'$ puede ser tanto \verb|None| como \verb|Some| $s_{i}$.
 La notación de infijo para esta nueva definición se escribe como \verb|Some| $s \rightarrow' s'$, lo cual significa que se toma un paso corto desde \verb|Some| $s$ hasta $s'$.
 
@@ -1074,18 +1074,18 @@ La prueba es por inducción en el comando.
 A excepción de dos casos, la prueba es demostrada automáticamente.
 Esos dos casos son los comandos \verb|Seq| y \verb|If|.
 En el caso de \verb|Seq| se debe hacer una prueba por casos sobre el primer comando de la secuenciación para poder diferenciar los casos cuando es \verb|SKIP| y cuando no.
-En ambos casos existe una regla en la defición de CFG que asegura que hay una arista habilitada que se puede tomar y el caso se soluciona automáticamente.
+En ambos casos existe una regla en la definición de CFG que asegura que hay una arista habilitada que se puede tomar y el caso se soluciona automáticamente.
 
 En el caso de \verb|If| se debe hacer una prueba por casos sobre el valor de $\mathtt{en\_pos}\ b\ s$.
 Puede fallar y retornar un valor \verb|None|, entonces el caso está resuelto.
-Si no falla entonces se debe chequear el valor booleano retornado por la función \verb|en_pos|.
+Si no falla entonces se debe chequear el valor retornado por la función \verb|en_pos|.
 En el caso donde es \verb|True| entonces el caso está resuelto.
-El caso difícil es cuando la evaluación de \verb|en_pos| es \verb|False|, semanticamente, esto significa que se debe tomar la rama del else.
-Por lo tanto cuando $\mathtt{en\_pos}\ b\ s$ es \verb|False|, $\mathtt{en\_neg}\ b\ s$ siempre se evaluará como \verb|True|, esto significa qe el comando siempre tendrá una arista habilitada que puede seguir, es decir, $\mathtt{en\_neg}\ b\ s$ y la demostración de este caso está completa.
+El caso difícil es cuando la evaluación de \verb|en_pos| es \verb|False|, semánticamente, esto significa que se debe tomar la rama del \verb|else|.
+Por lo tanto cuando $\mathtt{en\_pos}\ b\ s$ es \verb|False|, $\mathtt{en\_neg}\ b\ s$ siempre se evaluará como \verb|True|, esto significa que el comando siempre tendrá una arista habilitada que puede seguir, es decir, $\mathtt{en\_neg}\ b\ s$ y la demostración de este caso está completa.
 \end{proof}
 \end{comment}
 
-A continuación se quiere demostra que mientras la pila no esté vacia, la semántica de pasos cortos siempre puede tomar un paso.
+A continuación se quiere demostrar que mientras la pila no esté vacía, la semántica de pasos cortos siempre puede tomar un paso.
 Se utilizará el lema anterior en la prueba para este nuevo lema.
 Este lema dice que la semántica puede tomar un paso.
 
@@ -1097,23 +1097,23 @@ $\neg$ \verb|is_empty_stack| $s$ $\Longrightarrow$ $\exists\ x.\ s\ \rightarrow\
 
 \begin{comment}
 \begin{proof}
-De las supociiones sabemos que la pila no está vacia, por lo tanto se puede reescribir el estado de la siguiente manera: $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
+De las suposiciones sabemos que la pila no está vacía, por lo tanto se puede reescribir el estado de la siguiente manera: $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
 Luego se puede hacer una prueba por casos.
 Se tiene el caso donde $c\ =\ \mathtt{SKIP}$ y el caso donde $c\\neq\ \mathtt{SKIP}$.
 
 El caso donde $c\ =\ \mathtt{SKIP}$ es el caso en el que se está retornando de la ejecución de una función.
-Se tiene que la pila no está vacia, que $c\ =\ \mathtt{SKIP}$ y que $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
+Se tiene que la pila no está vacía, que $c\ =\ \mathtt{SKIP}$ y que $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
 Este caso corresponde a las reglas \verb|Return_void| y \verb|Return_void_None| en la definición de \verb|small_step|.
 En ambos casos la semántica puede tomar un paso, bien sea a un nuevo estado $s'$ o a \verb|None|.
 El caso se resuelve automáticamente por Isabelle al indicar las reglas mencionadas y las suposiciones.
 
 El segundo caso es cuando $c\\neq\ \mathtt{SKIP}$.
 Este es el caso donde se ejecuta cualquier otro comando que no sea el retorno de una función.
-En este caso se utiliza el lema anterior~\ref{lemma:cfg_enabled_action} y se tiene que $\mathtt{cfg}\ c\ (en,tr)\ c'$ y o la función \textit{enabled} falla ($\mathtt{en}\ s\ = \mathtt{None}$) o está habilidada ($\mathtt{en}|\ s\ = \mathtt{Some True}$).
+En este caso se utiliza el lema anterior~\ref{lemma:cfg_enabled_action} y se tiene que $\mathtt{cfg}\ c\ (en,tr)\ c'$ y o la función \textit{enabled} falla ($\mathtt{en}\ s\ = \mathtt{None}$) o está habilitada ($\mathtt{en}|\ s\ = \mathtt{Some True}$).
 
 Esto se demuestra mediante una separación por casos.
 En el primer caso se supone $\mathtt{cfg}\ c\ (en,tr)\ c'$ y $\mathtt{en}\ s\ = \mathtt{None}$.
-Este es el caso donde la evaluación de la función falla, se sabe que este caso toma un paso corto a None dado por el caso \verb|None| de la definción de \verb|small_step|.
+Este es el caso donde la evaluación de la función falla, se sabe que este caso toma un paso corto a \verb|None| dado por el caso \verb|None| de la definición de \verb|small_step|.
 Entonces se ha demostrado que existe un estado tal que $s\ \rightarrow\ \mathtt{None}$.
 
 En el siguiente caso se supone $\mathtt{cfg}\ c\ (en,tr)\ c'$ y $\mathtt{en}\ s\ = \mathtt{Some True}$.
@@ -1208,8 +1208,8 @@ Todos los casos se demuestran automáticamente.
 \end{comment}
 
 El lema~\ref{lemma:cfg_determ} establece que CFG es determinístico.
-El único caso donde no lo es es en el caso del condicional, para el cual se agrega una alternativa extra en la conclusion.
-Puede pasar que se tenga una regla del CFG comanzando en un comando \verb|If| que tiene una arista a $c_{1}$ y también una arista a $c_{2}$.
+El único caso donde no lo es es en el caso del condicional, para el cual se agrega una alternativa extra en la conclusión.
+Puede pasar que se tenga una regla del CFG comenzando en un comando \verb|If| que tiene una arista a $c_{1}$ y también una arista a $c_{2}$.
 Esto no es realmente un problema dado que las funciones \textit{enabled} garantizan que cuando esto ocurre, solamente una de las aristas puede ser tomada.
 
 
@@ -1247,7 +1247,7 @@ Es demostrado automáticamente desplegando la definición de \verb|tr_eval|.
 
 La función \verb|lift_transformer_nr| levanta la definición de una función \textit{transformer}, que opera en el nivel de estados visibles, a estados.
 El lema~\ref{lemma:lift_upd_com} establece que no importa en que orden se aplique una función \textit{transformer} sobre un estado y se actualice el comando en el tope de la pila, dado que siempre produce el mismo resultado.
-Esto es porque la función que actualiza el comando solo modifica el comando en el tope de la pila y la función \textit{transformer} no puede accesar y modificar esa parte de la pila, ya que solo puede modificar el estado visible.
+Esto es porque la función que actualiza el comando solo modifica el comando en el tope de la pila y la función \textit{transformer} no puede acceder y modificar esa parte de la pila, ya que solo puede modificar el estado visible.
 
 El lema~\ref{lemma:tr_eval_upd_com} es una versión más específica del lema anterior que establece el mismo hecho específicamente para la función \verb|tr_eval|.
 
@@ -1268,7 +1268,7 @@ Los objetivos de prueba generados por las reglas \verb|Base| y \verb|None| se re
 \end{proof}
 \end{comment}
 
-Luego solo queda demostrar que \verb|small_step'| es tambien determinística.
+Luego solo queda demostrar que \verb|small_step'| es también determinística.
 
 \begin{lemma}[small\_step'\_determ]
 $\newline$
@@ -1359,13 +1359,13 @@ La ejecución de un paso en la semántica va desde un estado inicial a un nuevo 
 Para ejecutar un comando \verb|SKIP| se llama a \verb|tr_return_void|.
 En cualquier otro comando se verifica que tipo de paso se debe tomar utilizando la función \verb|cfg_step| y, basado en esto, se decide que hacer.
 Si es un paso \verb|Base| se llama a la función \textit{transformer} sobre el estado con el comando actualizado.
-Si es un paso \verb|Cond| se evalúa la condición y se llama a la función transformer sobre el estado con el comando actualizado.
+Si es un paso \verb|Cond| se evalúa la condición y se llama a la función \textit{transformer} sobre el estado con el comando actualizado.
 
 \subsubsection*{Equivalencia entre semántica de pasos cortos y ejecución de un solo paso}\label{subsubsection:equality_ss_ss}
 
 Ahora se debe demostrar que le ejecución de un solo paso es semánticamente equivalente a tomar un paso en la semántica de pasos cortos.
 Esto significa probar que $\neg\ \mathtt{is\_empty\_stack}\ \Longrightarrow\ s\ \rightarrow\ s'\ \longleftrightarrow\ \mathtt{fstep}\ s\ =\ s'$~\footnote{fstep tiene un parámetro extra, es decir la tabla de procedimientos, que no se escribirá acá para simplificar la lectura.}.
-Se demuestran ambas direciones de la equivalencia por separado: para cada paso tomado en la semántica de pasos cortos hay un paso equivalente que puede ser tomado en la ejecución por \verb|fstep| que llevará al mismo estado final y viceversa.
+Se demuestran ambas direcciones de la equivalencia por separado: para cada paso tomado en la semántica de pasos cortos hay un paso equivalente que puede ser tomado en la ejecución por \verb|fstep| que llevará al mismo estado final y viceversa.
 
 
 Se comienza demostrando que cualquier paso tomado en la semántica de pasos cortos puede ser simulado a través de un paso tomado con \verb|fstep|.
@@ -1430,7 +1430,7 @@ Con el fin de ejecutar un programa se define un interpretador.
 
 La definición para tal interpretador se encuentra en la figura~\ref{fig:interpreter_def}.
 Primero se define el criterio para considerar un estado como final.
-Un estado será considerado como final cuando su pila de ejecución esté vacia o cuando sea \verb|None|.
+Un estado será considerado como final cuando su pila de ejecución esté vacía o cuando sea \verb|None|.
 
 El interpretador para la semántica funciona de la siguiente manera: mientras no se alcance un estado final se ejecuta \verb|fstep|.
 
@@ -1499,7 +1499,7 @@ En segundo lugar, se dice que la ejecución de un estado \textit{termina} si exi
   \label{fig:execution_definitions}
 \end{figure}
 
-Antes de demostrar el lema de correctitud para el interpretador, se debe demostrar que la semátnica de pasos cortos preserva un estado erróneo \verb|None| si tal es alcanzado por el camino de pasos tomados.
+Antes de demostrar el lema de correctitud para el interpretador, se debe demostrar que la semántica de pasos cortos preserva un estado erróneo \verb|None| si tal es alcanzado por el camino de pasos tomados.
 Tras una ejecución errónea, la misma se queda atascada en un estado \verb|None|.
 
 \begin{lemma}[None\_star\_preserved]
@@ -1516,7 +1516,7 @@ Los objetivos se resuelven automáticamente.
 \end{comment}
 
 Finalmente se tiene la propiedad de correctitud para el interpretador.
-El teorema~\ref{theorem:interp_correct} establece qeu si la ejecución de $cs$ termina, entonces esa ejecución produce $cs'$ si y solo si $cs'$ es el resultado que se obtiene de ejecutar el programa en el interpretador.
+El teorema~\ref{theorem:interp_correct} establece que si la ejecución de $cs$ termina, entonces esa ejecución produce $cs'$ si y solo si $cs'$ es el resultado que se obtiene de ejecutar el programa en el interpretador.
 
 \begin{theorem}[interp\_correct]
 $\newline$

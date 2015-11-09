@@ -26,7 +26,7 @@ Esta semántica está formalizada en el probador de teoremas HOL~\cite{hol-doc}.
 Una de las características mas importantes de su formalización de la semántica de C es el hecho de que considera cada posible orden de evaluación para efectos de borde.
 Norrish prueba que expresiones \textit{puras}\footnote{Las expresiones puras están definidas como expresiones que no contienen llamadas a funciones, asignaciones, incrementos o decrementos postfijos.} en su lenguaje son determinísticas.
 
-Por otra parte, define expresiones \textit{libres de puntos de secuencia}\footnote{Las expresiones libres de puntos de secuencia están definidas como aquellas expresiones que no contienen la evaluación de alguno de los operadores lógicos $\&\&$, $||$ o $?:$, un operador coma o una llamada a funcion.}, las cuales están solapadas con el conjunto de expresiones puras pero ningún conjunto contiene al otro, y prueba que son determinísticas.
+Por otra parte, define expresiones \textit{libres de puntos de secuencia}\footnote{Las expresiones libres de puntos de secuencia están definidas como aquellas expresiones que no contienen la evaluación de alguno de los operadores lógicos $\&\&$, $||$ o $?:$, un operador coma o una llamada a función.}, las cuales están solapadas con el conjunto de expresiones puras pero ningún conjunto contiene al otro, y prueba que son determinísticas.
 
 Norrish presenta una lógica de programación, la cual permite el razonamiento sobre programas a nivel de instrucciones.
 Para esto se presenta una derivación de una lógica de Hoare ara programas en C y luego se presenta un sistema para analizar los cuerpos de un ciclo y generar postcondiciones correctas a partir de ellos considerando la existencia de instrucciones \verb|break|, \verb|continue| y \verb|return| en el cuerpo del ciclo.
@@ -36,32 +36,32 @@ Sin embargo, el trabajo de Norrish tiene ciertas diferencias en comparación al 
 Una de ellas es que la semántica operacional definida por Norrish para las instrucciones es una semántica de pasos largos, mientras que la semántica definida en este trabajo es una semántica de pasos cortos.
 Por otra parte, el trabajo de Norrish se orienta a presentar la lógica de programación y al razonamiento sobre programas a nivel del probador de teoremas, mientras que este trabajo se enfoca en la generación de código y el proceso de traducción de la semántica a código ejecutable.
 
-\section{CompCert Compiler's Memory Model}
+\section{Modelo de memoria del compilador CompCert}
 
 El compilador CompCert es un compilador optimizador formalmente verificado que traduce código del subconjunto Clight del lenguaje de programación C~\cite{clight} a código ensamblador para PowerPC.
 Una descripción del compilador CompCert se encuentra disponible en el capítulo 4 de~\cite{compcert-float-point}.
-CompCert compila código fuenta de la semántica de Clight a código ensamblador preservando la semántica del lenguaje original.
-Para ralizar esta traducción se necesitan varios lenguajes, así como un modelo de memoria que permita el rrazonamiento sobre estados de memoria.
+CompCert compila código fuente de la semántica de Clight a código ensamblador preservando la semántica del lenguaje original.
+Para realizar esta traducción se necesitan varios lenguajes, así como un modelo de memoria que permita el razonamiento sobre estados de memoria.
 
 Los modelos de memoria son generalmente o demasiado concretos o demasiado abstractos.
 Cuando son demasiado abstractos pueden dejar de representar cosas tales como \textit{aliasing} lo cual haría que la semántica estuviera incorrecta.
 Un modelo de memoria que sea demasiado concreto puede dificultar el proceso de prueba, por ejemplo, al no poder validar propiedades algebraicas que son, en efecto, válidas en el lenguaje.
 El modelo de memoria utilizado en el compilador CompCert~\cite{leroy-blazy-memory-model} está en algún punto intermedio entre un modelo de bajo nivel y uno de alto nivel.
 La representación de la memoria tiene un conjunto de estados de memoria que están indexados por una referencia a un bloque.
-Cada bloque se comporta como un arreglo de bytes que puede ser indexado utilizando offsets en bytes.
+Cada bloque se comporta como un arreglo de bytes que puede ser indexado utilizando desplazamientos en bytes.
 Leroy y Blazy presentan un resumen y una descripción concreta de su modelo de memoria y tienen propiedades sobre las operaciones de memoria formalizadas y demostradas en el asistente de pruebas Coq~\cite{coq-doc}.
-Una de esas propiedades es que se garantiza la separación entre dos bloques obtenidos a partir de dos llamadas diferentes a malloc.
+Una de esas propiedades es que se garantiza la separación entre dos bloques obtenidos a partir de dos llamadas diferentes a \verb|malloc|.
 
 La memoria de la semántica de este trabajo es modelada tomando este modelo de memoria como inspiración.
 El modelo de memoria de este trabajo difiere del presentado en esta sección por ser mas simple.
-Una de las diferencias entre ambos modelos es que el modelo de Leroy y Blazy soporta límites inferiores y superiores para accesar a bloques mientras que todos los bloques en el modelo de este trabajo son accesibles desde el índice $0$ hasta la longitud del bloque.
+Una de las diferencias entre ambos modelos es que el modelo de Leroy y Blazy soporta límites inferiores y superiores para acceder a bloques mientras que todos los bloques en el modelo de este trabajo son accesibles desde el índice $0$ hasta la longitud del bloque.
 Además, cada celda de memoria en el modelo de Leroy y Blazy representa un byte, mientras que en el modelo de este trabajo cada celda de memoria contiene un valor entero o un apuntador.
-La idea fundamental detras de este modelo de memoria es tomada y adaptada a las necesidades de este trabajo.
+La idea fundamental detrás de este modelo de memoria es tomada y adaptada a las necesidades de este trabajo.
 
 
 \section{De código C a semántica}
 
-El presente trabajo tienen un enfoque de arriba a abajo (\textit{top-down}) donde se tiene la intención de generar códigio en C de una especificación formal.
+El presente trabajo tienen un enfoque de arriba a abajo (\textit{top-down}) donde se tiene la intención de generar código en C de una especificación formal.
 Existe otra dirección que es relevante mencionar.
 El proyecto AutoCorres~\cite{autocorres} reconoce código C y genera una representación monádica de alto nivel que facilita el razonamiento sobre un programa.
 Este trabajo permite a los usuarios razonar sobre programas en C a un nivel más alto.

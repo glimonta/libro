@@ -14,7 +14,7 @@ Aunque el tipo de datos \verb|val| y las valuaciones no son utilizadas en el pro
 \subsection{Tipo val}\label{subsection:pretty_val_type}
 El tipo \verb|val| es el primer tipo de datos definido por el usuario para el que se presenta una instanciación.
 En la tabla~\ref{tab:pretty_val} se encuentra la equivalencia entre la sintaxis abstracta para el tipo \verb|val| y la representación en cadena de caracteres.
-Nótese que $w$, $base$ y $ofs$ representan palabras, naturales y enteros, por lo tanto sus funciones \verb|show| serán utilizadas para obtener su representación en cadena de caracters, por ejemplo, la representación en cadena de caracteres de $\mathtt{I}\ 42$ sería $"42"$, la representación en cadena de caracteres de $\mathtt{A}\ (4,\ 2)$ sería $"4[2]"$.
+Nótese que $w$, $base$ y $ofs$ representan palabras, naturales y enteros, por lo tanto sus funciones \verb|show| serán utilizadas para obtener su representación en cadena de caracteres, por ejemplo, la representación en cadena de caracteres de $\mathtt{I}\ 42$ sería $"42"$, la representación en cadena de caracteres de $\mathtt{A}\ (4,\ 2)$ sería $"4[2]"$.
 Se puede realizar \verb|show| de una lista de valores al hacer \verb|show| de cada valor en una notación de listas, es decir, $[vname\ =\ valor, \dots, vname_n\ =\ valor_n]$.
 
 Se rodean con cuñas los parámetros ($"<\ >"$) para indicar que lo que está dentro de ellos es una representación en forma de cadena de caracteres resultante de aplicar una función \verb|show| en el parámetro y se continuará usando esta notación a lo largo del documento.
@@ -39,7 +39,7 @@ Se rodean con cuñas los parámetros ($"<\ >"$) para indicar que lo que está de
 
 Un \verb|val option| tiene el significado semántico de un valor inicializado y no inicializado.
 La tabla~\ref{tab:pretty_val_option} muestra la equivalencia entre la sintaxis abstracta y la representación en cadena de caracteres.
-Un valor inicializado simmplemente será la cadena de caracteres resultante de llamar a la función \verb|show| sobre ese valor, mientras que la representación de un valor no inicializado será un $''?''$ para representar que el valor es aun desconocido.
+Un valor inicializado simplemente será la cadena de caracteres resultante de llamar a la función \verb|show| sobre ese valor, mientras que la representación de un valor no inicializado será un $''?''$ para representar que el valor es aun desconocido.
 
 \begin{table}[h!]
 \centering
@@ -59,7 +59,7 @@ Un valor inicializado simmplemente será la cadena de caracteres resultante de l
 
 \subsection{Valuaciones}\label{subsection:pretty_valuations}
 
-Para representar una valuación se necesita un parámetro extra: una lista de nombres de variables, esta lista tendrá los nombres de las vairables para los cuales se quiere imprimir su valor en la valuación.
+Para representar una valuación se necesita un parámetro extra: una lista de nombres de variables, esta lista tendrá los nombres de las variables para los cuales se quiere imprimir su valor en la valuación.
 La valuación será impresa con el siguiente formato:
 
 \begin{equation*}
@@ -74,7 +74,7 @@ La memoria, al igual que los valores, no es un componente necesario para generar
 No obstante, tener una manera de hacer \textit{pretty printing} de la memoria en cierto estado es útil al de realizar depuración.
 Para imprimir la memoria se debe saber como hacer \verb|show| del contenido de un bloque y de todo el bloque.
 
-Cuando se accesa un bloque a memoria se puede obtener tanto el contenido del bloque o un valor \verb|None| que indica un bloque libre en memoria.
+Cuando se accede a un bloque a memoria se puede obtener tanto el contenido del bloque o un valor \verb|None| que indica un bloque libre en memoria.
 La tabla~\ref{tab:pretty_block_content} muestra la representación en cadena de caracteres de esto.
 Nótese que en el caso de un valor \verb|None| se imprime la cadena \verb|free| rodeada de cuñas, siendo las mismas parte de la representación y una excepción a la notación descrita anteriormente.
 Si el contenido del bloque es una lista de valores entonces se imprime la lista de valores.
@@ -99,7 +99,7 @@ Un bloque completo se imprime de la siguiente manera:
 <base>\ :\ <contenido\_bloque> 
 \end{equation*}
 
-donde $base$ es el primer componente de una dirección con la que se accesa al bloque y $contenido\_bloque$ es la representación en cadena de caracteres del contenido en el bloque número $base$.
+donde $base$ es el primer componente de una dirección con la que se accede al bloque y $contenido\_bloque$ es la representación en cadena de caracteres del contenido en el bloque número $base$.
 
 Para imprimir la memoria completa se hace \verb|show| de cada bloque existente en memoria.
 Por ejemplo, la representación en cadena de caracteres del estado de memoria: $[\mathtt{Some}\ [\mathtt{I}\ 13,\ \mathtt{None}],\ None,\ \mathtt{Some}\ [\mathtt{A}(2,3),\ None, \mathtt{I}\ 56]]$ sería:
@@ -150,7 +150,7 @@ Ejemplos de esto se muestran en la tabla~\ref{tab:pretty_un_op}.
   \hline
 \end{tabular}
 
-\caption{Ejemplos de \textit{pretty printing} de operaores unarios}
+\caption{Ejemplos de \textit{pretty printing} de operadores unarios}
 \label{tab:pretty_un_op}
 \end{table}
 
@@ -196,13 +196,13 @@ Se utilizan operaciones simples como operandos tales como variables o valores co
 \section{Comandos}
 
 Primeramente, se necesita un mecanismo que permita imprimir comandos indentados para facilitar la generación de código.
-Se definen dos abreviaciones auziliares que imprimen espacios en blanco para indentación al inicio de un término.
-La razon por la que se definen dos abreviaciones es porque una de ellas también imprime un terminador $";"$ luego del término, mientras que la otra no.
+Se definen dos abreviaciones auxiliares que imprimen espacios en blanco para indentación al inicio de un término.
+La razón por la que se definen dos abreviaciones es porque una de ellas también imprime un terminador $";"$ luego del término, mientras que la otra no.
 
 Las llamadas a funciones se imprimen siguiendo el siguiente formato: $<nombre\_funcion>\ ([<argumento_0, argumento_1, \dots, <argumento_n>])$ donde los corchetes ($[]$) indican que los argumentos son opcionales.
 
 Los comandos en Chlose se imprimen como se muestra en los ejemplos de la tabla~\ref{tab:pretty_commands}.
-Se utiliza $''$ para indicar una cadena vacia.
+Se utiliza $''$ para indicar una cadena vacía.
 El nivel correcto de indentación se indica en los parámetros de la función que se encarga de realizar el \textit{pretty printing}, acá esos son omitidos y en su lugar se indica donde la indentación aumenta.
 La indentación aumenta al imprimir comandos que se encuentren dentro de un bloque, por ejemplo: las ramas de un condicional o el cuerpo de un ciclo.
 
@@ -307,8 +307,8 @@ En este ejemplo se evita el uso de $''\ ''$ para representar cadenas de caracter
 
 \section{Estados}
 
-Al ejecutar un programa dentro del ambitente de Isabelle/HOL a menudo se quieren inspeccionar los estados.
-En esta sección se define una forma sencilla de inspeccionar los estados al tener una representación en cadena de caracteres para los mimsmos.
+Al ejecutar un programa dentro del ambiente de Isabelle/HOL a menudo se quieren inspeccionar los estados.
+En esta sección se define una forma sencilla de inspeccionar los estados al tener una representación en cadena de caracteres para los mismos.
 
 Primero se describe como se imprime una ubicación de retorno.
 Se instancia la clase \verb|show| para el tipo \verb|return_loc|.
