@@ -1,7 +1,7 @@
 \chapter{Generación de código en C}
 \label{ap:generate_c_code}
 \lhead{Apéndice F. \emph{Generación de código en C}}
-
+\begin{figure}
 \begin{lstlisting}
   fun export_c_code (SOME code) rel_path name thy =
     let
@@ -28,3 +28,5 @@
   | export_c_code NONE _ _ thy =
       (error "Invalid program, no code is generated."; thy)
 \end{lstlisting}
+\caption{Generación de código en C desde Isabelle/HOL}
+\end{figure}

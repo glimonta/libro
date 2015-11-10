@@ -1,7 +1,8 @@
-\chapter{Generación de código en C con pruebas}
+\chapter{Generación de código con pruebas}
 \label{ap:generate_c_test_code}
-\lhead{Apéndice K. \emph{Generación de código en C con pruebas}}
+\lhead{Apéndice K. \emph{Generación de código con pruebas}}
 
+\begin{figure}
 \begin{lstlisting}[mathescape=true]
   fun generate_c_test_code (SOME (code,test_code)) rel_path name thy =
     let
@@ -40,3 +41,5 @@
   fun expect_failed_test (SOME _) = error "Expected Failed test"
     | expect_failed_test NONE = ()
 \end{lstlisting}
+\caption{Generación de código en C con pruebas}
+\end{figure}

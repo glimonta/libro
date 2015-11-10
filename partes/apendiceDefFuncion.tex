@@ -2,6 +2,7 @@
 \label{ap:prog_def}
 \lhead{Apéndice A. \emph{Definiciones para un programa}}
 
+\begin{figure}
 \begin{lstlisting}[mathescape=true]
 record program =
 name :: string
@@ -43,3 +44,5 @@ $\bigwedge$ ( let
      ($\forall$ fname $\in$ proc_names.
        ($\forall$ vname $\in$ set (program.globals p). fname $\neq$ vname)))
 \end{lstlisting}
+\caption{Definiciones relacionadas a un programa}
+\end{figure}

@@ -2,6 +2,7 @@
 \label{ap:header_test_harness}
 \lhead{Apéndice H. \emph{Archivo de cabecera test_harness.h}}
 
+\begin{figure}
 \begin{lstlisting}[mathescape=true]
 #include <stdlib.h>
 #include <stdio.h>
@@ -29,3 +30,5 @@ int __test_harness_failed = 0;
   ++__test_harness_num_tests;
   (var != val) ? ++__test_harness_failed : ++__test_harness_passed;
 \end{lstlisting}
+\caption{Archivo de cabecera test\_harness.h}
+\end{figure}
