@@ -7,21 +7,21 @@ Limitaremos esta sección a aquellos trabajos que son directamente relevantes al
 En este capítulo se procederá a presentar la lista de trabajos previos relacionados a este trabajo.
 
 \begin{comment}
-Primero, se hablará de la formalización de C en HOL de Michael Norrish~\cite{norrish}.
+Primero, se hablará de la formalización de C en HOL de Michael Norrish~\citeyearpar{norrish}.
 Este trabajo está relacionado al presente porque formaliza la semántica de un subconjunto de C utilizando HOL y el subconjunto de C para el cual se formaliza la semántica es mas grande que el presentado en este trabajo.
 
-Luego, se discutirá el modelo de memoria utilizado en la verificación formal del compilador CompCert~\cite{leroy-blazy-memory-model}
+Luego, se discutirá el modelo de memoria utilizado en la verificación formal del compilador CompCert~\citep{leroy-blazy-memory-model}
 En el presente trabajo se adopta el modelo de memoria utilizado por el compilador verificado de C del proyecto CompCert.
 
-Finalmente, se mencionará el proyecto Autocorres~\cite{autocorres}, el cual tiene como fin el abstraer la semántica de bajo nivel de C a una representación de más alto nivel.
+Finalmente, se mencionará el proyecto Autocorres~\citeyearpar{autocorres}, el cual tiene como fin el abstraer la semántica de bajo nivel de C a una representación de más alto nivel.
 Este proyecto traduce código de lenguaje C a la lógica de un probador de teoremas con el fin de poder probar propiedades del código fuente en C.
 \end{comment}
 
 \section{Formalización de C en HOL}
 
-El trabajo de Michael Norrish~\cite{norrish} es uno muy importante y que es necesario tomar en cuenta cuando se habla de la semántica de C.
+El trabajo de Michael Norrish~\citeyearpar{norrish} es uno muy importante y que es necesario tomar en cuenta cuando se habla de la semántica de C.
 En el mismo, Norrish, formaliza la semántica operacional para el subconjunto llamado Cholera del lenguaje C.
-Esta semántica está formalizada en el probador de teoremas HOL~\cite{hol-doc}.
+Esta semántica está formalizada en el probador de teoremas HOL~\citep{hol-doc}.
 
 Una de las características mas importantes de su formalización de la semántica de C es el hecho de que considera cada posible orden de evaluación para efectos de borde.
 Norrish prueba que expresiones \textit{puras}\footnote{Las expresiones puras están definidas como expresiones que no contienen llamadas a funciones, asignaciones, incrementos o decrementos postfijos.} en su lenguaje son determinísticas.
@@ -38,7 +38,7 @@ Por otra parte, el trabajo de Norrish se orienta a presentar la lógica de progr
 
 \section{Modelo de memoria del compilador CompCert}
 
-El compilador CompCert es un compilador optimizador formalmente verificado que traduce código del subconjunto Clight del lenguaje de programación C~\cite{clight} a código ensamblador para PowerPC.
+El compilador CompCert es un compilador optimizador formalmente verificado que traduce código del subconjunto Clight del lenguaje de programación C~\citep{clight} a código ensamblador para PowerPC.
 Una descripción del compilador CompCert se encuentra disponible en el capítulo 4 de~\cite{compcert-float-point}.
 CompCert compila código fuente de la semántica de Clight a código ensamblador preservando la semántica del lenguaje original.
 Para realizar esta traducción se necesitan varios lenguajes, así como un modelo de memoria que permita el razonamiento sobre estados de memoria.
@@ -46,10 +46,10 @@ Para realizar esta traducción se necesitan varios lenguajes, así como un model
 Los modelos de memoria son generalmente o demasiado concretos o demasiado abstractos.
 Cuando son demasiado abstractos pueden dejar de representar cosas tales como \textit{aliasing} lo cual haría que la semántica estuviera incorrecta.
 Un modelo de memoria que sea demasiado concreto puede dificultar el proceso de prueba, por ejemplo, al no poder validar propiedades algebraicas que son, en efecto, válidas en el lenguaje.
-El modelo de memoria utilizado en el compilador CompCert~\cite{leroy-blazy-memory-model} está en algún punto intermedio entre un modelo de bajo nivel y uno de alto nivel.
+El modelo de memoria utilizado en el compilador CompCert~\citep{leroy-blazy-memory-model} está en algún punto intermedio entre un modelo de bajo nivel y uno de alto nivel.
 La representación de la memoria tiene un conjunto de estados de memoria que están indexados por una referencia a un bloque.
 Cada bloque se comporta como un arreglo de bytes que puede ser indexado utilizando desplazamientos en bytes.
-Leroy y Blazy presentan un resumen y una descripción concreta de su modelo de memoria y tienen propiedades sobre las operaciones de memoria formalizadas y demostradas en el asistente de pruebas Coq~\cite{coq-doc}.
+Leroy y Blazy presentan un resumen y una descripción concreta de su modelo de memoria y tienen propiedades sobre las operaciones de memoria formalizadas y demostradas en el asistente de pruebas Coq~\citep{coq-doc}.
 Una de esas propiedades es que se garantiza la separación entre dos bloques obtenidos a partir de dos llamadas diferentes a \verb|malloc|.
 
 La memoria de la semántica de este trabajo es modelada tomando este modelo de memoria como inspiración.
@@ -63,7 +63,7 @@ La idea fundamental detrás de este modelo de memoria es tomada y adaptada a las
 
 El presente trabajo tienen un enfoque de arriba a abajo (\textit{top-down}) donde se tiene la intención de generar código en C de una especificación formal.
 Existe otra dirección que es relevante mencionar.
-El proyecto AutoCorres~\cite{autocorres} reconoce código C y genera una representación monádica de alto nivel que facilita el razonamiento sobre un programa.
+El proyecto AutoCorres~\citep{autocorres} reconoce código C y genera una representación monádica de alto nivel que facilita el razonamiento sobre un programa.
 Este trabajo permite a los usuarios razonar sobre programas en C a un nivel más alto.
 Se genera una especificación en Isabelle/HOL así como una demostración de correctitud en Isabelle/HOL para la traducción que se realiza.
 Cuenta con una abstracción del \textit{heap} que permite el razonamiento sobre memoria para funciones \textit{type-safe} así como una abstracción para palabras que permite que palabras de la máquina puedan ser abstraídas a números naturales y enteros, de modo que sea posible razonar acerca de los mismos a este nivel.

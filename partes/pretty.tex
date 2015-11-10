@@ -2,7 +2,7 @@
 \lhead{Capítulo 4. \emph{Pretty Printer}}
 
 En este capítulo se describe el proceso de \textit{pretty printing} (traducción) que ocurre en la semántica que permite exportar código C.
-Se utiliza la implementación de la clase Show de Haskell en Isabelle/HOL hecha por Sternagel y Thiemann~\cite{Show-AFP} como ayuda en el proceso de traducción.
+Se utiliza la implementación de la clase Show de Haskell en Isabelle/HOL hecha por Sternagel y Thiemann~\citeyearpar{Show-AFP} como ayuda en el proceso de traducción.
 Sternagel y Thiemann implementan un \textit{type class} para funciones \verb|to-string| así como instanciaciones para los tipos estándar de Isabelle/HOL.
 Ademas permiten la derivación de funciones show para tipos de datos definidos por el usuario.
 Se instancia esta clase al crear una función \verb|show| para cada uno de los tipos de datos que se definen progresivamente hasta que se torna posible imprimir un programa.

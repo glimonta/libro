@@ -15,7 +15,7 @@ Se garantiza que el programa generado puede ser compilado y ejecutado en una má
 Además, solo se genera código en C para programas que sean válidos y se ejecuten correctamente en el interpretador.
 
 Al formalizar la semántica se presentaron varios problemas, tales como sólo permitir que programas con comportamiento definido fueran ejecutados en la semántica.
-Esto significa que se tuvo que detectar comportamiento indefinido, de acuerdo al estándar de C~\cite{c99}, tales como el \textit{overflow} de enteros y considerarlo como un error en la semántica.
+Esto significa que se tuvo que detectar comportamiento indefinido, de acuerdo al estándar de C~\citep{c99}, tales como el \textit{overflow} de enteros y considerarlo como un error en la semántica.
 Otro problema se presentó al formalizar la semántica para la función de asignación de memoria ya que se supone que una cantidad ilimitada de memoria está disponible, mientras que los recursos en una máquina son limitados.
 Para solventar esta problemática, se decidió cambiar la manera en que se traducía una llamada a la función de asignación de memoria a código C.
 Se rodea la función \verb|malloc| de C en una nueva definida por el usuario que aborta el programa si una llamada a \verb|malloc| falla.
@@ -42,17 +42,17 @@ El marco de tiempo disponible para hacer este trabajo hizo imposible incluir est
 
 En primer lugar, se puede mejorar el proceso de pruebas al reconocer lexicográficamente pruebas de C de una \textit{suite} de pruebas externa y traducirlas a Chloe.
 Esto permitiría ofrecer métricas mas exactas para los resultados del proceso de pruebas, por ejemplo, que tanto de la \textit{suite} de pruebas abarca exitosamente el trabajo.
-Un ejemplo de esto sería tomar una \textit{suite} de pruebas hecha para compiladores de C, tales como las \textit{suites} de prueba de gcc~\cite{gcc-tests} y reducir las pruebas a aquellas que puedan ser traducidas a la semántica, traducirlas de C a Chloe y generar código con chequeos a partir de las mismas.
+Un ejemplo de esto sería tomar una \textit{suite} de pruebas hecha para compiladores de C, tales como las \textit{suites} de prueba de gcc~\citep{gcc-tests} y reducir las pruebas a aquellas que puedan ser traducidas a la semántica, traducirlas de C a Chloe y generar código con chequeos a partir de las mismas.
 Luego de traducir a Chloe se puede generar código con chequeos para las mismas con el fin de mejorar la \textit{suite} de pruebas que se presenta con este trabajo.
 
 Otra dirección interesante que se podría tomar es la de formalizar una semántica axiomática con el fin de razonar sobre programas y sus propiedades en Chloe.
-Dado que Chloe posee apuntadores como una de sus características, sería necesario formalizar una lógica de separación~\cite{sep-logic} para poder razonar sobre apuntadores en los programas.
+Dado que Chloe posee apuntadores como una de sus características, sería necesario formalizar una lógica de separación~\citep{sep-logic} para poder razonar sobre apuntadores en los programas.
 Al extender el trabajo en esta dirección sería posible demostrar propiedades de correctitud parcial y total para los programas.
 
 Una de las características que no se encuentran incluidas en el alcance del trabajo es un sistema de tipos estático que sea demostrado como correcto y sólido.
 Esto permitiría razonar sobre seguridad de tipos para los programas escritos en Chloe.
 
-Existe un marco de trabajo llamado Isabelle Refinement Framework~\cite{Refine_Monadic-AFP}, que proporciona una manera de formular algoritmos no determinísticos en un estilo monádico y refinarlos para obtener un algoritmo ejecutable.
+Existe un marco de trabajo llamado Isabelle Refinement Framework~\citep{Refine_Monadic-AFP}, que proporciona una manera de formular algoritmos no determinísticos en un estilo monádico y refinarlos para obtener un algoritmo ejecutable.
 Proporciona herramientas para razonar sobre estos programas.
 Otra fuente de trabajo futuro sería vincular este lenguaje al Isabelle Refinement Framework, de modo que los programas del marco de trabajo puedan ser refinados a programas en Chloe.
 

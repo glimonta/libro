@@ -188,7 +188,7 @@ Se crea un archivo de cabecera en C donde se definen los macros necesarios para 
 Este archivo de cabecera se presenta en el apéndice~\ref{ap:header_test_harness}.
 Allí se pueden encontrar las definiciones para los macros correspondientes a las instrucciones \verb|Discover|, \verb|Assert_Eq|, \verb|Assert_Eq_Null| y \verb|Assert_Eq_Ptr|.
 Para guardar el conjunto de bloques visitados se utiliza un \textit{hash set}.
-La implementación del \textit{hash set} fue hecha por Sergey Avseyev y se encuentra en línea~\cite{hashset}.
+La implementación del \textit{hash set} fue hecha por Sergey Avseyev y se encuentra en línea~\citep{hashset}.
 Se definen variables que contienen el número total de pruebas, el número de pruebas exitosas y fallidas y el \textit{hash set} de bloques visitados.
 
 
@@ -465,7 +465,7 @@ Cuando se genera código exitosamente, se desea compilar y correr las pruebas de
 Se tiene un \textit{Makefile} que compila cada prueba en la \textit{suite} así como también un \textit{shell script} de \textit{bash} que corre cada prueba en la \textit{suite}.
 El resultado de ejecutar las pruebas será el número de pruebas exitosas y/o fallidas.
 Cuando una prueba falla, el resultado se imprime en color rojo para hacerlo mas visible al usuario.
-Además, otros comportamientos son atrapados por el \textit{script} y mostrados al usuario, tales como errores por falta de memoria, \textit{segmentation faults} y programas que terminen con alguno de los códigos de salida reservados~\cite{bash-scripting}.
+Además, otros comportamientos son atrapados por el \textit{script} y mostrados al usuario, tales como errores por falta de memoria, \textit{segmentation faults} y programas que terminen con alguno de los códigos de salida reservados~\citep{bash-scripting}.
 Este \textit{script} se presenta en el apéndice~\ref{ap:bash_script}.
 
 \begin{comment}

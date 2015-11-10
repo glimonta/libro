@@ -17,7 +17,7 @@ Es especialmente popular en la implementación de sistemas operativos y aplicaci
 Dado que C es mas cercano a la máquina en comparación con otros lenguajes de alto nivel y presenta bajo \textit{overhead}, permite la implementación eficiente de algoritmos y estructuras de datos.
 Debido a su eficiencia, a menudo es usado en el desarrollo de compiladores, librerías e interpretadores para otros lenguajes de programación.
 
-Desafortunadamente, parte de la semántica para el lenguaje C descrita en el estándar~\cite{c99} es propensa a ambigüedades debido al uso del idioma inglés para describir el comportamiento de un programa.
+Desafortunadamente, parte de la semántica para el lenguaje C descrita en el estándar~\citep{c99} es propensa a ambigüedades debido al uso del idioma inglés para describir el comportamiento de un programa.
 El uso de constructores matemáticos formales eliminaría estas ambigüedades, aunque la formalización de la semántica para la totalidad del lenguaje C no es una tarea fácil y de hecho es una que ha sido objeto de mucha investigación en el área de la semántica.
 
 A pesar de que la semántica definida en el presente trabajo cubre un subconjunto limitado del lenguaje C, es lo suficientemente expresiva como para permitir la implementación de algoritmos tales como algoritmos de ordenamiento, búsqueda en arboles, etc.
@@ -50,9 +50,9 @@ En esta sección se da una breve introducción a los conceptos relacionados a se
 \subsubsection*{Definición}
 
 La semántica de un lenguaje de programación es el significado de programas en ese lenguaje.
-Según Tennent~\cite{tennent}, para poder definir y respaldar el significado de un programa en un lenguaje de programación, se necesita una teoría matemática de la semántica de los lenguajes de programación que sea rigurosa.
+Según Tennent~\citeyearpar{tennent}, para poder definir y respaldar el significado de un programa en un lenguaje de programación, se necesita una teoría matemática de la semántica de los lenguajes de programación que sea rigurosa.
 
-Como es señalado por Nielson y Nielson~\cite{nielson}, el carácter riguroso de este estudio se debe al hecho de que puede revelar ambigüedades o complejidades subyacentes en los documentos definidos en lenguaje natural, y también que este rigor matemático es necesario para pruebas de correctitud.
+Como es señalado por Nielson y Nielson~\citeyearpar{nielson}, el carácter riguroso de este estudio se debe al hecho de que puede revelar ambigüedades o complejidades subyacentes en los documentos definidos en lenguaje natural, y también que este rigor matemático es necesario para pruebas de correctitud.
 Para muchos lenguajes de programación grandes, por ejemplo el lenguaje C, su documento de referencia (donde la semántica del lenguaje se explica) se encuentra escrito en lenguaje natural.
 Dada la ambigüedad presente en el lenguaje natural, esto puede llevar a dificultades cuando se intenta razonar sobre los programas escritos en esos lenguajes de programación.
 
@@ -61,7 +61,7 @@ Debido a las ambigüedades, parte del comportamiento del lenguaje está sujeto a
 Mediante el uso de términos definidos matemáticamente podemos eliminar esta posible ambigüedad.
 Si cada término se describe matemáticamente, entonces podemos asegurar que el significado definido en la semántica de un lenguaje solo puede ser uno y no puede tener diferentes interpretaciones.
 
-Con el fin de aclarar la definición y los diferentes tipos de semántica, se presenta un ejemplo considerado relevante de Nielson y Nielson ~\cite{nielson}.
+Con el fin de aclarar la definición y los diferentes tipos de semántica, se presenta un ejemplo considerado relevante de Nielson y Nielson ~\citeyearpar{nielson}.
 Se toma el siguiente programa
 \begin{equation*}
 z:=x; x:=y; y:=z
@@ -84,7 +84,7 @@ A continuación se presentan los enfoques más utilizados:
 \subsubsection*{Semántica operacional}
 
 Una semántica se define utilizando el enfoque operacional cuando el foco se pone en \textit{cómo} se ejecuta un programa.
-Se puede considerar como una abstracción de la ejecución del programa en una máquina~\cite{nielson}.
+Se puede considerar como una abstracción de la ejecución del programa en una máquina~\citep{nielson}.
 Dado un programa, su explicación operacional representa cómo se ejecuta el mismo dado un estado inicial.
 
 Tomando el ejemplo dado anteriormente, dar una interpretación de semántica operacional para ese programa se reduce a definir cómo las instrucciones de asignación y secuenciación se ejecutan.
@@ -101,7 +101,7 @@ Se procederá a introducir ambos conceptos y a construir una interpretación par
 
 \paragraph{Semántica de pasos largos}
 
-Este tipo de semántica representa la ejecución de un programa desde un estado inicial hasta un estado final en un solo paso, por lo tanto, no permite la inspección explícita de estados de ejecución intermedios~\cite{nipkow}.
+Este tipo de semántica representa la ejecución de un programa desde un estado inicial hasta un estado final en un solo paso, por lo tanto, no permite la inspección explícita de estados de ejecución intermedios~\citep{nipkow}.
 
 Suponiendo que se tiene un estado donde la variable $x$ tiene el valor $5$, la variable $y$ tiene el valor $7$ y la variable $z$ tiene el valor $0$ y el programa del ejemplo presentado anteriormente, la ejecución del programa completo se verá de la siguiente manera:
 
@@ -144,7 +144,7 @@ Finalmente, la ejecución de todo el programa $z:=x; x:=y; y:=z$ en el estado $s
 
 A veces es deseable tener mayor información con respecto a los estados intermedios de un programa, es por eso que la semántica de pasos cortos existe.
 
-Este tipo de semántica representa pequeños pasos de ejecución atómicos en un programa y permite razonar sobre qué tanto ha sido ejecutado de un programa y explícitamente inspeccionar ejecuciones parciales~\cite{nipkow}
+Este tipo de semántica representa pequeños pasos de ejecución atómicos en un programa y permite razonar sobre qué tanto ha sido ejecutado de un programa y explícitamente inspeccionar ejecuciones parciales~\citep{nipkow}
 
 En este ejemplo se comienza desde el programa completo y se toman pequeños pasos (denotados por ``$\Rightarrow$'') que produce el resto del programa que queda por ejecutar luego de ejecutar un paso corto y el estado resultante luego de ejecutar el mismo, hasta que todo el programa es ejecutado.
 
@@ -169,7 +169,7 @@ Por último, se tiene que el comportamiento de este programa es intercambiar los
 
 \subsubsection*{Semántica denotacional}
 La semántica denotacional deja de centrarse en \textit{como} se ejecuta un programa y redirige su enfoque hacia el \textit{efecto} de ejecutar el programa.
-Este enfoque sirve de ayuda pues da un \textit{significado} a los programas en un lenguaje~\cite{nipkow}.
+Este enfoque sirve de ayuda pues da un \textit{significado} a los programas en un lenguaje~\citep{nipkow}.
 Este enfoque se modela mediante el uso de funciones matemáticas.
 Se tiene una función por cada construcción en el lenguaje, que define su significado, y estas funciones operan sobre estados.
 Toman el estado inicial y produce el estado resultante de aplicar el efecto de la construcción.
@@ -206,7 +206,7 @@ El enfoque está en el estado resultante que representa el efecto que el program
 Es más sencillo razonar sobre los programas utilizando este enfoque ya que es similar a razonar sobre objetos matemáticos.
 Aunque es importante tomar en cuenta que el establecimiento de una base matemática firme para hacerlo no es una tarea trivial.
 El enfoque denotacional puede ser fácilmente adaptado para representar algunas propiedades de los programas.
-Ejemplos de esto son inicialización de variables, plegamiento de constantes (\textit{constant folding}) y alcance de código~\cite{nielson}.
+Ejemplos de esto son inicialización de variables, plegamiento de constantes (\textit{constant folding}) y alcance de código~\citep{nielson}.
 
 
 \subsubsection*{Semántica Axiomática}
@@ -227,7 +227,7 @@ También se puede hablar de \textit{correctitud total} de un programa con respec
 Si la precondición se cumple antes de que el programa se ejecute y la ejecución del programa termina, entonces la postcondición se cumple para el estado final.
 \end{displayquote}
 
-Por lo general es mas sencillo hablar sobre el concepto de correctitud parcial~\cite{nipkow}.
+Por lo general es mas sencillo hablar sobre el concepto de correctitud parcial~\citep{nipkow}.
 
 
 La siguiente propiedad de correctitud parcial se define para el programa del ejemplo:
@@ -241,7 +241,7 @@ $n$ y $m$ indican los valores iniciales de $x$ e $y$.
 El estado $[x\mapsto5, y\mapsto7, z\mapsto0]$ cumple la precondición si se toman $n=5$ y $m=7$.
 Luego de que la propiedad de correctitud parcial es \textit{demostrada}, entonces se puede deducir que \textit{si} el programa termina \textit{entonces} lo hará en un estado donde $x$ es $7$ e $y$ es $5$.
 
-Este enfoque se basa en un \textit{sistema de demostración} o reglas de inferencia para derivar y demostrar propiedades de correctitud parcial~\cite{nipkow}.
+Este enfoque se basa en un \textit{sistema de demostración} o reglas de inferencia para derivar y demostrar propiedades de correctitud parcial~\citep{nipkow}.
 El siguiente ``arbol de demostración'' puede expresar una prueba de la propiedad de correctitud parcial anterior.
 \begin{comment}
 FIXME demostrar o probar
@@ -275,15 +275,15 @@ Las pruebas escritas en papel y lápiz son propensas a errores y los seres human
 Por lo tanto se deben aprovechar los recursos ofrecidos por una máquina para permitir que realice el trabajo pesado.
 Razonar sobre la semántica de un lenguaje de programación sin el uso de herramientas automatizadas se convierte en una gran tarea y, como se dijo antes, propensa a errores, por no hablar de que la certeza sobre la correctitud de las demostraciones disminuye.
 
-Mediante el uso de un demostrador de teoremas, en el caso de este trabajo Isabelle/HOL~\cite{isabelle-tutorial}, se puede estar seguro de que nos resultados demostrados son correctos.
+Mediante el uso de un demostrador de teoremas, en el caso de este trabajo Isabelle/HOL~\citep{isabelle-tutorial}, se puede estar seguro de que nos resultados demostrados son correctos.
 En el entorno de Isabelle/HOL se pueden hacer definiciones lógicas y demostrar lemas y teoremas sobre esas definiciones de una manera sólida.
 La semántica para el lenguaje utilizado en este trabajo está formalizada en Isabelle/HOL, así como las pruebas que acompañan a estas definiciones.
 Las definiciones de la semántica formal y pruebas que lo acompañan están escritas en Isabelle/HOL.
-No se especificarán los detalles de Isabelle/HOL en esta sección sino que se remite al lector al libro \textit{Concrete Semantics with Isabelle/HOL}~\cite{nipkow} en el que se muestra una introducción a Isabelle/HOL y demostración de teoremas.
+No se especificarán los detalles de Isabelle/HOL en esta sección sino que se remite al lector al libro \textit{Concrete Semantics with Isabelle/HOL}~\citep{nipkow} en el que se muestra una introducción a Isabelle/HOL y demostración de teoremas.
 
-Por otra parte, Isabelle/HOL también cuenta con herramientas de generación de código~\cite{isabelle-codegen} que permiten la generación de código ejecutable en SML correspondiente a la especificación HOL de la semántica.
+Por otra parte, Isabelle/HOL también cuenta con herramientas de generación de código~\citep{isabelle-codegen} que permiten la generación de código ejecutable en SML correspondiente a la especificación HOL de la semántica.
 Este código generado permitirá mas adelante la ejecución de la semántica definida.
-También, Isabelle/HOL permite que código escrito en Isabelle/ML esté embebido en las teorías~\cite{isabelle-implementation}, lo cual facilita el proceso de traducción a lenguaje C.
+También, Isabelle/HOL permite que código escrito en Isabelle/ML esté embebido en las teorías~\citep{isabelle-implementation}, lo cual facilita el proceso de traducción a lenguaje C.
 
 \subsection{Chloe}\label{subsection:chloe}
 

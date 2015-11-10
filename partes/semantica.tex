@@ -113,7 +113,7 @@ Este parámetro le indica a la semántica que debe suponer que se trabaja con un
 Cuando se trabaja con una arquitectura diferente, este parámetro puede ser cambiado con el fin de cumplir con los requerimientos de la arquitectura.
 
 También, los enteros se definen como palabras de longitud \verb|int_width| (en este caso \verb|64|).
-Debido a que no se utiliza el tipo predefinido \verb|int| en Isabelle, para poder trabajar con palabras y soportar la generación de código para las mismas se utiliza la entrada \textit{Native Word} en el \textit{Archive of Formal Proofs}~\cite{Native_Word-AFP}.
+Debido a que no se utiliza el tipo predefinido \verb|int| en Isabelle, para poder trabajar con palabras y soportar la generación de código para las mismas se utiliza la entrada \textit{Native Word} en el \textit{Archive of Formal Proofs}~\citep{Native_Word-AFP}.
 
 De ahora en adelante se referirá a las palabras de longitud 64 que se utilizan para representar a los enteros en Chloe como simplemente enteros.
 Es importante notar que, a menos de que sea explícitamente mencionado en el texto, por simplicidad se utilizará la palabra `entero' para referirse a las palabras de longitud 64 en lugar del tipo predefinido \verb|int| en Isabelle.
@@ -154,7 +154,7 @@ Cada bloque se compone de una lista de celdas que contienen los valores en memor
 Cada celda puede tener diferentes valores dependiendo de si se encuentra sin inicializar o si posee un valor.
 Una celda sin sin inicializar en memoria está representada por el valor \verb|None|.
 Mientras que una celda que posee un valor está representada por el valor \verb|Some| $v$ (donde $v$ es de tipo \verb|val|).
-Este modelo de memoria está inspirado en el trabajo de Blazy y Leroy~\cite{leroy-blazy-memory-model}, es un modelo simplificado que fue ajustado para satisfacer las necesidades de este trabajo.
+Este modelo de memoria está inspirado en el trabajo de Blazy y Leroy~\citeyearpar{leroy-blazy-memory-model}, es un modelo simplificado que fue ajustado para satisfacer las necesidades de este trabajo.
 
 Existen cuatro operaciones principales para la gestión de memoria, estas son \verb|new_block|, \verb|free|, \verb|load| y \verb|store| y se encuentran especificadas en la figura~\ref{fig:mem_operations}.
 Cada una de estas operaciones puede fallar, por lo que su tipo de retorno es $\tau\ \verb|option|$.
@@ -546,7 +546,7 @@ Las suposiciones hechas por esta semántica pueden ser cambiadas al cambiar el p
 Con el fin de garantizar las suposiciones hechas por la semántica, más adelante en el proceso de generación de código, se generan aserciones que aseguran que las condiciones que se suponen se cumplan.
 
 Otra restricción en la semántica es que solo funciona para un subconjunto de C donde la semántica es determinística y cualquier comportamiento indefinido se considera como un error en la semántica.
-Se pasará a un estado erróneo si la semántica encuentra comportamiento que sea considerado como indefinido por el documento de referencia del lenguaje C~\cite{c99}, un ejemplo de este tipo de comportamiento es \textit{overflow} de enteros.
+Se pasará a un estado erróneo si la semántica encuentra comportamiento que sea considerado como indefinido por el documento de referencia del lenguaje C~\citep{c99}, un ejemplo de este tipo de comportamiento es \textit{overflow} de enteros.
 
 
 \section{Estados}\label{section:states}
