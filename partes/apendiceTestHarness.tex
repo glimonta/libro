@@ -1,0 +1,73 @@
+\chapter{\textit{Pretty printing} de chequeos}
+\label{ap:test_harness_c}
+\lhead{Apéndice I. \emph{\textit{Pretty printing} de chequeos}}
+
+
+Las instrucciones de pruebas son traducidas mediante \textit{pretty printing} a macros de C utilizando la función \verb|test_instructions|:
+
+\begin{lstlisting}[mathescape=true, frame=single]
+definition tests_instructions :: "test_instr list $\Rightarrow$ nat $\Rightarrow$ shows" where
+  "tests_instructions l ind $\equiv$ foldr ($\lambda$
+      (Discover ca i) $\Rightarrow$
+        indent_basic ind
+          (shows ''__TEST_HARNESS_DISCOVER '' o
+            shows_paren
+             ( shows ca o shows '', '' o shows (base_var_name i)))
+    | (Assert_Eq ca v) $\Rightarrow$
+        indent_basic ind
+          (shows ''__TEST_HARNESS_ASSERT_EQ '' o
+            shows_paren ( shows ca o shows '', '' o shows v))
+    | (Assert_Eq_Null ca) $\Rightarrow$
+        indent_basic ind
+          (shows ''__TEST_HARNESS_ASSERT_EQ_NULL '' o
+            shows_paren ( shows ca ))
+    | (Assert_Eq_Ptr ca i) $\Rightarrow$
+        indent_basic ind
+          (shows ''__TEST_HARNESS_ASSERT_EQ_PTR '' o
+            shows_paren
+             ( shows ca o shows '', '' o shows (base_var_name i)))
+    ) l"
+\end{lstlisting}
+
+
+Para cada bloque para el cual se genera una instrucción \verb|Discover| se debe también imprimir (\textit{pretty print}) una declaración para cada una de las variables utilizadas en las pruebas.
+Esto se hace de la siguiente manera:
+
+\begin{lstlisting}[mathescape=true, frame=single]
+  definition tests_variables :: "test_instr list $\Rightarrow$ nat $\Rightarrow$ shows" where
+    "tests_variables l ind $\equiv$ foldr ($\lambda$
+      (Discover _ i) $\Rightarrow$
+        indent_basic ind
+          (shows dflt_type o shows '' *'' o shows (base_var_name i))
+      | _ $\Rightarrow$ id
+      ) l"
+\end{lstlisting}
+
+
+Por último, se puede obtener la lista de instrucciones que deben ser generadas usando la función \verb|emit_global_tests|.
+Dada una lista de variables, genera una lista de instrucciones de prueba para las cuales se genera código en C.
+Esta función se define como sigue:
+
+
+\begin{lstlisting}[mathescape=true, frame=single]
+definition
+  emit_globals_tests ::
+    "vname list $\Rightarrow$ state $\rightharpoonup$ (nat set $\times$ test_instr list)"
+where "emit_globals_tests $\equiv$ $\lambda$vnames ($\sigma$,$\gamma$,$\mu$).
+  fold_option ($\lambda$x (D,emit). do {
+    case $\gamma$ x of
+      Some vo $\Rightarrow$ do {
+        let cai = x;
+        case vo of
+            None $\Rightarrow$ Some (D,emit)
+          | Some (I v) $\Rightarrow$ Some (D,emit @ [Assert_Eq cai v])
+          | Some (NullVal) $\Rightarrow$ Some (D,emit @ [Assert_Eq_Null cai] )
+          | Some (A addr) $\Rightarrow$ do {
+              (D,emit $\leftarrow$ dfs $\mu$ D addr cai;
+              Some (D,emit@emit')
+            }
+      }
+    | _ $\Rightarrow$ Some (D,emit)
+  }
+  ) vnames ({},[])"
+\end{lstlisting}

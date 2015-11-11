@@ -45,3 +45,17 @@ end
 
 \caption{DFS para generación de pruebas}
 \end{figure}
+
+El algoritmo opera de la siguiente manera:
+Primero, se intenta acceder al bloque, para ver si la memoria está libre o tiene contenido alguno.
+Si la memoria está libre se retorna el mismo conjunto de bloques visitados y no se genera instrucción extra alguna.
+Si la memoria no está libre, se ajusta la dirección al inicio del bloque, esto es porque al chequear la memoria queremos revisar los bloques completos ya que son parte de la memoria alcanzable.
+Si el bloque que se está revisando pertenece ya al conjunto de visitados, simplemente se retorna el mismo conjunto de visitados y una instrucción \verb|Assert_Eq_Ptr| para chequear los apuntadores.
+No obstante, si el bloque que se está revisando es un bloque que no ha sido \textit{visto} aun, se agrega al conjunto de visitados y se agrega una instrucción \verb|Discover| a la lista de instrucciones generadas.
+
+Luego se chequea el contenido del bloque de memoria, comenzando por la primera celda hasta la última celda del bloque.
+Al chequear cada celda se revisa si el contenido de la celda es un valor entero, \verb|NULL| o una dirección.
+Si la celda contiene un valor entero, se retorna el mismo conjunto de visitados y se agrega una instrucción \verb|Assert_Eq| a la lista de instrucciones generadas.
+Si la celda contiene un valor \verb|NULL|, se retorna el mismo conjunto de visitados y se agrega una instrucción \verb|Assert_Eq_Null| a la lista de instrucciones generadas.
+Finalmente, si la celda contiene una dirección, se debe seguir esa dirección haciendo una llamada recursiva a \verb|dfs| antes de continuar revisando el bloque de memoria actual.
+Al retornar de esta llamada, se retorna el nuevo conjunto de visitados resultante de la llamada recursiva y se agrega a la lista de instrucciones generadas hasta el momento la lista de instrucciones que retorna la llamada recursiva.

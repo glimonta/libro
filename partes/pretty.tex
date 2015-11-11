@@ -8,7 +8,9 @@ Ademas permiten la derivación de funciones show para tipos de datos definidos p
 Se instancia esta clase al crear una función \verb|show| para cada uno de los tipos de datos que se definen progresivamente hasta que se torna posible imprimir un programa.
 En el apéndice~\ref{ap:pretty_printing} se explica en detalle las cadenas de caracteres concretas que se obtienen como resultado de la traducción.
 Esta sección se limitará a comentar los aspectos más relevantes del proceso de traducción.
+\begin{comment}
 Las siguientes secciones explicarán en detalle las cadenas de caracteres concretos que se obtienen como resultado de la traducción.
+\end{comment}
 
 \begin{comment}
 \section{Palabras}\label{section:pretty_words}
@@ -436,7 +438,9 @@ Un ejemplo de \textit{pretty printing} para un estado se muestra en la tabla~\re
 
 \section{Programas}
 
+\begin{comment}
 En esta sección se discute la traducción de un programa completo.
+\end{comment}
 
 \paragraph*{Archivos de cabecera y chequeo de límites}
 
@@ -473,8 +477,9 @@ Nótese que la precisión del tipo utilizado como \verb|dflt_type| debe correspo
 
 \paragraph*{Variables globales}
 
-La impresión de variables globales se hace de la misma manera que para las variables locales, siguiendo el siguiente formato:
+La impresión de variables globales se hace imprimiendo la lista de variables, siguiendo el formato: $\mathtt{intptr\_t}\ <nombre_variable>;$.
 
+\begin{comment}
 \begin{equation*}
 \begin{split}
 & \mathtt{intptr\_t}\ <variable\_name_0>; \\
@@ -482,6 +487,7 @@ La impresión de variables globales se hace de la misma manera que para las vari
 & \mathtt{intptr\_t}\ <variable\_name_n>; \\
 \end{split}
 \end{equation*}
+\end{comment}
 
 \paragraph*{Programas}
 
@@ -584,9 +590,8 @@ apéndices
 
 Ahora que hay una manera de traducir un programa completo desde la semántica a código C, se puede exportar el código generado para C.
 
-Solo se exporta código para programas válidos.
-Para garantizar esto se define una función que prepara un programa para su exportación:
 
+\begin{comment}
 \begin{lstlisting}[mathescape=true]
   definition prepare_export :: "program $\Rightarrow$ string option" where
     "prepare_export prog $\equiv$ do {
@@ -594,8 +599,10 @@ Para garantizar esto se define una función que prepara un programa para su expo
       Some (shows_prog prog '''')
     }"
 \end{lstlisting}
+\end{comment}
 
-
+Solo se exporta código para programas válidos.
+Para garantizar esto se define una función que prepara un programa para su exportación.
 Esta función toma un programa y verifica que sea válido, de acuerdo a la definición de validez dada en~\ref{section:programs_commands}.
 Si no es válido, se retorna un valor \verb|None|, en caso contrario se genera la cadena de caracteres que contiene el programa en C con la función \verb|shows_prog|.~\footnote{No se incluye el código para las funciones show en este documento sino que se explica como funcionan. Los archivos de Isabelle pueden ser chequeados para detalles de implementación.}
 
@@ -632,7 +639,6 @@ La definición de la misma se encuentra en el apéndice~\ref{ap:generate_c_code}
   | export_c_code NONE _ _ thy =
       (error "Invalid program, no code is generated."; thy)
 \end{lstlisting}
-\end{comment}
 
 Esta función toma cuatro parámetros.
 El primer parámetro de la función \verb|export_c_code| es un \verb|string option| esto corresponde a la representación en cadena de caracteres del código C generado por el programa.
@@ -644,9 +650,12 @@ El último parámetro es el contexto de la teoría actual.
 Si la ruta dada es una cadena vacía el código generado se imprimirá a la vista de salida de Isabelle.
 Esta función crea un nuevo archivo con el nombre indicado en los parámetros con ``\verb|.c|'' agregado al final (es decir, $<nombre>\mathtt{.c}$) en el directorio indicado por el parámetro de la ruta.
 El usuario puede entonces encontrar el código generado en el directorio indicado.
+\end{comment}
 
-También se define una función en ML que se utiliza para el caso donde se escribe un programa erróneo a propósito y se espera que su ejecución y traducción a C fallen:
+También se define una función en ML que se utiliza para el caso donde se escribe un programa erróneo a propósito y se espera que su ejecución y traducción a C fallen.
+Esta función genera un error si se genera código a partir de un programa para el cual se esperaba una falla y no realizará acción alguna cuando no se genere código.
 
+\begin{comment}
 \begin{lstlisting}
 fun expect_failed_export (SOME _) = error ``Expected failed export''
   | expect_failed_export NONE = ()
@@ -654,3 +663,4 @@ fun expect_failed_export (SOME _) = error ``Expected failed export''
 
 La función \verb|expect_failed_export| genera un error en Isabelle si se genera código a partir del programa para el cual se esperaba una falla y no realizará acción alguna cuando no se genere código.
 Tener este tipo de función será útil más adelante para la realización de pruebas.
+\end{comment}

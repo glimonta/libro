@@ -3,11 +3,13 @@
 \lhead{Apéndice D. \emph{Demostraciones de lemas para el interpretador}}
 
 
-Demostración del lema~\ref{lemma:fstep1}
-\begin{lemmano}[fstep1]
+Se comienza demostrando que cualquier paso tomado en la semántica de pasos cortos puede ser simulado a través de un paso tomado con \verb|fstep|.
+
+\begin{lemma}[fstep1]
 $\newline$
 $s\ \rightarrow\ s'\ \Longrightarrow\ \mathtt{fstep}\ s\ =\ s'$
-\end{lemmano}
+\label{lemma:fstep1}
+\end{lemma}
 
 \begin{proof}
 La demostración es por inducción sobre la semántica de pasos cortos.
@@ -15,19 +17,35 @@ La demostración es por inducción sobre la semántica de pasos cortos.
 
 Luego se considera la dirección opuesta:
 
-Demostración del lema~\ref{lemma:fstep2}
-\begin{lemmano}[fstep2]
+\begin{lemma}[fstep2]
 $\newline$
 $\neg\ \mathtt{is\_empty\_stack}\ s\ \Longrightarrow\ s\ \rightarrow\ (\mathtt{fstep}\ s)$
-\end{lemmano}
+\label{lemma:fstep2}
+\end{lemma}
 
 \begin{proof}
 La demostración se hace automáticamente mediante una prueba por casos sobre el resultado de ``\verb|tr_return_void| $s$'' y utilizando los lemas~\ref{lemma:can_take_step} y~\ref{lemma:fstep1}.
 \end{proof}
 
+Ambas direcciones juntas (lema~\ref{lemma:fstep1} y lema~\ref{lemma:fstep2}) permiten demostrar la equivalencia planteada al inicio:
 
-Demostración del lema~\ref{lemma:interp_unfold}
-\begin{lemmano}[interp\_unfold]
+\begin{lemma}[ss\_fstep\_equiv]
+$\newline$
+$\neg\ \mathtt{is\_empty\_stack}\ \Longrightarrow\ s\ \rightarrow\ s'\ \longleftrightarrow\ \mathtt{fstep}\ s\ =\ s'$
+\label{lemma:ss_fstep_equiv}
+\end{lemma}
+
+Se presenta un lema que establece que si un estado es final, entonces es el resultado de la interpretación.
+
+\begin{lemma}[interp\_term]
+$\newline$
+$\mathtt{is\_term}\ \mathtt{(Some}\ cs\mathtt{)}\ \Longrightarrow\ \mathtt{interp}\ \mathtt{proc\_table}\ cs\ =\ \mathtt{Some}\ cs$
+\label{lemma:interp_term}
+\end{lemma}
+
+Para poder demostrar esto necesitamos un lema que expanda la definición del ciclo en la definición de nuestro interpretador:
+
+\begin{lemma}[interp\_unfold]
 $\newline$
 $\mathtt{interp}\ \mathtt{proc\_table}\ cs = ($
 $\newline$
@@ -35,30 +53,37 @@ $\mathtt{if}\ \mathtt{is\_term}\ (\mathtt{Some}\ cs)\ \mathtt{then}\ \mathtt{Som
 $\newline$
 $\mathtt{else}\ \mathtt{do\{}\ cs \leftarrow\ \mathtt{fstep}\ \mathtt{proc\_table}\ cs\mathtt{;}\ \mathtt{interp}\ \mathtt{proc\_table}\ cs$
 $\mathtt{\}})$
-\end{lemmano}
+\label{lemma:interp_unfold}
+\end{lemma}
 
 \begin{proof}
 La demostración es hecha automáticamente.
 \end{proof}
 
+Con el lema~\ref{lemma:interp_unfold}, la demostración del lema~\ref{lemma:interp_term} se hace automáticamente.
 
-Demostración del lema~\ref{lemma:none_star_preserved}
-\begin{lemmano}[None\_star\_preserved]
+Antes de demostrar el lema de correctitud para el interpretador, se debe demostrar que la semántica de pasos cortos preserva un estado erróneo \verb|None| si tal es alcanzado por el camino de pasos tomados.
+Tras una ejecución errónea, la misma se queda atascada en un estado \verb|None|.
+
+\begin{lemma}[None\_star\_preserved]
 $\newline$
 $\mathtt{None}\ \rightarrow*\ z\ \longleftrightarrow\ z\ =\ \mathtt{None}$
-\end{lemmano}
+\label{lemma:none_star_preserved}
+\end{lemma}
 
 \begin{proof}
 La demostración es por inducción sobre la clausura reflexivo transitiva (\verb|star|).
 Los objetivos se resuelven automáticamente.
 \end{proof}
 
+Finalmente se tiene la propiedad de correctitud para el interpretador.
+El teorema~\ref{theorem:interp_correct} establece que si la ejecución de $cs$ termina, entonces esa ejecución produce $cs'$ si y solo si $cs'$ es el resultado que se obtiene de ejecutar el programa en el interpretador.
 
-Demostración del lema~\ref{theorem:interp_correct}
-\begin{theoremno}[interp\_correct]
+\begin{theorem}[interp\_correct]
 $\newline$
 $\mathtt{terminates}\ cs\ \Longrightarrow\ (\mathtt{yields}\ cs\ cs')\ \longleftrightarrow\ (cs'\ =\ \mathtt{interp}\ \mathtt{proc\_table}\ cs)$
-\end{theoremno}
+\label{theorem:interp_correct}
+\end{theorem}
 
 \begin{proof}
 La demostración se hace suponiendo el antecedente y demostrando cada dirección de la igualdad por separado.

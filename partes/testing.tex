@@ -53,7 +53,9 @@ Se verifica que la dirección del inicio del bloque es la misma que se obtiene a
 Para hacer esto, se deben seguir los apuntadores en un cierto orden y se debe mantener un conjunto de bloques de memoria ya \textit{visitados}.
 De esta manera, al encontrar un apuntador a un bloque de memoria que ya fue chequeado (o \textit{visitado}) se puede parar y comparar las direcciones en lugar de seguir los apuntadores de manera cíclica indefinidamente.
 
+\begin{comment}
 Se presenta aquí la idea intuitiva detrás de la generación de pruebas y en las siguientes secciones se describen los detalles de implementación para los arneses de pruebas, ambos en Isabelle y C.
+\end{comment}
 
 \section{Arnés de prueba en Isabelle/HOL}
 
@@ -162,10 +164,11 @@ Anteriormente se mencionó que los apuntadores deben ser seguidos hasta que se a
 Para hacer esto se deben seguir los apuntadores en un orden determinado y se deben mantener un conjunto de bloques ya \textit{visitados}.
 De esta manera al encontrar un apuntadora a un bloque de memoria que ya fue chequeado (o \textit{visitado}) se puede parar y comparar los apuntadores en lugar de seguir los apuntadores de manera cíclica indefinidamente, chequeando una y otra vez partes de la memoria que ya fueron revisadas.
 Los apuntadores se siguen en el orden dado por el algoritmo de búsqueda en profundidad (DFS)~\footnote{Por sus siglas en inglés \textit{Depth-First Search}}.
-En el apéndice~\ref{ap:dfs_test} se presenta el algoritmo utilizado para seguir un apuntador.
+En el apéndice~\ref{ap:dfs_test} se presenta el algoritmo utilizado para seguir un apuntador y la explicación en detalle de su funcionamiento.
 El algoritmo toma un conjunto de números naturales que son los bloques que ya han sido visitados, una dirección (la que se está siguiendo) y una representación en cadena de caracteres de la expresión en C (que debería contener la misma dirección).
 Produce un nuevo conjunto de bloques visitados y una lista de instrucciones de prueba que se deben generar.
 
+\begin{comment}
 El algoritmo opera de la siguiente manera:
 Primero, se intenta acceder al bloque, para ver si la memoria está libre o tiene contenido alguno.
 Si la memoria está libre se retorna el mismo conjunto de bloques visitados y no se genera instrucción extra alguna.
@@ -179,6 +182,7 @@ Si la celda contiene un valor entero, se retorna el mismo conjunto de visitados 
 Si la celda contiene un valor \verb|NULL|, se retorna el mismo conjunto de visitados y se agrega una instrucción \verb|Assert_Eq_Null| a la lista de instrucciones generadas.
 Finalmente, si la celda contiene una dirección, se debe seguir esa dirección haciendo una llamada recursiva a \verb|dfs| antes de continuar revisando el bloque de memoria actual.
 Al retornar de esta llamada, se retorna el nuevo conjunto de visitados resultante de la llamada recursiva y se agrega a la lista de instrucciones generadas hasta el momento la lista de instrucciones que retorna la llamada recursiva.
+\end{comment}
 
 
 \section{Arnés de prueba en C}
@@ -190,7 +194,7 @@ Allí se pueden encontrar las definiciones para los macros correspondientes a la
 Para guardar el conjunto de bloques visitados se utiliza un \textit{hash set}.
 La implementación del \textit{hash set} fue hecha por Sergey Avseyev y se encuentra en línea~\citep{hashset}.
 Se definen variables que contienen el número total de pruebas, el número de pruebas exitosas y fallidas y el \textit{hash set} de bloques visitados.
-
+Las instrucciones de pruebas son traducidas mediante un proceso de \textit{pretty printing} que se detalla en el apéndice~\ref{ap:test_harness_c}.
 
 \begin{comment}
 \begin{figure}
@@ -228,6 +232,7 @@ int __test_harness_failed = 0;
 \end{comment}
 
 
+\begin{comment}
 Las instrucciones de pruebas son traducidas mediante \textit{pretty printing} a macros de C utilizando la función \verb|test_instructions|:
 
 \begin{lstlisting}[mathescape=true, frame=single]
@@ -296,6 +301,7 @@ where "emit_globals_tests $\equiv$ $\lambda$vnames ($\sigma$,$\gamma$,$\mu$).
   }
   ) vnames ({},[])"
 \end{lstlisting}
+\end{comment}
 
 
 \section{Pruebas}

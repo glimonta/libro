@@ -2,11 +2,18 @@
 \label{ap:determinism}
 \lhead{Apéndice C. \emph{Demostraciones de lemas de la semántica}}
 
-Demostración del lema~\ref{lemma:cfg_enabled_action}:
-\begin{lemmano}[cfg\_has\_enabled\_action]
+
+Cada vez que se introduce un lema, junto a su número se encontrará un nombre en paréntesis.
+Este nombre corresponde al nombre del lema en el código fuente de Isabelle presentados con este trabajo.
+En el caso en que el lector esté interesado en la demostración exacta para un lema en particular él o ella puede buscar el lema correspondiente en los archivos y leer la prueba.
+
+Este primer lema indica que cada vez que se tiene un comando diferente a \verb|SKIP| hay siempre una arista habilitada (la función \textit{enabled} retorna \verb|True|) que se puede tomar en el CFG o un error ocurre al evaluar la función \textit{enabled}.
+
+\begin{lemma}[cfg\_has\_enabled\_action]
 $\newline$
 $c$ $\neq$ \verb|SKIP| $\Longrightarrow$ $\exists\ c'\ en\ tr$. \verb|cfg| $c\ (en,tr)\ c'\ \wedge\ (en\ s\ =$ \verb|None| $\vee\ en\ s\ =$ \verb|Some True|$)$
-\end{lemmano}
+\label{lemma:cfg_enabled_action}
+\end{lemma}
 
 \begin{proof}
 La prueba es por inducción en el comando.
@@ -20,15 +27,18 @@ Puede fallar y retornar un valor \verb|None|, entonces el caso está resuelto.
 Si no falla entonces se debe chequear el valor retornado por la función \verb|en_pos|.
 En el caso donde es \verb|True| entonces el caso está resuelto.
 El caso difícil es cuando la evaluación de \verb|en_pos| es \verb|False|, semánticamente, esto significa que se debe tomar la rama del \verb|else|.
-Por lo tanto cuando $\mathtt{en\_pos}\ b\ s$ es \verb|False|, $\mathtt{en\_neg}\ b\ s$ siempre se evaluará como \verb|True|, esto significa qe el comando siempre tendrá una arista habilitada que puede seguir, es decir, $\mathtt{en\_neg}\ b\ s$ y la demostración de este caso está completa.
+Por lo tanto cuando $\mathtt{en\_pos}\ b\ s$ es \verb|False|, $\mathtt{en\_neg}\ b\ s$ siempre se evaluará como \verb|True|, esto significa que el comando siempre tendrá una arista habilitada que puede seguir, es decir, $\mathtt{en\_neg}\ b\ s$ y la demostración de este caso está completa.
 \end{proof}
 
+A continuación se quiere demostrar que mientras la pila no esté vacía, la semántica de pasos cortos siempre puede tomar un paso.
+Se utilizará el lema anterior en la prueba para este nuevo lema.
+Este lema dice que la semántica puede tomar un paso.
 
-Demostración del lema~\ref{lemma:can_take_step}:
-\begin{lemmano}[can\_take\_step]
+\begin{lemma}[can\_take\_step]
 $\newline$
 $\neg$ \verb|is_empty_stack| $s$ $\Longrightarrow$ $\exists\ x.\ s\ \rightarrow\ x$
-\end{lemmano}
+\label{lemma:can_take_step}
+\end{lemma}
 
 \begin{proof}
 De las suposiciones sabemos que la pila no está vacía, por lo tanto se puede reescribir el estado de la siguiente manera: $s = ((c, locals, rloc)\#\sigma,\gamma,\mu)$.
@@ -43,7 +53,7 @@ El caso se resuelve automáticamente por Isabelle al indicar las reglas menciona
 
 El segundo caso es cuando $c\\neq\ \mathtt{SKIP}$.
 Este es el caso donde se ejecuta cualquier otro comando que no sea el retorno de una función.
-En este caso se utiliza el lema anterior~\ref{lemma:cfg_enabled_action} y se tiene que $\mathtt{cfg}\ c\ (en,tr)\ c'$ y o la función \textit{enabled} falla ($\mathtt{en}\ s\ = \mathtt{None}$) o está habilidada ($\mathtt{en}|\ s\ = \mathtt{Some True}$).
+En este caso se utiliza el lema anterior~\ref{lemma:cfg_enabled_action} y se tiene que $\mathtt{cfg}\ c\ (en,tr)\ c'$ y o la función \textit{enabled} falla ($\mathtt{en}\ s\ = \mathtt{None}$) o está habilitada ($\mathtt{en}|\ s\ = \mathtt{Some True}$).
 
 Esto se demuestra mediante una separación por casos.
 En el primer caso se supone $\mathtt{cfg}\ c\ (en,tr)\ c'$ y $\mathtt{en}\ s\ = \mathtt{None}$.
@@ -58,53 +68,60 @@ En el caso donde no falla, retornará $\mathtt{Some}\ s_{2}$.
 En este caso se puede tomar un paso a $\mathtt{Some}\ s_{2}$ y se habrá probado que hay un estado al cual $s$ puede tomar un paso corto, es decir $\mathtt{Some}\ s_{2}$.
 \end{proof}
 
+Se definen varios lemas que serán útiles más adelante.
 
-Demostración del lema~\ref{lemma:stuck_at_skip}:
-\begin{lemmano}[cfg\_SKIP\_stuck]
+El primer lema establece que el CFG se queda atascado en SKIP:
+\begin{lemma}[cfg\_SKIP\_stuck]
 $\newline$
 $\neg$ \verb|cfg SKIP| $a\ c$
-\end{lemmano}
+\label{lemma:stuck_at_skip}
+\end{lemma}
 
 \begin{proof}
 La propiedad es demostrada automáticamente.
 \end{proof}
 
 
-Demostración del lema~\ref{lemma:ss_empty_stack_stuck}:
-\begin{lemmano}[ss\_empty\_stack\_stuck]
+\begin{lemma}[ss\_empty\_stack\_stuck]
 $\newline$
 \verb|is_empty_stack| $s$ $\Longrightarrow$ $\neg$ $(s\ \rightarrow\ cs')$
-\end{lemmano}
+\label{lemma:ss_empty_stack_stuck}
+\end{lemma}
 
 \begin{proof}
 La propiedad es demostrada automáticamente.
 \end{proof}
 
 
-Demostración del lema~\ref{lemma:ss'_empty_stack_stuck}:
-\begin{lemmano}[ss'\_SKIP\_stuck]
+\begin{lemma}[ss'\_SKIP\_stuck]
 $\newline$
 \verb|is_empty_stack| $s$ $\Longrightarrow$ $\neg$ $(Some s\ \rightarrow\ cs')$
-\end{lemmano}
+\label{lemma:ss'_empty_stack_stuck}
+\end{lemma}
 
 \begin{proof}
 La propiedad es demostrada automáticamente.
 \end{proof}
 
+Los lemas~\ref{lemma:ss_empty_stack_stuck} y~\ref{lemma:ss'_empty_stack_stuck} definen el estado final en el que la semántica se quedará atascada, la semántica se quedará atascada cuando no existan mas marcos de pila en la pila.
 
-Demostración del lema~\ref{lemma:en_neg_by_pos}:
-\begin{lemmano}[en\_neg\_by\_pos]
+
+\begin{lemma}[en\_neg\_by\_pos]
 $\newline$
 \verb|en_neg| $e\ s$ = \verb|map_option (HOL.Not) (en_pos| $e\ s$ \verb|)|
-\end{lemmano}
+\label{lemma:en_neg_by_pos}
+\end{lemma}
 
 \begin{proof}
 La propiedad es demostrada automáticamente desplegando las definiciones de \verb|en_neg| y \verb|en_pos|.
 \end{proof}
 
+El lema~\ref{lemma:en_neg_by_pos} establece que cada vez que la función \verb|en_neg| tenga un valor (diferente de None) sobre un estado, \verb|en_pos| tendrá el mismo resultado opuesto.
+En el caso donde una de las funciones falla, la otra fallará también y retornarán \verb|None|.
+Si no fallan, sus resultados serán opuestos, esto es, si una tiene \verb|Some True| como resultado, la otra tendrá \verb|Some False| como resultado.
+Este lema será útil al probar que la semántica es determinística.
 
-Demostración del lema~\ref{lemma:cfg_determ}:
-\begin{lemmano}[cfg\_determ]
+\begin{lemma}[cfg\_determ]
 $\newline$
 $\mathtt{cfg}$ $c$ $a1$ $c'$ $\wedge$
 $\mathtt{cfg}$ $c$ $a2$ $c''$
@@ -115,48 +132,61 @@ $\newline$
 $\exists\ b.\ a1\ = (\mathtt{en\_pos}\ b,\ \mathtt{tr\_eval}\ b)\ \wedge\ a2\ = (\mathtt{en\_neg}\ b,\ \mathtt{tr\_eval}\ b)\ \vee$
 $\newline$
 $\exists\ b.\ a1\ = (\mathtt{en\_neg}\ b,\ \mathtt{tr\_eval}\ b)\ \wedge\ a2\ = (\mathtt{en\_pos}\ b,\ \mathtt{tr\_eval}\ b)$
-\end{lemmano}
+\label{lemma:cfg_determ}
+\end{lemma}
 
 \begin{proof}
 La demostración es por inducción sobre el comando, con los casos generados automáticamente por Isabelle de las reglas de \verb|cfg|.
 Todos los casos se demuestran automáticamente.
 \end{proof}
 
+El lema~\ref{lemma:cfg_determ} establece que CFG es determinístico.
+El único caso donde no lo es es en el caso del condicional, para el cual se agrega una alternativa extra en la conclusión.
+Puede pasar que se tenga una regla del CFG comenzando en un comando \verb|If| que tiene una arista a $c_{1}$ y también una arista a $c_{2}$.
+Esto no es realmente un problema dado que las funciones \textit{enabled} garantizan que cuando esto ocurre, solamente una de las aristas puede ser tomada.
 
-Demostración del lema~\ref{lemma:lift_upd_com}:
-\begin{lemmano}[lift\_upd\_com]
+
+\begin{lemma}[lift\_upd\_com]
 $\newline$
 $\neg\ \mathtt{is\_empty\_stack}\ s\ \Longrightarrow$
 $\newline$
 $\mathtt{lift\_transformer\_nr}\ tr\ (\mathtt{upd\_com}\ c\ s)\ =$
 $\newline$
 $\mathtt{map\_option}\ (\mathtt{upd\_com}\ c)\ (\mathtt{lift\_transformer\_nr}\ tr\ s)$
-\end{lemmano}
+\label{lemma:lift_upd_com}
+\end{lemma}
 
 \begin{proof}
-Es demostrado automáticamente al desplegar la definición de la función \verb|lift_transformer_nr|.
+Es demostrado automáticamente desplegando la definición de \verb|lift_transformer_nr|.
 \end{proof}
 
-Demostración del lema~\ref{lemma:tr_eval_upd_com}:
-\begin{lemmano}[tr\_eval\_upd\_com]
+\begin{lemma}[tr\_eval\_upd\_com]
 $\newline$
 $\neg\ \mathtt{is\_empty\_stack}\ s\ \Longrightarrow$
 $\newline$
 $\mathtt{tr\_eval}\ e\ (\mathtt{upd\_com}\ c\ s)\ =$
 $\newline$
 $\mathtt{map\_option}\ (\mathtt{upd\_com}\ c)\ (\mathtt{tr\_eval}\ e\ s)$
-\end{lemmano}
+\label{lemma:tr_eval_upd_com}
+\end{lemma}
 
 \begin{proof}
 Es demostrado automáticamente desplegando la definición de \verb|tr_eval|.
 \end{proof}
 
+La función \verb|lift_transformer_nr| levanta la definición de una función \textit{transformer}, que opera en el nivel de estados visibles, a estados.
+El lema~\ref{lemma:lift_upd_com} establece que no importa en que orden se aplique una función \textit{transformer} sobre un estado y se actualice el comando en el tope de la pila, dado que siempre produce el mismo resultado.
+Esto es porque la función que actualiza el comando solo modifica el comando en el tope de la pila y la función \textit{transformer} no puede acceder y modificar esa parte de la pila, ya que solo puede modificar el estado visible.
 
-Demostración del lema~\ref{lemma:small_step_determ}:
-\begin{lemmano}[small\_step\_determ]
+El lema~\ref{lemma:tr_eval_upd_com} es una versión más específica del lema anterior que establece el mismo hecho específicamente para la función \verb|tr_eval|.
+
+
+Todos los lemas y definiciones anteriores son definidos con el fin de ser utilizados en la próxima demostración; la semántica de pasos cortos es determinística.
+\begin{lemma}[small\_step\_determ]
 $\newline$
 $s\ \rightarrow\ s'\ \wedge\ s\ \rightarrow\ s''\ \Longrightarrow\ s'\ =\ s''$
-\end{lemmano}
+\label{lemma:small_step_determ}
+\end{lemma}
 
 \begin{proof}
 La demostración es una prueba por casos sobre la semántica de pasos cortos.
@@ -165,14 +195,16 @@ Los objetivos de prueba generados por las reglas \verb|Return_void| y \verb|Retu
 Los objetivos de prueba generados por las reglas \verb|Base| y \verb|None| se resuelven automáticamente luego de agregar los lemas~\ref{lemma:en_neg_by_pos} y ~\ref{lemma:tr_eval_upd_com}.
 \end{proof}
 
+Luego solo queda demostrar que \verb|small_step'| es también determinística.
 
-Demostración del lema~\ref{lemma:small_step'_determ}:
-\begin{lemmano}[small\_step'\_determ]
+\begin{lemma}[small\_step'\_determ]
 $\newline$
 $s\ \rightarrow'\ s'\ \wedge\ s\ \rightarrow'\ s''\ \Longrightarrow\ s'\ =\ s''$
-\end{lemmano}
+\label{lemma:small_step'_determ}
+\end{lemma}
 
 \begin{proof}
 La demostración es una prueba por casos sobre la semántica de pasos cortos.
 Se demuestra automáticamente mediante el uso del lema~\ref{lemma:small_step_determ}.
 \end{proof}
+
