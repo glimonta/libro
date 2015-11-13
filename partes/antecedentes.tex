@@ -30,7 +30,7 @@ Norrish prueba que expresiones \textit{puras}\footnote{Las expresiones puras est
 Por otra parte, define expresiones \textit{libres de puntos de secuencia}\footnote{Las expresiones libres de puntos de secuencia están definidas como aquellas expresiones que no contienen la evaluación de alguno de los operadores lógicos $\&\&$, $||$ o $?:$, un operador coma o una llamada a función.}, las cuales están solapadas con el conjunto de expresiones puras pero ningún conjunto contiene al otro, y prueba que son determinísticas.
 
 Norrish presenta una lógica de programación, la cual permite el razonamiento sobre programas a nivel de instrucciones.
-Para esto se presenta una derivación de una lógica de Hoare ara programas en C y luego se presenta un sistema para analizar los cuerpos de un ciclo y generar postcondiciones correctas a partir de ellos considerando la existencia de instrucciones \verb|break|, \verb|continue| y \verb|return| en el cuerpo del ciclo.
+Para esto se presenta una derivación de una lógica de Hoare para programas en C y luego se presenta un sistema para analizar los cuerpos de un ciclo y generar postcondiciones correctas a partir de ellos considerando la existencia de instrucciones \verb|break|, \verb|continue| y \verb|return| en el cuerpo del ciclo.
 
 Este trabajo es relevante al presente dado que también se formaliza la semántica de un subconjunto mas pequeño del lenguaje C.
 Sin embargo, el trabajo de Norrish tiene ciertas diferencias en comparación al presente trabajo.
@@ -62,7 +62,7 @@ La idea fundamental detrás de este modelo de memoria es tomada y adaptada a las
 
 \section{De código C a semántica}
 
-El presente trabajo tienen un enfoque de arriba a abajo (\textit{top-down}) donde se tiene la intención de generar código en C de una especificación formal.
+El presente trabajo tienen un enfoque de arriba a abajo (\textit{top-down}) donde se tiene la intención de generar código en C a partir de una especificación formal.
 Existe otra dirección que es relevante mencionar.
 El proyecto AutoCorres~\citep{autocorres} reconoce código C y genera una representación monádica de alto nivel que facilita el razonamiento sobre un programa.
 Este trabajo permite a los usuarios razonar sobre programas en C a un nivel más alto.
@@ -70,4 +70,4 @@ Se genera una especificación en Isabelle/HOL así como una demostración de cor
 Cuenta con una abstracción del \textit{heap} que permite el razonamiento sobre memoria para funciones \textit{type-safe} así como una abstracción para palabras que permite que palabras de la máquina puedan ser abstraídas a números naturales y enteros, de modo que sea posible razonar acerca de los mismos a este nivel.
 
 Es relevante considerar este enfoque de abajo a arriba (\textit{bottom-up)} como un enfoque diferente en la verificación formal de programas.
-AutoCorres se utiliza en varios proyectos de verificación de C tales como la verificación de una compleja librería de grafos a gran escala, la verificación de un sistema de archivos y la verificación de un sistema operativo de tiempo real para sistemas de ala seguridad.
+AutoCorres se utiliza en varios proyectos de verificación de C tales como la verificación de una compleja librería de grafos a gran escala, la verificación de un sistema de archivos y la verificación de un sistema operativo de tiempo real para sistemas de alta seguridad.

@@ -43,3 +43,15 @@
 \end{lstlisting}
 \caption{Generación de código en C con pruebas}
 \end{figure}
+
+Esta función toma cuatro parámetros.
+El primer parámetro de la función es de tipo \verb|(string, string) option| que corresponde a la tupla que contiene la representación en cadena de caracteres del programa en código C y las pruebas para ese programa, respectivamente.
+Si la función recibe un valor \verb|None|, significa que la función \verb|prepare_test_export| falló y no se debe generar un programa en C.
+El segundo parámetro es la ruta al directorio al que se quiere exportar el programa.
+Este parámetro es una ruta relativa al directorio donde se encuentra la teoría de Isabelle que contiene las directivas para hacer \textit{pretty printing}.
+El tercer parámetro es el nombre del programa.
+El último parámetro es el contexto de la teoría actual.
+
+Si la ruta dada es una cadena de caracteres vacía el código generado se imprimirá a la vista de salida de Isabelle.
+Esta función crea un nuevo archivo con el nombre indicado en los parámetros con ``\verb|.c|'' agregado al final (es decir, $<nombre>\mathtt{.c}$) en el directorio indicado por el parámetro de la ruta.
+El usuario puede entonces encontrar el código generado en el directorio indicado.

@@ -152,7 +152,7 @@ La memoria se encuentra representada como una lista de bloques asignados y cada 
 Por cada bloque hay dos posibilidades: un bloque asignado o un bloque no asignado, esto es modelado por el uso del tipo \verb|option|, donde \verb|Some| $l$ (donde $l$ es de tipo \verb|val option list|) denota un bloque asignado y \verb|None| uno sin asignar.
 Cada bloque se compone de una lista de celdas que contienen los valores en memoria.
 Cada celda puede tener diferentes valores dependiendo de si se encuentra sin inicializar o si posee un valor.
-Una celda sin sin inicializar en memoria está representada por el valor \verb|None|.
+Una celda sin inicializar en memoria está representada por el valor \verb|None|.
 Mientras que una celda que posee un valor está representada por el valor \verb|Some| $v$ (donde $v$ es de tipo \verb|val|).
 Este modelo de memoria está inspirado en el trabajo de Blazy y Leroy~\citeyearpar{leroy-blazy-memory-model}, es un modelo simplificado que fue ajustado para satisfacer las necesidades de este trabajo.
 
@@ -164,7 +164,7 @@ Las funcionalidades de las operaciones de gestión de memoria se describen a con
 
 \begin{itemize}
   \item{\verb|new_block| es la función que se encarga de asignar un nuevo bloque de memoria dinámica de un tamaño determinado.
-    Esta función fallará en el caso donde el tamaño dado sea menor o o igual a cero, también puede fallar si un valor de un tipo diferente a entero es dado.
+    Esta función fallará en el caso donde el tamaño dado sea menor o igual a cero, también puede fallar si un valor de un tipo diferente a entero es dado.
     Al ser ejecutada exitosamente, la función retorna la dirección de inicio del nuevo bloque junto con la memoria modificada.}
   \item{\verb|free| es la función que se encarga de liberar un bloque de memoria dinámica.
     Esta función fallará en el caso donde la dirección dada no sea válida en memoria.
@@ -194,12 +194,12 @@ Debido a que se supone que la memoria es ilimitada, no existirá un caso donde u
 
 Sin embargo, como los recursos de una máquina son limitados, no se puede utilizar una cantidad ilimitada de memoria.
 Aquí es donde se consigue una discrepancia con lo descrito por el estándar de C.
-Cuando se realiza una llamada a malloc en un programa en C, existe una posibilidad de que la llamada retorne \verb|NULL|.
+Cuando se realiza una llamada a \verb|malloc| en un programa en C, existe una posibilidad de que la llamada retorne \verb|NULL|.
 En tal caso esta semántica y la descrita por el estándar de C actúan de manera diferente.
 
-Una opción para poder modelar una función de asignación de memoria que presente este tipo de comportamiento, es decidir de manera no determinística cuando esta función puede retornar \verb|null|.
+Una opción para poder modelar una función de asignación de memoria que presente este tipo de comportamiento, es decidir de manera no determinística cuando esta función puede retornar \verb|NULL|.
 El problema con esta opción es que complicaría el proceso de demostración de propiedades de un programa ya que cualquier llamada a la función de asignación de memoria dinámica podría fallar.
-Otra opción sería suponer que se cuenta con una cantidad fija de memoria está disponible.
+Otra opción sería suponer que se cuenta con una cantidad fija de memoria disponible.
 Sin embargo, modelar este tipo de función no es una tarea trivial y permanece fuera del alcance de este trabajo.
 
 Por lo tanto, en este trabajo se supone que se cuenta con una cantidad ilimitada de memoria y luego, cuando el proceso de traducción se lleva a cabo, se envuelve la función \verb|malloc| de C en una función definida por el usuario que verifica si la llamada a \verb|malloc| fue exitosa o no.
@@ -208,10 +208,10 @@ Lo que se puede garantizar sobre un programa generado es que o bien se generará
 
 \subsection{Semántica}\label{subsection:semantics_expressions}
 
-La semántica de una expresión es su valor y el efecto que evaluar la misma tiene sobre el estado del programa.
+La semántica de una expresión es su valor y el efecto que tiene el evaluar la misma sobre el estado del programa.
 Para expresiones tales como $21 + 21$, la evaluación de la misma es trivial ($42$).
-Por otra parte, cuando se tienen expresiones con variables, tales como $foo + 42$, entonces se depende del valor de la variable.
-Por lo tanto se deben conocer el valor de una variable al momento de ejecución.
+Por otra parte, cuando se tienen expresiones con variables, tales como $foo + 42$, entonces depende del valor de la variable.
+Por lo tanto se debe conocer el valor de una variable al momento de ejecución.
 Estos valores se almacenan en el estado del programa.
 
 El estado de un programa es realmente un poco mas complicado que lo que se presenta a continuación.
@@ -301,7 +301,7 @@ Las funcionalidades de las funciones auxiliares son las siguientes:
 
 \begin{itemize}
 \item{La función \verb|detect_overflow| detecta el \textit{overflow} en enteros.
-Toma como parámetro un valor del tipo entero predefinido por Isabelle y chequea si existe \textit{overflow}con los límites mostrados en la figura~\ref{fig:int_bounds}.
+Toma como parámetro un valor del tipo entero predefinido por Isabelle y chequea si existe \textit{overflow} con los límites mostrados en la figura~\ref{fig:int_bounds}.
 Esta función fallará cuando se detecte \textit{overflow}.
 Al ser ejecutada exitosamente, la función retorna el valor correspondiente al entero dado como parámetro.}
 
@@ -372,7 +372,7 @@ Ademas, se discutirán algunas suposiciones que la semántica toma que causan re
 \subsection{Sintaxis}\label{subsection:syntax_commands}
 
 Chloe contiene los siguientes constructores: asignación, secuenciación, condicionales, ciclos, SKIP\footnote{El comando SKIP es el equivalente a noop ya que no realiza operación alguna. Se utiliza con el fin de poder expresar otros constructores sintácticos como lo es un condicional sin una rama ELSE}, liberación de memoria, instrucción \verb|return| y funciones.
-Las expresiones son aquellas descritas en la sección anterior (~\ref{section:expressions}).
+Las expresiones son aquellas descritas en la sección anterior (\ref{section:expressions}).
 
 Aquí se procede a describir la \textit{sintaxis abstracta} de los comandos en el lenguaje Chloe.
 
@@ -399,7 +399,7 @@ Aquí se procede a describir la \textit{sintaxis abstracta} de los comandos en e
   \label{fig:chloe_commands}
 \end{figure}
 
-En la figura~\ref{fig:chloe_commands} se encuentra la definición del tipo de datos creado en Isabelle para los comandos, donde \verb|lexp| y \verb|exp| son las expresiones descritas en la sección anterior (~\ref{section:expressions}), \verb|vname| representa los nombres de variables y \verb|fname| representa los nombres de funciones.
+En la figura~\ref{fig:chloe_commands} se encuentra la definición del tipo de datos creado en Isabelle para los comandos, donde \verb|lexp| y \verb|exp| son las expresiones descritas en la sección anterior (\ref{section:expressions}), \verb|vname| representa los nombres de variables y \verb|fname| representa los nombres de funciones.
 
 Para la asignación se definen dos comandos diferentes, uno de ellos permite la asignación a una variable, mientras que el otro permite la asignación a una ubicación en memoria.
 Se necesitan ambos comandos dado que el dominio definido para las direcciones y los valores enteros es disjunto, por lo tanto, una dirección no puede representar un valor entero y viceversa.
@@ -475,7 +475,7 @@ Un programa se considera válido si cumple con todas las siguientes condiciones:
   \item{Los nombres de las variables globales son distintos entre si.}
   \item{Los nombres de las funciones en el programa son diferentes entre si.}
   \item{Cada declaración de función para cada función en el programa debe ser válida.}
-  \item{La función main debe estar definida.}
+  \item{La función \verb|main| debe estar definida.}
   \item{Ninguno de los nombres de las variables o nombres de función en el programa debe ser una palabra clave reservada del lenguaje C o una palabra clave reservada para \textit{testing}.\footnote{Dado que se quiere generar código C de la semántica de Chloe, se debe garantizar que ni los nombres de las variables ni de las funciones son alguna de las palabras claves reservadas en C o alguna de las palabras claves reservadas que se utilizan como nombres de variables en el proceso de \textit{testing}.}}
   \item{Las variables globales y los nombres de las funciones en un programa no pueden ser iguales.}
 \end{itemize}
@@ -554,7 +554,7 @@ Se pasará a un estado erróneo si la semántica encuentra comportamiento que se
 En lenguajes más simples, que solo admiten un conjunto limitado de características tales como asignación, secuenciación de instrucciones, condicionales, ciclos y valores enteros, la representación del estado consiste simplemente en una función que mapea los nombres de variables a valores.
 En Chloe ese no es el caso, al incluir funciones, memoria dinámica y apuntadores al conjunto de características admitidas, la representación del estado del programa deja de ser una simple función que mapea nombres de variables a valores.
 En esta sección se detallan los componentes de la representación de un estado.
-Anteriormente, en la sección~\ref{subsection:semantics_expressions} se explico el concepto de un ``estado visible'', aquí se aclara la diferencia entre ese estado visible y un estado real, también se detallan los componentes del estado de un programa.
+Anteriormente, en la sección~\ref{subsection:semantics_expressions} se explicó el concepto de un ``estado visible'', aquí se aclara la diferencia entre ese estado visible y un estado real, también se detallan los componentes del estado de un programa.
 
 \subsection{Valuación}\label{subsection:valuation}
 
@@ -586,9 +586,9 @@ También se utiliza la ubicación de retorno inválida para las funciones que no
 
 La ubicación de retorno se encuentra en el marco de pila del llamador, es decir, al retornar de una función el marco del llamador es el que debe ser revisado para saber a donde asignar el valor de retorno o si un valor de retorno es esperado.
 Para aclarar esto podemos tomar el ejemplo de código en la figura~\ref{fig:stack_example}.
-Es un programa sencillo donde una función que suma el valor de sus dos parámetros se define y luego se llama desde la función main.
-Antes de la llamada a función, el marco de pila perteneciente a la función main tiene una ubicación de retorno $Invalid$ y luego de la llamada a función la ubicación de retorno cambia a la variable $x$.
-Observe que el marco de pila que cambia su ubicación de retorno es aquel correspondiente a main, esto es porque el llamador es el que debe guardar la ubicación de retorno donde espera guardar el valor de retorno de una función llamada.
+Es un programa sencillo donde una función que suma el valor de sus dos parámetros se define y luego se llama desde la función \verb|main|.
+Antes de la llamada a función, el marco de pila perteneciente a la función \verb|main| tiene una ubicación de retorno $Invalid$ y luego de la llamada a función la ubicación de retorno cambia a la variable $x$.
+Observe que el marco de pila que cambia su ubicación de retorno es aquel correspondiente a \verb|main|, esto es porque el llamador es el que debe guardar la ubicación de retorno donde espera guardar el valor de retorno de una función llamada.
 Una ubicación de retorno $Invalid$ indica que el llamador no espera guardar resultado alguno, es decir, el llamador no ha llamado aun a alguna función o la función llamada no tiene valor de retorno.
 
 \begin{figure}
@@ -686,7 +686,7 @@ type_synonym state = stack_frame list $\times$ valuation $\times$ mem
 
 Con el fin de construir un estado inicial se deben definir ciertos componentes.
 En el apéndice~\ref{ap:prog_def} se encuentran definiciones para la configuración inicial de la pila, las variables globales y la memoria.
-La configuración inicial para la pila consiste en la pila que contiene únicamente el marco de pila para la función main del programa.
+La configuración inicial para la pila consiste en la pila que contiene únicamente el marco de pila para la función \verb|main| del programa.
 La configuración inicial para la valuación global es una función donde cada posible nombre de variable se mapea al valor correspondiente a una variable no definida (\verb|None|).
 La configuración inicial de la memoria dinámica es la memoria vacía, dado que nada ha sido asignado.
 
@@ -725,7 +725,7 @@ Luego de definir todos estos componentes, la configuración del estado inicial e
 \subsection{Estado visible}\label{subsection:visible_state}
 
 Adicionalmente, se debe definir un estado visible (como se mencionó anteriormente en la sección~\ref{paragraph:visible_state}).
-Al ejecutar una función transformadora\footnote{las funciones transformadoras se cubrirán más adelante en la sección~\ref{section:small_step}} sobre un estado (exceptuando las funciones transformadoras para las llamadas o retornos de funciones) la misma no podrá modificar alguna otra parte de la pila que no sea la valuación de variables locales del marco de pila actual.
+Al ejecutar una función \textit{transformer}\footnote{las funciones \textit{transformer} se cubrirán más adelante en la sección~\ref{section:small_step}} sobre un estado (exceptuando las funciones \textit{transformer} para las llamadas o retornos de funciones) la misma no podrá modificar alguna otra parte de la pila que no sea la valuación de variables locales del marco de pila actual.
 Se definen las transformaciones reales en el contexto de estados visibles y luego se levanta esta definición a estados.
 Por lo tanto, una función transformadora sobre estados, con excepción de las llamadas o retornos de funciones, no puede manipular la pila.
 
@@ -770,13 +770,13 @@ Si se tiene el término ``\verb|IF| $b$ \verb|THEN| $c_{1}$ \verb|ELSE| $c_{2}$'
 Cuando la evaluación de la condición $b$ produce un valor \verb|True| se seguirá aquella arista que lleva al nodo que contiene $c_1$.
 Mientras que cuando la evaluación de $b$ produce un valor \verb|False| se seguirá aquella arista que lleva al nodo que contiene $c_2$.
 Dependiendo del resultado de la función habilitada se decide que arista puede seguir el nodo.
-El único caso donde una ejecución no podría continuar es cuando no hay ninguna arista habilitada que seguir.
+El único caso donde una ejecución no podría continuar es cuando no hay alguna arista habilitada que seguir.
 Afortunadamente, esto no puede pasar en los programas de Chloe ya que siempre hay una arista habilitada.
 A excepción del condicional, para cada comando en Chloe la función \textit{enabled} siempre retorna \verb|True|.
 En el caso de un condicional, la ejecución puede continuar o bien siguiendo la arista hasta el primer comando o siguiendo la arista hasta el segundo comando.
 Siempre habrá una arista que puede ser seguida luego de un nodo que contenga un condicional.
 
-Una lista de las funciones \textit{enabled} que son utilizadas se presenta en la figura ~\ref{fig:enabled_def}.
+Una lista de las funciones \textit{enabled} que son utilizadas se presenta en la figura~\ref{fig:enabled_def}.
 La función \verb|truth_value_of| mapea un valor a un valor de tipo lógico, es decir \verb|True| o \verb|False|.
 También se encuentran las funciones \verb|en_always| que siempre retorna \verb|True|, \verb|en_pos| que solo retorna \verb|True| cuando el valor real (calculado con \verb|truth_value_of|) de una expresión dada como parámetro se evalúa como \verb|True| y \verb|en_neg| que solo retorna \verb|True| cuando el valor real (calculado con \verb|truth_value_of|) de una expresión dada como parámetro se evalúa como \verb|False|.
 Estas funciones serán utilizadas mas tarde en la definición del CFG.
@@ -834,7 +834,7 @@ Retorna el estado resultante de realizar dicha evaluación y la liberación de m
 Cuando se realiza una llamada a función se debe chequear que los parámetros formales y los parámetros reales dados a la función tengan el mismo tipo y que cada parámetro formal tenga un parámetro real correspondiente.
 Dado que no se posee un sistema de tipos estático solamente se chequeara la segunda condición mencionada.
 Ademas, el orden de evaluación de los parámetros dados a una función es de izquierda a derecha.
-Los parámetros siempre se evalúan siguiendo un orden de derecha a izquierda.
+Los parámetros siempre se evalúan siguiendo un orden de izquierda a derecha.
 Finalmente, cuando se llama a una función también se deben mapear los parámetros formales a los valores de los parámetros dados y considerarlos como variables locales en el alcance de la función.
 
 Se tiene una función \verb|call_function| que produce una función \textit{transformer} para cualquier llamada a función, esta verifica que el número de parámetros formales y parámetros dados sea el mismo, evalúa los parámetros dados de izquierda a derecha, crea un nuevo marco de pila que contiene el cuerpo de la función, la valuación de las variables locales (la cual incluye los parámetros mapeados a sus valores dados y las variables locales mapeadas al valor que representa no inicializado) y la ubicación de retorno \verb|Invalid|, retorna el estado resultante de realizar dichas operaciones sobre el estado.
@@ -957,7 +957,7 @@ Esta arista estará anotada con una función \textit{enabled} dada por \verb|en_
 En el caso de un ciclo siempre se puede seguir una arista que va desde \verb|WHILE| $b$ \verb|DO| $c$ hasta \verb|IF| $b$ \verb|THEN| $c$ \verb|;; WHILE| $b$ \verb|DO| $c$ \verb|ELSE SKIP| al expandir la definición del ciclo una vez.
 La arista tendrá una función \textit{enabled} que siempre está habilitada y la función \textit{transformer} para el estado es \verb|tr_id|.
 
-Se puede seguir una arista desde \verb|FREE| $X$ hasta \verb|SKIP|.
+Se puede seguir una arista desde \verb|FREE| $x$ hasta \verb|SKIP|.
 Esta arista siempre está \textit{enabled} y tiene una función \textit{transformer} dado por \verb|tr_free| llamado con $x$.
 
 Se puede seguir una arista desde cualquiera de los dos comandos de retorno existentes hasta \verb|SKIP|.

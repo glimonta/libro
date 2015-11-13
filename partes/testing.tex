@@ -348,6 +348,8 @@ where "prepare_test_export prog $\equiv$ do {
 
 
 Con el fin de exportar el código con las pruebas agregadas, se define una nueva función en ML llamada \verb|generate_c_test_code|, su definición se encuentra en el apéndice~\ref{ap:generate_c_test_code}.
+Esta función escribe el código C para un programa en un archivo y le agrega las pruebas generadas para el mismo al final de la función \verb|main|.
+\begin{comment}
 Esta función toma cuatro parámetros.
 El primer parámetro de la función es de tipo \verb|(string, string) option| que corresponde a la tupla que contiene la representación en cadena de caracteres del programa en código C y las pruebas para ese programa, respectivamente.
 Si la función recibe un valor \verb|None|, significa que la función \verb|prepare_test_export| falló y no se debe generar un programa en C.
@@ -359,10 +361,10 @@ El último parámetro es el contexto de la teoría actual.
 Si la ruta dada es una cadena de caracteres vacía el código generado se imprimirá a la vista de salida de Isabelle.
 Esta función crea un nuevo archivo con el nombre indicado en los parámetros con ``\verb|.c|'' agregado al final (es decir, $<nombre>\mathtt{.c}$) en el directorio indicado por el parámetro de la ruta.
 El usuario puede entonces encontrar el código generado en el directorio indicado.
+\end{comment}
 
-Esta función escribe el código C para un programa en un archivo y le agrega las pruebas generadas para el mismo al final de la función \verb|main|.
 
-La función \verb|expect_failed_test| es muy similar a la función \verb|expect_failed_export| presentada en la sección~\ref{section:exporting_c_code} pero con un mensaje de error diferente.
+Se define también una función \verb|expect_failed_test|, la cual es muy similar a la función \verb|expect_failed_export| presentada en la sección~\ref{section:exporting_c_code} pero con un mensaje de error diferente.
 Esta función genera un error en Isabelle si se genera código a partir del programa para el cual se esperaba una falla y no realizará acción alguna cuando no se genere código.
 
 \begin{comment}

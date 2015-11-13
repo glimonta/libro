@@ -1,7 +1,7 @@
 \chapter{Introducción}\label{chapter:introduction}
 \lhead{Capítulo 1. \emph{Introducción}}
 
-En este capítulo se discute la motivación para realizar este trabajo.
+En este capítulo se discute la motivación para realizar el presente trabajo.
 Seguido de una breve descripción de los conceptos relacionados a semántica e Isabelle/HOL.
 
 Luego, se describen las características del lenguaje utilizado en este trabajo.
@@ -10,7 +10,7 @@ Finalmente, se describe el contenido del resto del trabajo.
 
 \section{Motivación}
 
-El objetivo de este trabajo es formalizar al semántica de un lenguaje imperativo (incluyendo apuntadores y arreglos) que representa un subconjunto del lenguaje C y luego, generar código ejecutable del mismo.
+El objetivo de este trabajo es formalizar la semántica de un lenguaje imperativo (incluyendo apuntadores y arreglos) que representa un subconjunto del lenguaje C y luego, generar código ejecutable del mismo.
 
 C es un lenguaje ampliamente utilizado.
 Es especialmente popular en la implementación de sistemas operativos y aplicaciones de sistemas embebidos.
@@ -224,7 +224,7 @@ Si la precondición se cumple antes de que el programa se ejecute, y la ejecuci�
 También se puede hablar de \textit{correctitud total} de un programa con respecto a una construcción, una precondición y una postcondición siempre que la siguiente implicación se cumpla:
 
 \begin{displayquote}
-Si la precondición se cumple antes de que el programa se ejecute y la ejecución del programa termina, entonces la postcondición se cumple para el estado final.
+Si la precondición se cumple antes de que el programa se ejecute, entonces la ejecución del programa termina y la postcondición se cumple para el estado final.
 \end{displayquote}
 
 Por lo general es mas sencillo hablar sobre el concepto de correctitud parcial~\citep{nipkow}.
@@ -275,7 +275,7 @@ Las pruebas escritas en papel y lápiz son propensas a errores y los seres human
 Por lo tanto se deben aprovechar los recursos ofrecidos por una máquina para permitir que realice el trabajo pesado.
 Razonar sobre la semántica de un lenguaje de programación sin el uso de herramientas automatizadas se convierte en una gran tarea y, como se dijo antes, propensa a errores, por no hablar de que la certeza sobre la correctitud de las demostraciones disminuye.
 
-Mediante el uso de un demostrador de teoremas, en el caso de este trabajo Isabelle/HOL~\citep{isabelle-tutorial}, se puede estar seguro de que nos resultados demostrados son correctos.
+Mediante el uso de un demostrador de teoremas, en el caso de este trabajo Isabelle/HOL~\citep{isabelle-tutorial}, se puede estar seguro de que los resultados demostrados son correctos.
 En el entorno de Isabelle/HOL se pueden hacer definiciones lógicas y demostrar lemas y teoremas sobre esas definiciones de una manera sólida.
 La semántica para el lenguaje utilizado en este trabajo está formalizada en Isabelle/HOL, así como las pruebas que acompañan a estas definiciones.
 Las definiciones de la semántica formal y pruebas que lo acompañan están escritas en Isabelle/HOL.
