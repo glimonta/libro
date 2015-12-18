@@ -1,0 +1,174 @@
+\section{Pretty Printing}
+
+\begin{frame}[fragile]
+\frametitle{Pretty Printing}
+\framesubtitle{Generación de código para factorial}
+\Fontvi
+
+Se toma el siguiente programa en la semántica:
+
+\begin{columns}[t]
+\column{.45\textwidth}
+\begin{semiverbatim}
+definition factorial_decl :: fun_decl
+  where "factorial_decl ==
+    ( fun_decl.name = fact,
+      fun_decl.params = [n],
+      fun_decl.locals = [r, i],
+      fun_decl.body =
+        r ::= (Const 1);;
+        i ::= (Const 1);;
+        (WHILE (Less (V i) (Plus (V n) (Const 1))) DO
+          (r ::= (Mult (V r) (V i));;
+          i ::= (Plus (V i) (Const 1)))
+        );;
+        RETURN (V r)
+    )"
+
+definition main_decl :: fun_decl
+  where "main_decl ==
+    ( fun_decl.name = main,
+      fun_decl.params = [],
+      fun_decl.locals = [],
+      fun_decl.body =
+        n ::= Const 5;;
+        r ::= fact ([V n])
+    )"
+\end{semiverbatim}
+\column{.45\textwidth}
+\begin{semiverbatim}
+definition p :: program
+  where "p ==
+    ( program.name = fact,
+      program.globals = [n, r],
+      program.procs = [factorial_decl, main_decl]
+    )"
+\end{semiverbatim}
+
+y se exporta código para el mismo.
+\end{columns}
+
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Pretty Printing}
+\framesubtitle{Generación de código para factorial}
+\Fontvi
+
+Se obtiene el siguiente código:
+
+\begin{columns}[t]
+\column{.65\textwidth}
+\begin{semiverbatim}
+\alert<2>{#include <stdlib.h>}
+\alert<2>{#include <stdio.h>}
+\alert<2>{#include <limits.h>}
+\alert<2>{#include <stdint.h>}
+\alert<2>{#include "../test_harness.h"}
+\alert<2>{#include "../malloc_lib.h"}
+\alert<3>{#ifndef INTPTR_MIN}
+  \alert<3>{#error ("Macro INTPTR_MIN undefined")}
+\alert<3>{#endif}
+\alert<3>{#ifndef INTPTR_MAX}
+  \alert<3>{#error ("Macro INTPTR_MAX undefined")}
+\alert<3>{#endif}
+\alert<3>{#if ( INTPTR_MIN + 1 != -9223372036854775807 )}
+  \alert<3>{#error (" Assertion INTPTR_MIN + 1 == -9223372036854775807 failed")}
+\alert<3>{#endif}
+\alert<3>{#if ( INTPTR_MAX != 9223372036854775807 )}
+  \alert<3>{#error (" Assertion INTPTR_MAX == 9223372036854775807 failed")}
+\alert<3>{#endif}
+
+
+\alert<4>{intptr_t n;}
+\alert<4>{intptr_t r;}
+\end{semiverbatim}
+\column{.35\textwidth}
+\begin{semiverbatim}
+\alert<5>{intptr_t fact(intptr_t n) {}
+\alert<5>{  intptr_t r;}
+\alert<5>{  intptr_t i;}
+\alert<5>{  r = (1);}
+\alert<5>{  i = (1);}
+\alert<5>{  while ((i) < ((n) + (1))) {}
+\alert<5>{    r = ((r) * (i));}
+\alert<5>{    i = ((i) + (1));}
+\alert<5>{  }}
+\alert<5>{  return(r);}
+\alert<5>{}}
+
+\alert<6>{intptr_t main() {}
+\alert<6>{  n = (5);}
+\alert<6>{  (r) = (fact(n));}
+\alert<6>{}}
+\end{semiverbatim}
+\end{columns}
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Pretty Printing}
+\framesubtitle{Casting}
+
+Se traducen los programas usando el tipo intptr\_t de C.
+\bigskip
+
+Este tipo permite que tanto un apuntador como un entero se guarde en el.
+
+Todas las variables se definen con el tipo ``intptr\_t''.
+
+\bigskip
+
+A veces se quiere que C interprete los valores como enteros y otras como apuntadores.
+
+Se debe poder imprimir un \textit{cast} desde y hacia apuntadores.
+
+\bigskip
+\pause
+
+\begin{block}{Casteo a apuntador}
+(intptr\_t *) $<$expression$>$
+
+*((intptr\_t *) foo);
+\end{block}
+
+\begin{block}{Casteo desde apuntador}
+(intptr\_t) $<$expression$>$
+
+(intptr\_t) \_\_MALLOC(sizeof(intptr\_t) * 5);
+\end{block}
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Pretty Printing}
+\framesubtitle{¿Cómo se traduce malloc bajo la suposición de memoria ilimitada?}
+
+Se traduce malloc envolviendola en otra función.
+
+\begin{block}{Generación de código para malloc}
+New (Const $9$) se traduce como: \_\_MALLOC(sizeof(intptr\_t) * $9$)
+\end{block}
+
+\bigskip
+
+Esta función abortará la ejecución del programa si encuentra un error de memoria.
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Exportando Código C}
+\framesubtitle{Exportar a un archivo}
+
+Se provee con un mecanismo que permite exportar el programa generado en código C a un archivo en un directorio determinado.
+
+
+\end{frame}

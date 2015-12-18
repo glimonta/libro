@@ -1,0 +1,112 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{helvet}
+\usepackage[spanish]{babel}
+\usepackage{tikz}
+\usetikzlibrary{shapes.multipart}
+\usetikzlibrary{arrows,shapes,trees}
+\usepackage{drawstack}
+\usepackage{xcolor}
+\usepackage{verbatim}
+\usepackage{amsmath}
+\usepackage{lipsum}
+\usepackage{comment}
+
+\newcommand\Fontvi{\fontsize{6}{7.2}\selectfont}
+\newcommand\Fontbi{\fontsize{12}{10}\selectfont}
+
+\definecolor{uablue}{RGB}{0,61,100}
+\colorlet{uablue100}{uablue}
+\colorlet{uablue75} {uablue!75!white}
+\colorlet{uablue50} {uablue!50!white}
+\colorlet{uablue25} {uablue!25!white}
+\colorlet{uablue10} {uablue!10!white}
+\colorlet{uablue5}  {uablue!5!white}
+
+\definecolor{uared}{RGB}{126,0,47}
+\colorlet{uared100}{uared}
+\colorlet{uared75} {uared!75!white}
+\colorlet{uared50} {uared!50!white}
+\colorlet{uared25} {uared!25!white}
+\colorlet{uared10} {uared!10!white}
+\colorlet{uared5}  {uared!5!white}
+
+\tikzset{onslide/.code args={<#1>#2}{%
+  \only<#1>{\pgfkeysalso{#2}} % \pgfkeysalso doesn't change the path
+}}
+\tikzset{alt/.code args={<#1>#2#3}{%
+  \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+}}
+\tikzset{temporal/.code args={<#1>#2#3#4}{%
+  \temporal<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}}{\pgfkeysalso{#4}} % \pgfkeysalso doesn't change the path
+}}
+
+\usetheme{Boadilla}
+
+\setbeamerfont{author}{size=\footnotesize}
+\setbeamerfont{date}{size=\scriptsize}
+\setbeamerfont{date}{size=\scriptsize}
+
+
+
+\setbeamertemplate{title page}
+{
+	\vbox{}
+	\vfill
+	\begin{flushleft}
+		\begin{beamercolorbox}[sep=8pt,left]{title}
+			\usebeamerfont{title}\inserttitle\par%
+			\ifx\insertsubtitle\@empty%
+			\else%
+				\vskip0.25em%
+				{\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+			\fi%
+    	\end{beamercolorbox}%
+    	\vskip1em\par
+		\begin{beamercolorbox}[sep=8pt,left]{author}
+		\usebeamerfont{author}\insertauthor
+		\end{beamercolorbox}
+		\begin{beamercolorbox}[sep=8pt,left]{institute}
+		\usebeamerfont{institute}\insertinstitute
+		\end{beamercolorbox}
+		\begin{beamercolorbox}[sep=8pt,left]{date}
+		\usebeamerfont{date}\insertdate
+		\end{beamercolorbox}\vskip0.5em
+		{\usebeamercolor[fg]{titlegraphic}\inserttitlegraphic\par}
+	\end{flushleft}
+	\vfill
+}
+
+\mode<presentation>
+
+\title[Formalización de un lenguaje imperativo]{Formalización de un lenguaje imperativo con procedimientos, arreglos y apuntadores en Isabelle/HOL}
+
+\author{Gabriela Limonta}
+\institute[]{Universidad Simón Bolívar}
+\date{08/12/2015}
+
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\input{sections/introduction}
+\input{sections/previous}
+\input{sections/semantics}
+\input{sections/pretty}
+\input{sections/testing}
+\input{sections/conclusions}
+
+
+\begin{frame}
+
+\Fontbi
+
+\begin{center}
+¡Gracias!
+\end{center}
+\end{frame}
+
+\end{document}

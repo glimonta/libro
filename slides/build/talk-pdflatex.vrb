@@ -1,0 +1,54 @@
+\frametitle{Pretty Printing}
+\framesubtitle{Generación de código para factorial}
+\Fontvi
+
+Se obtiene el siguiente código:
+
+\begin{columns}[t]
+\column{.65\textwidth}
+\begin{semiverbatim}
+\alert<2>{#include <stdlib.h>}
+\alert<2>{#include <stdio.h>}
+\alert<2>{#include <limits.h>}
+\alert<2>{#include <stdint.h>}
+\alert<2>{#include "../test_harness.h"}
+\alert<2>{#include "../malloc_lib.h"}
+\alert<3>{#ifndef INTPTR_MIN}
+  \alert<3>{#error ("Macro INTPTR_MIN undefined")}
+\alert<3>{#endif}
+\alert<3>{#ifndef INTPTR_MAX}
+  \alert<3>{#error ("Macro INTPTR_MAX undefined")}
+\alert<3>{#endif}
+\alert<3>{#if ( INTPTR_MIN + 1 != -9223372036854775807 )}
+  \alert<3>{#error (" Assertion INTPTR_MIN + 1 == -9223372036854775807 failed")}
+\alert<3>{#endif}
+\alert<3>{#if ( INTPTR_MAX != 9223372036854775807 )}
+  \alert<3>{#error (" Assertion INTPTR_MAX == 9223372036854775807 failed")}
+\alert<3>{#endif}
+
+
+\alert<4>{intptr_t n;}
+\alert<4>{intptr_t r;}
+\end{semiverbatim}
+\column{.35\textwidth}
+\begin{semiverbatim}
+\alert<5>{intptr_t fact(intptr_t n) {}
+\alert<5>{  intptr_t r;}
+\alert<5>{  intptr_t i;}
+\alert<5>{  r = (1);}
+\alert<5>{  i = (1);}
+\alert<5>{  while ((i) < ((n) + (1))) {}
+\alert<5>{    r = ((r) * (i));}
+\alert<5>{    i = ((i) + (1));}
+\alert<5>{  }}
+\alert<5>{  return(r);}
+\alert<5>{}}
+
+\alert<6>{intptr_t main() {}
+\alert<6>{  n = (5);}
+\alert<6>{  (r) = (fact(n));}
+\alert<6>{}}
+\end{semiverbatim}
+\end{columns}
+
+

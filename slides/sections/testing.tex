@@ -1,0 +1,110 @@
+\section{Testing}
+
+\begin{frame}
+\frametitle{Pruebas}
+\framesubtitle{¿Por qué hacemos pruebas?}
+
+El propósito de las pruebas es incrementar la confianza en el proceso de traducción.
+
+\bigskip
+
+El código generado a partir de la semántica se comporta como sigue:
+\begin{itemize}
+\item{Abortará su ejecución si encuentra un error de memoria (no se hace promesa alguna acerca de estos programas)}
+\item{Producirá un resultado equivalente al del mismo programa interpretado en Isabelle}
+\end{itemize}
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Pruebas}
+\framesubtitle{Tipos de pruebas}
+
+Se definen tres tipos de pruebas en la batería de pruebas:
+
+\begin{itemize}
+\item{Programas de ejemplo en Chloe}
+\item{Pruebas intencionalmente incorrectas}
+\item{Programas con pruebas generadas automáticamente que verifican la igualdad de estados finales}
+\end{itemize}
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Pruebas}
+\framesubtitle{Igualdad de estados finales}
+
+Se provee la opción de generar código para probar los programas.
+
+Se quiere verificar que el estado final producido por el programa en C es el mismo que al interpretar el programa.
+
+\begin{block}{Igualdad entre el contenido de las variables globales y la memoria alcanzable.}
+\begin{itemize}
+\item{Valores enteros}
+\item{Apuntadores a Null}
+\item{Apuntadores diferentes de Null}
+\end{itemize}
+\end{block}
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Pruebas}
+\framesubtitle{Siguiendo apuntadores}
+
+Cuando el contenido de una variable global es un apuntador a memoria, se verifica el contenido completo del bloque de memoria ya que es alcanzable.
+\bigskip
+\pause
+
+Cuando se encuentra un apuntador a memoria se sigue el mismo hasta que:
+\begin{itemize}
+\item{Se encuentra un entero o un apuntador a null}
+\item{Se encuentra un apuntador que ya fue seguido}
+\end{itemize}
+\bigskip
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Pruebas}
+\framesubtitle{Siguiendo los apuntadores en orden DFS}
+
+Para hacer esto se debe:
+\begin{itemize}
+\item{Seguir los apuntadores en el orden de busqueda en profundidad}
+\item{Mantener un conjunto de bloques visitados}
+\end{itemize}
+
+
+Para evitar seguir apuntadores indefinidamente cuando existen referencias cíclicas:
+
+Si se encuentra un apuntador a un bloque de memoria que ya fue visitado, se deja de seguir el apuntador y se comparan los valores de los apuntadores.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Pruebas}
+\framesubtitle{Automatización del proceso de pruebas}
+
+Para automatizar el proceso de pruebas se definieron dos ambientes de pruebas (uno en Isabelle y otro en C) que ayudaran en el proceso de generación y corrida de pruebas.
+\bigskip
+\pause
+
+Además de la generación de pruebas se necesita una manera de ejecutar todas las pruebas en la batería.
+\pause
+\bigskip
+
+\begin{itemize}
+\item{Se define un archivo en Isabelle que importa cada prueba en la batería.}
+\item{Se define un Makefile y un bash script que automatizará el proceso de compilación y corrida del código generado.}
+\end{itemize}
+
+\end{frame}
