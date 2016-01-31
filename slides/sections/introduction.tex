@@ -136,3 +136,76 @@ Existen tres enfoques principales:
 \end{itemize}
 
 \end{frame}
+
+\begin{frame}
+\frametitle{Ejemplo de una prueba en Isabelle/HOL}
+
+\begin{semiverbatim}
+datatype \textit{nat} = 0 | Suc \textit{nat}
+
+
+fun add :: ``nat => nat => nat'' where
+
+\alert<2>{``add 0 n = n''} |
+
+\alert<3>``add (Suc m) n = Suc (add m n)''
+\end{semiverbatim}
+
+\begin{columns}[t]
+\column{.45\textwidth}
+\begin{semiverbatim}
+\only<1,2,3>{
+lemma add\_02:
+
+``add m 0 = m''}
+\only<2,3>{
+
+apply simp
+
+}
+\only<3>{
+
+apply simp
+
+done
+
+
+}
+\end{semiverbatim}
+\column{.45\textwidth}
+\begin{block}{Output de Isabelle}
+\begin{semiverbatim}
+\only<1>{
+1. add 0 0 = 0
+
+}
+
+\only<1,2>{
+2. $\bigwedge$ m. add m 0 = m $\Longrightarrow$
+
+add (Suc m) 0 = Suc m
+}
+\only<3>{
+
+No subgoals!
+}
+\end{semiverbatim}
+\end{block}
+\end{columns}
+
+\only<2>{
+
+
+
+
+Usando la primera regla de add}
+\only<3>{
+
+
+Usando la segunda regla de add y luego la hipotesis inductiva}
+
+\end{frame}
+
+\begin{comment}
+
+\end{comment}
