@@ -123,9 +123,7 @@ Todas las variables se definen con el tipo ``intptr\_t''.
 
 \bigskip
 
-A veces se quiere que C interprete los valores como enteros y otras como apuntadores.
-
-Se debe poder imprimir un \textit{cast} desde y hacia apuntadores.
+Se debe poder imprimir un \textit{cast} desde y hacia apuntadores para indicar a C como interpretar los valores
 
 \bigskip
 \pause
@@ -153,7 +151,7 @@ Se debe poder imprimir un \textit{cast} desde y hacia apuntadores.
 Se traduce malloc envolviendola en otra función.
 
 \begin{block}{Generación de código para malloc}
-New (Const $9$) se traduce como: \_\_MALLOC(sizeof(intptr\_t) * $9$)
+New (Const $9$) $\equiv$ \_\_MALLOC(sizeof(intptr\_t) * $9$)
 \end{block}
 
 \bigskip

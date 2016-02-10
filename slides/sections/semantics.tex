@@ -103,10 +103,7 @@ Un apuntador es un par que representa un identificador de un bloque y un desplaz
 \frametitle{Memoria dinámica}
 \framesubtitle{Diseño del \textit{heap}}
 
-
-\begin{columns}[t]
-\column{.45\textwidth}
-\begin{block}{Ejemplo de memoria}
+\begin{comment}
 \begin{tikzpicture}
 \alert<2>{\draw (0,0) rectangle (5,2); }
 \alert<3>{\draw (0,-1) rectangle (5,0) node[midway] {None};}
@@ -115,15 +112,31 @@ Un apuntador es un par que representa un identificador de un bloque y un desplaz
 \alert<5>{\draw (2.25,0.25) rectangle (3.75,1.75) node[midway] {None};}
 \draw (3.75,0.25) rectangle (4.25,1.75) node[midway] {12};
 \end{tikzpicture}
-\end{block}
-\column{.45\textwidth}
+\end{comment}
+
+
+\begin{center}
+\begin{tikzpicture}
+\alert<2>{\node[draw, minimum width=45mm, minimum height=8mm, label=left:0:] (mem1) {
+\begin{tikzpicture}
+\alert<4>{\node[draw, minimum width=5mm, minimum height=6mm] (21) {21};}
+\alert<4>{\node[draw, minimum width=5mm, minimum height=6mm, right=-\pgflinewidth of 21] (NullVal) {NullVal};}
+\alert<5>{\node[draw, minimum width=5mm, minimum height=6mm, right=-\pgflinewidth of NullVal] (None) {None};}
+\alert<4>{\node[draw, minimum width=5mm, minimum height=6mm, right=-\pgflinewidth of None] (12) {12};}
+\end{tikzpicture}
+};}
+\alert<3>{\node[draw, minimum width=45mm, minimum height=8mm, below=-\pgflinewidth of mem1, label=left:1:] (mem2) {None};}
+\end{tikzpicture}
+
+\bigskip
+
 \begin{itemize}
 \alert<2>{\item{Bloque asignado}}
 \alert<3>{\item{Bloque Libre}}
-\alert<4>{\item{Celda inicializada}}
+\alert<4>{\item{Celdas inicializadas}}
 \alert<5>{\item{Celda no inicializada}}
 \end{itemize}
-\end{columns}
+\end{center}
 
 
 \end{frame}
@@ -446,7 +459,7 @@ Un valor de retorno de una función puede ser:
 
 \bigskip
 
-\onslide<6>{The execution stack is a list of stack frames.}
+\onslide<6>{La pila de ejecución es una lista de marcos de pila.}
 
 
 \end{frame}
@@ -473,7 +486,7 @@ Un valor de retorno de una función puede ser:
   \startframe
   \cell{x=sum(2,2)}
   \cell{[x$\mapsto$0]}
-  \alert<4>{\cell{x}\only<4>{\cellround{Caller's rloc changes!}}}
+  \alert<4>{\cell{x}\only<4>{\cellround{El rloc del llamador cambia}}}
   \finishframe{main}
   }
 \end{drawstack}
@@ -570,28 +583,9 @@ Una representación en forma de grafo que cubre los diferentes caminos que un pr
     \node [cfg_node,onslide=<2>{alert}] (c1) {$c_1$};
     \node [cfg_node,onslide=<2>{alert}] (c2) [right of=c1, node distance=3cm] {$c_2$};
     \node [onslide=<6>{alert_pp}](pp) [above left of=c1, node distance=1.5cm] {program pointer};
-    %\node [block,onslide=<2->{dim}] (client) {Web Client};
-    %\node [block,onslide=<2->{dim}] (python) [right of=client, node distance=3cm] {Python Service};
-    %\node [block,onslide=<2->{dim}] (wavefront) [right of=python, node distance=3cm] {Wavefront};
-    %\node [block,onslide=<2->{dim}] (AMCL) [above of=wavefront] {AMCL};
-    %\node [block,temporal=<2>{}{alert}{dim}] (VFH) [below of=wavefront] {VFH};
-    %\node [block,onslide=<2->{dim}] (laser) [above right=0.5cm and 1.2cm of AMCL] {Laser};
-    %\node [block,onslide=<2->{dim}] (dash7) [right of=AMCL, node distance=3cm] {DASH7};
-    %\node [block,onslide=<2->{dim},temporal=<3>{}{alert}{dim}] (robot) [right of=wavefront, node distance=3cm] {Robot};
     % Draw edges
     \draw [line,onslide=<3-5>{alert}] (c1) node[above right of=c1, node distance=1.25cm] {(en, tr)} -> (c2);
     \draw [line,onslide=<6>{alert}] (pp) -> (c1);
-    %\draw [line] (client.east) -> (python.west);
-    %\draw [line] (python) -> (client);
-    %\draw [line] (python) -- (wavefront);
-    %\draw [line] (AMCL) -- (wavefront);
-    %\draw [line] (AMCL) edge[out=180,in=90] (python);
-    %\draw [line] (python) edge[out=270,in=180] (VFH);
-    %\draw [line] (wavefront) -- (VFH);
-    %\draw [line] (laser) -> (AMCL);
-    %\draw [line] (dash7) -> (AMCL);
-    %\draw [line] (robot) -> (AMCL);
-    %\draw [line] (VFH) edge[out=0,in=270] (robot);
 \end{tikzpicture}
 \end{figure}
 
@@ -614,53 +608,31 @@ Una representación en forma de grafo que cubre los diferentes caminos que un pr
 \frametitle{Grafo de flujo de control}
 \framesubtitle{Funciones \textit{enabled}}
 
-\begin{figure}[fragile]
-\centering
-\tikzstyle{cfg_node} = [circle, draw, fill=uablue25, 
-    text width=2em, text centered, minimum height=1em, line width=1pt ]
-\tikzstyle{cfg_big_node} = [circle, draw, fill=uablue25, 
-    text width=4.5em, text centered, minimum height=2.25em, line width=1pt ]
-\tikzstyle{line} = [line width=1pt, -triangle 45]
-\tikzstyle{alert} = [text=uared100, fill=uared25, draw=uared100]
-\tikzstyle{alert_pp} = [text=uared100]
-\tikzstyle{dim} = [text=uablue25, fill=uablue5, draw=uablue25]
 
+\begin{figure}[fragile]
 \begin{block}{}
 \textbf{type\_synonym} enabled = state $\rightharpoonup$ bool
 \end{block}
 
-\bigskip
-
-
-\begin{tikzpicture}[node distance=1.5cm, auto]
-    % Place nodes
-    \node [cfg_big_node,onslide=<1>{dim},onslide=<2-3>{alert}] (if) {IF $b$ THEN $c_1$ ELSE $c_2$};
-    \node [cfg_node,onslide=<1>{dim},onslide=<2>{alert}] (c1) [right of=if, node distance=4cm] {$c_1$};
-    \node [cfg_node,onslide=<1-2>{dim},onslide=<3>{alert}] (c2) [left of=if, node distance=4cm] {$c_2$};
-    %\node [block,onslide=<2->{dim}] (client) {Web Client};
-    %\node [block,onslide=<2->{dim}] (python) [right of=client, node distance=3cm] {Python Service};
-    %\node [block,onslide=<2->{dim}] (wavefront) [right of=python, node distance=3cm] {Wavefront};
-    %\node [block,onslide=<2->{dim}] (AMCL) [above of=wavefront] {AMCL};
-    %\node [block,temporal=<2>{}{alert}{dim}] (VFH) [below of=wavefront] {VFH};
-    %\node [block,onslide=<2->{dim}] (laser) [above right=0.5cm and 1.2cm of AMCL] {Laser};
-    %\node [block,onslide=<2->{dim}] (dash7) [right of=AMCL, node distance=3cm] {DASH7};
-    %\node [block,onslide=<2->{dim},temporal=<3>{}{alert}{dim}] (robot) [right of=wavefront, node distance=3cm] {Robot};
-    % Draw edges
-    \draw [line,onslide=<2>{alert}] (if) node[above left of=c1, node distance=1.5cm] {(en\_pos, tr)} -> (c1);
-    \draw [line,onslide=<3>{alert}] (if) node[above right of=c2, node distance=1.5cm] {(en\_neg, tr)} -> (c2);
-    %\draw [line] (client.east) -> (python.west);
-    %\draw [line] (python) -> (client);
-    %\draw [line] (python) -- (wavefront);
-    %\draw [line] (AMCL) -- (wavefront);
-    %\draw [line] (AMCL) edge[out=180,in=90] (python);
-    %\draw [line] (python) edge[out=270,in=180] (VFH);
-    %\draw [line] (wavefront) -- (VFH);
-    %\draw [line] (laser) -> (AMCL);
-    %\draw [line] (dash7) -> (AMCL);
-    %\draw [line] (robot) -> (AMCL);
-    %\draw [line] (VFH) edge[out=0,in=270] (robot);
+\begin{center}
+\begin{tikzpicture}
+  [
+    grow                    = right,
+    sibling distance        = 6em,
+    level distance          = 10em,
+    edge from parent/.style = {draw, -latex},
+    every node/.style       = {font=\footnotesize},
+    sloped
+  ]
+  \node [root] {IF $b$ THEN $c_1$ ELSE $c_2$}
+    child { node [env, onslide=<2>{alertnode}] {$c_1$}
+      edge from parent node [below, onslide=<2>{alertedge}] {(en\_pos, tr)} }
+    child { node [env, onslide=<3>{alertnode}] {$c_2$}
+      edge from parent node [above, onslide=<3>{alertedge}] {(en\_neg, tr)} };
 \end{tikzpicture}
+\end{center}
 \end{figure}
+
 
 \only<1>{Esta función indica si un estado puede continuar su ejecución.
 
@@ -690,7 +662,7 @@ Esta función transforma un estado en uno nuevo dependiendo de la arista que se 
 
 \bigskip
 
-Es una función paracial, falla cuando se encuentra un error en la transformación.
+Es una función parcial, falla cuando se encuentra un error en la transformación.
 
 \bigskip
 
@@ -739,25 +711,30 @@ Esta función actualiza el estado con el estado resultante cada vez que se sigue
 \tikzstyle{alert} = [text=uared100, fill=uared25, draw=uared100]
 \tikzstyle{alert_pp} = [text=uared100]
 \tikzstyle{dim} = [text=uablue25, fill=uablue5, draw=uablue25]
+\tikzstyle{dimtext} = [text=uablue25]
 
 \begin{tikzpicture}[node distance=1.5cm, auto, baseline=(current bounding box.north)]
     % Place nodes
     \node [cfg_node] (c1) {$f()$};
     \node [cfg_node] (c2) [right of=c1, node distance=3cm] {$c_2$};
-    \node (pp) [above left of=c1, node distance=1.5cm] {program pointer};
-    \node (pp3) [above left of=c2, node distance=1.5cm] {program pointer};
+    \node [cfg_node] (c6) [right of=c2, node distance=3cm] {$c_6$};
+    \node (pp) [above left of=c1, node distance=1.5cm, onslide=<2->{dimtext}] {program pointer};
+    \node (pp3) [above left of=c2, node distance=1.5cm, onslide=<3->{dimtext}] {program pointer};
 
     \node [cfg_node] (c3) [below of=c1, node distance=3cm] {$c_3$};
-    \node (pp2) [above left of=c3, node distance=1.5cm] {f()};
+    \node (pp2) [above left of=c3, node distance=1.5cm, onslide=<4->{dimtext}] {f()};
     \node [cfg_node] (c4) [right of=c3, node distance=1.5cm] {$c_4$};
     \node [cfg_node] (c5) [right of=c4, node distance=1.5cm] {$c_5$};
+    \node (pp4) [above left of=c5, node distance=1.5cm] {};
     % Draw edges
     \draw [line] (c1) -> (c2);
     \draw [line] (c3) -> (c4);
     \draw [line] (c4) -> (c5);
+    \draw [line] (c2) -> (c6);
     \draw [line,onslide=<2->{dim}] (pp) -> (c1);
-    \draw [line,onslide=<2>{alert},onslide=<3->{dim},onslide=<1>{dim}] (pp3) -> (c2);
-    \draw [line,onslide=<3>{alert},onslide=<1-2>{dim}] (pp2) -> (c3);
+    \draw [line,onslide=<2>{alert}, onslide=<5>{alert},onslide=<3-4>{dim},onslide=<1>{dim}] (pp3) -> (c2);
+    \draw [line,onslide=<3>{alert},onslide=<1-2>{dim}, onslide=<4->{dim}] (pp2) -> (c3);
+    \draw [line,onslide=<4>{alert},onslide=<1-3>{dim}, onslide=<5->{dim}] (pp4) -> (c5);
 \end{tikzpicture}
 \end{figure}
 
@@ -768,9 +745,22 @@ Esta función actualiza el estado con el estado resultante cada vez que se sigue
 };
 }
 
-\only<3->{
+\only<3>{
 \node[stack=3]{
 \nodepart{two}$f()$
+\nodepart{three}$c_2$
+};
+}
+
+\only<4>{
+\node[stack=3]{
+\nodepart{two}$c_5$
+\nodepart{three}$c_2$
+};
+}
+
+\only<5->{
+\node[stack=3]{
 \nodepart{three}$c_2$
 };
 }
@@ -1045,6 +1035,8 @@ Para demostrar estos dos lemas fue necesario demostrar 9 lemas previos.
 \begin{theorem}[El interpretador es correcto con respecto a la semántica]
 $\mathtt{terminates}\ cs\ \Longrightarrow\ \mathtt{yields}\ cs\ cs'\ \longleftrightarrow\ (cs'\ =\ \mathtt{interp}\ \mathtt{proc\_table}\ cs)$
 \end{theorem}
+
+Para demostrar este lema fue necesario demostrar 6 lemas previos.
 
 \end{frame}
 

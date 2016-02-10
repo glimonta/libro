@@ -5,12 +5,14 @@
 \usepackage{tikz}
 \usetikzlibrary{shapes.multipart}
 \usetikzlibrary{arrows,shapes,trees}
+\usetikzlibrary{positioning}
 \usepackage{drawstack}
 \usepackage{xcolor}
 \usepackage{verbatim}
 \usepackage{amsmath}
 \usepackage{lipsum}
 \usepackage{comment}
+\usepackage{listings}
 
 \newcommand\Fontvi{\fontsize{6}{7.2}\selectfont}
 \newcommand\Fontbi{\fontsize{12}{10}\selectfont}
@@ -40,6 +42,17 @@
 \tikzset{temporal/.code args={<#1>#2#3#4}{%
   \temporal<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}}{\pgfkeysalso{#4}} % \pgfkeysalso doesn't change the path
 }}
+\tikzset{
+  dummy/.style = {shape=rectangle, rounded corners,
+                     draw, align=center,
+                     top color=white, bottom color=blue!20},
+  root/.style     = {shape=rectangle, thick, rounded corners, fill=uablue25, draw, align=center, font=\Large},
+  env/.style      = {circle, draw, thick, fill=uablue25, font=\footnotesize},
+  treenode/.style    = {circle, draw, thick},
+  invisible/.style = {treenode, color=white}
+}
+\tikzstyle{alertnode} = [text=uared100, fill=uared25, draw=uared100]
+\tikzstyle{alertedge} = [text=uared100]
 
 \usetheme{Boadilla}
 
