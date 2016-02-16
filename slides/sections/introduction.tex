@@ -32,7 +32,7 @@ Desventaja?
 
 \pause
 \begin{itemize}
-\item{Formalizar la semántica de un lenguaje imperativo que represente un subconjunto determinístico de la semántica de C.}
+\item{Formalizar la semántica operacional de pasos cortos de un lenguaje imperativo que represente un subconjunto especializado y determinístico de la semántica de C.}
 \pause
 \item{Escribir un interpretador dentro del ambiente de Isabelle/HOL y demostrar su correctitud.}
 \pause
@@ -50,7 +50,7 @@ Desventaja?
 
 \begin{columns}[t]
 \column{.45\textwidth}
-\begin{block}{Características:}
+\begin{block}{Características actuales:}
 \pause
 \begin{itemize}
 \item{Variables}
@@ -70,7 +70,7 @@ Desventaja?
 \end{itemize}
 \end{block}
 \column{.45\textwidth}
-\begin{block}{Limitaciones:}
+\begin{block}{Extensiones a futuro:}
 \begin{itemize}
 \pause
 \item{Sistema de tipos estático correcto y completo}
@@ -146,64 +146,148 @@ datatype \textit{nat} = 0 | Suc \textit{nat}
 
 fun add :: ``nat => nat => nat'' where
 
-\alert<2>{``add 0 n = n''} |
+Base: ``add 0 n = n'' |
 
-\alert<4>{``add (Suc m) n = Suc (add m n)''}
+Rec: ``add (Suc m) n = Suc (add m n)''
 \end{semiverbatim}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Ejemplo de una prueba en Isabelle/HOL}
 
 \begin{columns}[t]
 \column{.45\textwidth}
 \begin{semiverbatim}
-\only<1,2,3,4,5>{
-lemma add\_02:
+\only<1-8>{
+lemma add\_right:
 
 ``add m 0 = m''
 
 proof(induction)}
-\only<2,3,4,5>{
-\alert<2>{
 
-apply simp}
+\only<2-8>{
+\alert<2>{show ``add 0 0 = 0''}
+
 }
-\only<4,5>{
-\alert<4>{
+\only<3-8>{
+  \alert<3>{using Base}
 
-apply simp}
-
-done
 }
+\only<4-8>{
+  \alert<4>{by simp}
+
+}
+
+\only<5-8>{
+\alert<5>{fix x
+
+assume IH: ``add m 0 = m''
+}}
+\only<6-8>{
+\alert<6>{show ``add (Suc m) 0 = Suc m''}
+
+}
+\only<7-8>{
+  \alert<7>{using Rec and IH}
+
+}
+\only<8>{
+  \alert<8>{by simp}
+
+qed}
+
+\only<9->{
+lemma add\_right:
+
+``add m 0 = m''
+
+
+apply induction
+
+apply auto
+
+done}
+
+
 \end{semiverbatim}
 \column{.45\textwidth}
 \begin{block}{Output de Isabelle}
 \begin{semiverbatim}
-\only<1,2>{
-\alert<2>{
-1. add 0 0 = 0}
+\only<1>{
+goal (2 subgoals):
+
+1. add 0 0 = 0
+
+2. $\bigwedge$ x. add x 0 = x $\Longrightarrow$
+add (Suc x) 0 = Suc x
 
 }
+\only<2>{
+goal (1 subgoal):
 
-\only<1,2,3,4>{
-\alert<4>{
-2. $\bigwedge$ m. add m 0 = m $\Longrightarrow$
+\alert<2>{1. add 0 0 = 0}
 
-add (Suc m) 0 = Suc m
-}}
+}
+\only<3>{
+\alert<3>{using this:
+
+  add 0 ?n = ?n}
+
+
+goal (1 subgoal):
+
+1. add 0 0 = 0
+
+}
+\only<4>{
+goal (1 subgoal):
+
+\alert<4>{1. $\bigwedge$ x. add x 0 = x $\Longrightarrow$
+add (Suc x) 0 = Suc x}
+
+}
 \only<5>{
+\alert<5>{this:
 
-No subgoals!
+add x 0 = x}
+
+goal (1 subgoal):
+
+1. $\bigwedge$ x. add x 0 = x $\Longrightarrow$
+add (Suc x) 0 = Suc x
+
 }
+\only<6>{
+goal (1 subgoal):
+
+\alert<6>{1. add (Suc x) 0 = Suc x}
+
+}
+\only<7>{
+\alert<7>{using this:
+
+add (Suc ?m) ?n = Suc (add ?m ?n)
+
+add x 0 = x}
+
+
+goal (1 subgoal):
+
+1. add (Suc x) 0 = Suc x
+
+}
+\only<8-9>{
+goal:
+
+\alert<9>{No subgoals!}
+
+}
+
 \end{semiverbatim}
 \end{block}
 \end{columns}
 
-\only<2>{
-\bigskip
-
-Usando la primera regla de add}
-\only<4>{
-\bigskip
-
-Usando la segunda regla de add y luego la hipotesis inductiva}
 
 \end{frame}
 

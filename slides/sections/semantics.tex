@@ -9,7 +9,9 @@ Un programa es una secuencia de una o mas instrucciones que realizan una tarea e
 \begin{semiverbatim}
 x = 21;
 y = 21;
-z = x + y;
+if (x == y) \{
+  z = x + y;
+\}
 \end{semiverbatim}
 \end{example}
 
@@ -251,7 +253,7 @@ Dado un nombre de variable puede producir tres resultados diferentes:
 \pause
 \item{Some None: valor sin inizializar.}
 \pause
-\item{Some $v$: variable inicializada que tiene valor $v$.}
+\item{Some (Some $v$): variable inicializada que tiene valor $v$.}
 \end{itemize}
 
 
@@ -262,7 +264,15 @@ Dado un nombre de variable puede producir tres resultados diferentes:
 \frametitle{Semántica de las expresiones}
 \framesubtitle{Estado visible}
 
-Cuando se ejecuta un comando, el mismo solo puede \textit{ver} cierta parte del estado:
+El estado de un programa esta conformado por:
+\begin{itemize}
+\item Pila de ejecución
+\item Variables globales
+\item Memoria
+\end{itemize}
+
+\pause
+Cuando se ejecuta una instrucción, la misma solo puede \textit{ver} cierta parte del estado:
 
 \bigskip
 \pause
@@ -323,7 +333,7 @@ La evaluación de estas funciones puede fallar:
 \end{frame}
 
 
-\subsection{Comandos}
+\subsection{Instrucciones}
 
 
 \begin{comment}
@@ -352,7 +362,7 @@ com ::= SKIP
 
 
 \begin{frame}[fragile]
-\frametitle{Sintaxis de los comandos}
+\frametitle{Sintaxis de las instrucciones}
 \framesubtitle{Sintaxis Abstracta}
 
 \begin{semiverbatim}
@@ -369,6 +379,34 @@ com ::= SKIP
              | Callfun vname fname " exp list"
              | Callfunv fname " exp list"
 \end{semiverbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Sintaxis de las instrucciones}
+\framesubtitle{Llamadas a funciones}
+
+Las funciones no pueden ser expresiones.
+\pause
+
+Al llamar a una función hay tres opciones con respecto al valor de retorno:
+\pause
+\begin{block}{Asignación a celda en memoria}
+\verb|Callfunl lexp fname "exp list"|
+\end{block}
+
+\pause
+
+\begin{block}{Asignación a una variable}
+\verb|Callfun vname fname "exp list"|
+\end{block}
+
+\pause
+
+\begin{block}{Asignación sin valor de retorno}
+\verb|Callfunv fname "exp list"|
+\end{block}
+
 
 \end{frame}
 
@@ -389,7 +427,7 @@ Se tienen funciones que retornan un valor y aquellas que no.
 
 \bigskip
 
-Una función es válida $\Longleftrightarrow$ los parámetros y variables locales tienen nombres diferentes.
+Una función está bien formada $\Longleftrightarrow$ los parámetros y variables locales tienen nombres diferentes.
 
 \bigskip
 
@@ -416,19 +454,19 @@ Cuando una función retorna un valor, este valor es:
 \end{semiverbatim}
 \pause
 
-\begin{block}{Un programa se considera válido si:}
+\begin{block}{Un programa se considera bien formado si:}
 \begin{itemize}
 \item{Las variables globales tienen nombres diferentes entre sí.}
 \pause
 \item{Los nombres de funciones son dieferentes entre sí.}
 \pause
-\item{Todas las declaraciones de funciones son válidas.}
+\item{Los nombres de variables globales y funciones son diferentes entre sí.}
+\pause
+\item{Todas las declaraciones de funciones están bien formadas.}
 \pause
 \item{La función main está definida.}
 \pause
 \item{Ninguno de los nombres de variables o funciones en el programa es una palabra reservada.}
-\pause
-\item{Los nombres de variables globales y funciones son diferentes entre sí.}
 \end{itemize}
 \end{block}
 
@@ -440,8 +478,15 @@ Cuando una función retorna un valor, este valor es:
 \frametitle{Pila de ejecución}
 \framesubtitle{Ubicaciones de retorno y marcos de pila}
 
+\textbf{datatype} stack\_frame = com $\times$ valuation $\times$ return\_loc
+
+\bigskip
+
+La pila de ejecución es una lista de marcos de pila.
+
+\onslide<2->{
 \begin{semiverbatim}
-\textbf{datatype} return_loc = \alert<3>{Ar \textit{addr}} | \alert<4>{Vr \textit{vname}} | \alert<5>{Invalid}
+\textbf{datatype} return\_loc = \alert<3>{Ar \textit{addr}} | \alert<4>{Vr \textit{vname}} | \alert<5>{Invalid}
 \end{semiverbatim}
 
 \pause
@@ -452,15 +497,10 @@ Un valor de retorno de una función puede ser:
 \item<4->{\alert<4>{Asignado a una variable}}
 \item<5->{\alert<5>{Ignorado}}
 \end{itemize}
+}
 
 
 \bigskip
-\onslide<6->{\textbf{datatype} stack\_frame = com $\times$ valuation $\times$ return\_loc}
-
-\bigskip
-
-\onslide<6>{La pila de ejecución es una lista de marcos de pila.}
-
 
 \end{frame}
 
@@ -486,7 +526,7 @@ Un valor de retorno de una función puede ser:
   \startframe
   \cell{x=sum(2,2)}
   \cell{[x$\mapsto$0]}
-  \alert<4>{\cell{x}\only<4>{\cellround{El rloc del llamador cambia}}}
+  \alert<4>{\cell{x}\only<4>{\cellround{El llamador cambia}}}
   \finishframe{main}
   }
 \end{drawstack}
@@ -591,7 +631,7 @@ Una representación en forma de grafo que cubre los diferentes caminos que un pr
 
 
 \begin{itemize}
-\item<2->{Los nodos del CFG son comandos}
+\item<2->{Los nodos del CFG son instrucciones}
 \item<3->{Las aristas del CFG están anotadas con dos funciones que dependen del estado del programa}
   \begin{itemize}
   \item<4->{La primera indica si una arista puede ser seguida o no}
@@ -853,14 +893,14 @@ Un paso desde $s$ hasta $s_2$ se puede dar cuando:
 \begin{itemize}
 \item{Pila no vacía}
 \item{Hay una arista en el CFG entre $c_1$ y $c_2$}
-\item{El comando en el tope de la pila es $c_1$}
+\item{La instrucción en el tope de la pila es $c_1$}
 \item{Aplicar la función enabled produce True}
 \item{Aplicar la función transformer sobre $s$ produce $s_2$}
 \end{itemize}
 \item{Paso de retorno desde una función sin valor de retorno:}
 \begin{itemize}
 \item{Pila no vacía}
-\item{El comando en el tope de la pila es SKIP}
+\item{La instrucción en el tope de la pila es SKIP}
 \item{Aplicar la función transformer tr\_return\_void sobre $s$ produce $s_2$}
 \end{itemize}
 \end{itemize}
@@ -878,13 +918,13 @@ Cuando hay una ejecución errónea, se da un paso desde $s$ a None:
 \begin{itemize}
 \item{Pila no vacía}
 \item{Hay una arista en el CFG entre $c_1$ y $c_2$}
-\item{El comando en el tope de la pila es $c_1$}
+\item{La instrucción en el tope de la pila es $c_1$}
 \item{Aplicar la función enabled o transformer produce None}
 \end{itemize}
 \item{Paso de retorno desde una función sin valor de retorno:}
 \begin{itemize}
 \item{Pila no vacía}
-\item{El comando en el tope de la pila es SKIP}
+\item{La instrucción en el tope de la pila es SKIP}
 \item{Aplicar la función transformer tr\_return\_void sobre $s$ produce None}
 \end{itemize}
 \end{itemize}
@@ -928,7 +968,7 @@ $\equiv$
 \frametitle{Interpretador}
 \framesubtitle{Ejecución de un programa}
 
-Un paso se ejecuta al aplicar la función \textit{transformer} correspondiente al estado y actualizar el comando en el tope de la pila.
+Un paso se ejecuta al aplicar la función \textit{transformer} correspondiente al estado y actualizar la instrucción en el tope de la pila.
 \bigskip
 \pause
 
@@ -943,7 +983,7 @@ Mientras no se alcance un estado final, se ejecuta un paso.
 \pause
 
 \begin{block}{Ejecutar un programa:}
-Verificar que el programa es válido.
+Verificar que el programa está bien formado.
 
 Si lo es, se interpreta.
 \end{block}
