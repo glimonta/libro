@@ -557,7 +557,7 @@ int main(){
 La tabla de procedimientos mapea nombres de funciones a sus declaraciones:
 \bigskip
 
-\textbf{type\_synonym} proc\_table = fname $\rightharpoonup$ fun\_decl
+\textbf{type\_synonym} proc\_table = fname $\Rightarrow$ fun\_decl option
 \pause
 \bigskip
 
@@ -591,7 +591,7 @@ Un estado inicial es la tupla que contiene:
 
 \begin{itemize}
 \item{Pila inicial: Pila de ejecución con el marco de pila de la función main}
-\item{Variables globales iniciales: todos los nombres de variables se mapean a indefinido y las varaibles globales a no-inicializado}
+\item{Variables globales iniciales: todos los nombres de variables se mapean a indefinido y las variables globales a no-inicializado}
 \item{Memoria inicial: Memoria vacía}
 \end{itemize}
 
@@ -651,7 +651,7 @@ Una representación en forma de grafo que cubre los diferentes caminos que un pr
 
 \begin{figure}[fragile]
 \begin{block}{}
-\textbf{type\_synonym} enabled = state $\rightharpoonup$ bool
+\textbf{type\_synonym} enabled = state $\Rightarrow$ bool option
 \end{block}
 
 \begin{center}
@@ -694,7 +694,7 @@ Es una función parcial, por lo que puede fallar.}
 \framesubtitle{Funciones \textit{transformer}}
 
 \begin{block}{}
-\textbf{type\_synonym} transformer = state $\rightharpoonup$ state
+\textbf{type\_synonym} transformer = state $\Rightarrow$ state option
 \end{block}
 \bigskip
 
@@ -820,6 +820,61 @@ Esta función actualiza el estado con el estado resultante cada vez que se sigue
 
 \textbf{inductive} cfg :: com $\Rightarrow$ cfg\_label $\Rightarrow$ com $\Rightarrow$ bool
 
+\only<1>{
+\begin{block}{Asignaciones}
+Assign: \textbf{cfg} ($x$ ::= $a$) (en\_always,tr\_assign $x$ $a$) SKIP
+\\
+Assignl: \textbf{cfg} ($x$ ::==  $a$) (en\_always,tr\_assignl $x$ $a$) SKIP
+\end{block}
+}
+\only<2>{
+\begin{block}{Secuenciación}
+Seq1: \textbf{cfg} (SKIP;; $c_{2}$) (en\_always, tr\_id) $c_{2}$
+\\
+Seq2: $[\![$\textbf{cfg} $c_{1}$ $a$ $c_{1}'$ $]\!]$ $\Longrightarrow$ \textbf{cfg} ($c_{1}$;; $c_{2}$) $a$ ($c_{1}'$;; $c_{2}$)
+\end{block}
+}
+\only<3>{
+\begin{block}{Condicionales}
+IfTrue: \textbf{cfg} (IF $b$ THEN $c_{1}$ ELSE $c_{2}$) (en\_pos $b$, tr\_eval $b$) $c_{1}$
+\\
+IfFalse: \textbf{cfg} (IF $b$ THEN $c_{1}$ ELSE $c_{2}$) (en\_neg $b$, tr\_eval $b$) $c_{2}$
+\end{block}
+}
+\only<4>{
+\begin{block}{Ciclos}
+While: \textbf{cfg} (WHILE $b$ DO $c$) (en\_always, tr\_id) \\
+  (IF $b$ THEN $c$;; WHILE $b$ DO $c$ ELSE SKIP)
+\end{block}
+}
+\only<5>{
+\begin{block}{Liberación de memoria}
+Free: \textbf{cfg} (FREE $x$) (en\_always, tr\_free $x$) SKIP
+\end{block}
+}
+\only<6>{
+\begin{block}{Llamadas a funciones}
+Callfunl: \textbf{cfg} (Callfunl $e$ $f$ params) \\
+  (en\_always, tr\_callfunl proc\_table $e$ $f$ params) SKIP
+\smallskip
+\\
+Callfun: \textbf{cfg} (Callfun $x$ $f$ params) \\
+  (en\_always, tr\_callfun proc\_table $x$ $f$ params) SKIP
+\smallskip  
+\\
+Callfunv: \textbf{cfg} (Callfunv $f$ params) \\
+  (en\_always, tr\_callfunv proc\_table $f$ params) SKIP
+\end{block}
+}
+\only<7>{
+\begin{block}{Retorno de funciones}
+Return: \textbf{cfg} (Return $a$) (en\_always, tr\_return $a$) SKIP
+\\
+Returnv: \textbf{cfg} Returnv (en\_always, tr\_return\_void) SKIP
+\end{block}
+}
+
+\begin{comment}
 \begin{itemize}
 \item{Assign: \textbf{cfg} ($x$ ::= $a$) (en\_always,tr\_assign $x$ $a$) SKIP}
 \item{Assignl: \textbf{cfg} ($x$ ::==  $a$) (en\_always,tr\_assignl $x$ $a$) SKIP}
@@ -831,10 +886,11 @@ Esta función actualiza el estado con el estado resultante cada vez que se sigue
   (IF $b$ THEN $c$;; WHILE $b$ DO $c$ ELSE SKIP)}
 \item{Free: \textbf{cfg} (FREE $x$) (en\_always, tr\_free $x$) SKIP}
 \end{itemize}
+\end{comment}
 
 \end{frame}
 
-
+\begin{comment}
 \begin{frame}[fragile]
 \frametitle{Grafo de flujo de control}
 \framesubtitle{Reglas}
@@ -852,6 +908,7 @@ Esta función actualiza el estado con el estado resultante cada vez que se sigue
 \end{itemize}
 
 \end{frame}
+\end{comment}
 
 
 \begin{frame}
@@ -868,7 +925,7 @@ Se quiere poder hablar de estados intermedios y diferenciar entre programas que 
 \pause
 
 
-\begin{block}{La semántica de pasos cortos se define sobre estados:}
+\begin{block}{La semántica de pasos cortos se define como una relación sobre estados:}
 \textbf{inductive} small\_step :: state $\Rightarrow$ state option $\Rightarrow$ bool
 \bigskip
 
@@ -942,6 +999,9 @@ Se lleva la definicón de small\_step a trabajar sobre state option:
 \bigskip
 \textbf{inductive} small\_step' :: state option $\Rightarrow$ state option $\Rightarrow$ bool
 \bigskip
+
+s $\rightarrow$ $s_2$ $\Longrightarrow$ Some $s$ $\rightarrow$ $s_2$
+\bigskip
 \pause
 
 Para tomar varios pasos se utiliza la clausura reflexivo-transitiva sobre small\_step':
@@ -976,17 +1036,13 @@ La semántica es determinística, lo que permite escribir un interpretador para 
 \bigskip
 \pause
 
-\begin{block}{Interpretar un programa:}
+\begin{block}{Ejecutar un programa:}
 Mientras no se alcance un estado final, se ejecuta un paso.
 \end{block}
 
 \pause
 
-\begin{block}{Ejecutar un programa:}
-Verificar que el programa está bien formado.
-
-Si lo es, se interpreta.
-\end{block}
+Solo se ejecutan programas que estén \textbf{bien formados}.
 
 \bigskip
 
@@ -1063,20 +1119,22 @@ qed (auto intro: cfg.intros)
 
 Se demuestran dos principales teoremas.
 
-\begin{theorem}[La semántica es determinística]
+\begin{block}{Teorema: La semántica es determinística}
 $s \rightarrow s' \land s \rightarrow s'' \Longrightarrow s' = s''$
 
 $s \rightarrow' s' \land s \rightarrow' s'' \Longrightarrow s' = s''$
-\end{theorem}
+\end{block}
 
-Para demostrar estos dos lemas fue necesario demostrar 9 lemas previos.
+Para demostrar este teorema fue necesario demostrar 9 lemas previos.
 
 
-\begin{theorem}[El interpretador es correcto con respecto a la semántica]
-$\mathtt{terminates}\ cs\ \Longrightarrow\ \mathtt{yields}\ cs\ cs'\ \longleftrightarrow\ (cs'\ =\ \mathtt{interp}\ \mathtt{proc\_table}\ cs)$
-\end{theorem}
+\begin{block}{Teorema: El interpretador es consistente con respecto a la semántica}
+$\mathtt{terminates}\ cs\ \Longrightarrow\ $
+\\
+$\mathtt{yields}\ cs\ cs'\ \longleftrightarrow\ (cs'\ =\ \mathtt{interp}\ \mathtt{proc\_table}\ cs)$
+\end{block}
 
-Para demostrar este lema fue necesario demostrar 6 lemas previos.
+Para demostrar este teorema fue necesario demostrar 6 lemas previos.
 
 \end{frame}
 

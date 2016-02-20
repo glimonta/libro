@@ -112,7 +112,7 @@ Se obtiene el siguiente código:
 
 \begin{frame}
 \frametitle{Pretty Printing}
-\framesubtitle{Casting}
+\framesubtitle{\textit{Casting}}
 
 Se traducen los programas usando el tipo intptr\_t de C.
 \bigskip
@@ -128,13 +128,13 @@ Se debe poder imprimir un \textit{cast} desde y hacia apuntadores para indicar a
 \bigskip
 \pause
 
-\begin{block}{Casteo a apuntador}
+\begin{block}{Convertir a apuntador}
 (intptr\_t *) $<$expression$>$
 
 *((intptr\_t *) foo);
 \end{block}
 
-\begin{block}{Casteo desde apuntador}
+\begin{block}{Convertir desde apuntador}
 (intptr\_t) $<$expression$>$
 
 (intptr\_t) \_\_MALLOC(sizeof(intptr\_t) * 5);
