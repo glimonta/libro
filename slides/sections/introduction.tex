@@ -2,6 +2,28 @@
 
 \begin{frame}
 \frametitle{Motivación}
+\framesubtitle{Objetivos}
+
+\begin{itemize}
+\item{Formalizar la semántica de un lenguaje imperativo con procedimientos, arreglos y apuntadores}
+\item{Proveer un mecanismo de traducción a un lenguaje imperativo real}
+\end{itemize}
+
+\pause
+
+Actividades de este proyecto
+\begin{itemize}
+\item{Formalizar la semántica de un lenguaje imperativo llamado Chloe}
+\item{Escribir un interpretador para el lenguaje}
+\item{Demostraciones de determinismo y correctitud}
+\item{Escribir un traductor a código C}
+\item{\textit{Testing}}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Motivación}
 \framesubtitle{El lenguaje de programación C}
 
 \pause
@@ -26,6 +48,7 @@ Desventaja?
 \end{frame}
 
 
+\begin{comment}
 \begin{frame}
 \frametitle{Motivación}
 \framesubtitle{Objetivos del trabajo}
@@ -42,6 +65,7 @@ Desventaja?
 \end{itemize}
 
 \end{frame}
+\end{comment}
 
 
 \begin{frame}
@@ -95,25 +119,34 @@ Desventaja?
 \begin{frame}
 \frametitle{Semántica}
 
-\pause
 
 Existen tres enfoques principales:
 
-\pause
+\bigskip
 
-\begin{itemize}
-\item{Operacional}
-\pause
+\only<1>{
+Operacional:
+
+\bigskip
+Describe el significado de un programa en función del efecto que tiene cada construcción del lenguaje sobre un estado suponiendo una máquina abstracta.
   \begin{itemize}
     \item{Pasos largos}
     \item{Pasos cortos}
   \end{itemize}
-\pause
-\item{Denotacional}
-\pause
-\item{Axiomática}
-\pause
-\end{itemize}
+}
+\only<2>{
+Denotacional:
+
+\bigskip
+Describe el significado de un programa en función de una estructura mátemática o dominio que represente el estado de un programa y el comportamiento de las construcciones en el lenguaje corresponde a una componente de la estructura matemática.
+}
+
+\only<3>{
+Axiomática:
+
+\bigskip
+Describe el significado de las construcciones de lenguaje mediante predicados lógicos, de modo que el efecto de cada construcción es un par de predicados que describen el estado antes y despues de ejecutar la instrucción.
+}
 
 \end{frame}
 
@@ -124,15 +157,10 @@ Existen tres enfoques principales:
 
 \begin{itemize}
 \item{Isabelle/HOL es un demostrador interactivo de teoremas escrito en ML.}
-\pause
 \item{Desarrollado por Larry Paulson y Tobias Nipkow.}
-\pause
 \item{Utiliza el lenguaje HOL para realizar las pruebas.}
-\pause
 \item{Permite hacer definiciones y demostrar propiedades acerca de las mismas.}
-\pause
 \item{Se usa la máquina para asistir en las demostraciones}
-\pause
 \end{itemize}
 
 \end{frame}

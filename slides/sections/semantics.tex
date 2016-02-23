@@ -96,8 +96,6 @@ INT_MAX ==  ((2^(int_width - 1)) - 1)
 \end{semiverbatim}
 \end{block}
 
-Un apuntador es un par que representa un identificador de un bloque y un desplazamiento.
-
 \end{frame}
 
 
@@ -139,6 +137,9 @@ Un apuntador es un par que representa un identificador de un bloque y un desplaz
 \alert<5>{\item{Celda no inicializada}}
 \end{itemize}
 \end{center}
+
+
+\only<6>{Un apuntador es un par que representa un identificador de un bloque y un desplazamiento.}
 
 
 \end{frame}
@@ -990,17 +991,110 @@ Cuando hay una ejecución errónea, se da un paso desde $s$ a None:
 \end{frame}
 
 
+\begin{frame}[fragile]
+\frametitle{Semántica de pasos cortos}
+\framesubtitle{Ejemplo}
+
+\tikzstyle{cfg_node} = [circle, draw, fill=uablue25, 
+    text width=1em, text centered, minimum height=1em, line width=1pt ]
+\tikzstyle{line} = [line width=1pt, -triangle 45]
+\tikzstyle{alert} = [text=uared100, fill=uared25, draw=uared100]
+\tikzstyle{alert_pp} = [text=uared100]
+\tikzstyle{dim} = [text=uablue25, fill=uablue5, draw=uablue25]
+\tikzstyle{dimtext} = [text=uablue25]
+
+
+\begin{tikzpicture}
+  [
+    grow                    = right,
+    sibling distance        = 7em,
+    level distance          = 11em,
+    edge from parent/.style = {draw, -latex},
+    every node/.style       = {font=\scriptsize},
+    sloped
+  ]
+  \node [root, font=\scriptsize] {IF $x > 0$ THEN $x = x + 1$ ELSE $y = 0$}
+    child { node [env, font=\scriptsize] {$y = 0$}
+      child { node [env, font=\scriptsize] {$SKIP$}
+        edge from parent node [below] {(en\_always, tr\_assign)} }
+      edge from parent node [below] {(en\_neg, tr\_eval)} }
+    child { node [env, font=\scriptsize] {$x = x+1$}
+      child { node [env] {$SKIP$}
+        edge from parent node [above] {(\alert<5>{en\_always}, \alert<6,7>{tr\_assign})} }
+      edge from parent node [above] {(\alert<2>{en\_pos}, \alert<3,4>{tr\_eval})} };
+\end{tikzpicture}
+
+\bigskip
+
+\only<1-3>{
+\begin{center}
+\begin{tikzpicture}
+\node[draw, minimum width=60mm, minimum height=6mm, font=\footnotesize] (comando) {$IF\ \alert<2>{x > 0}\ THEN\ x = x + 1\ ELSE\ x = 0$};
+\node[draw, minimum width=60mm, minimum height=6mm, below=-\pgflinewidth of comando, font=\footnotesize] (locales) {$x \mapsto 2$};
+\node[draw, minimum width=60mm, minimum height=6mm, below=-\pgflinewidth of locales, label=below:Pila, font=\footnotesize] (return) {$Invalid$};
+
+\node[draw, minimum width=5mm, minimum height=8mm, right=1cm of locales, label=below:Globales, font=\footnotesize] (globales) {$y \mapsto 3$};
+
+\node[draw, minimum width=5mm, minimum height=8mm, right=1cm of globales, label=below:Memoria] (memoria) {};
+\end{tikzpicture}
+\end{center}
+
+}
+
+\only<4-6>{
+\begin{center}
+\begin{tikzpicture}
+\node[draw, minimum width=30mm, minimum height=6mm, font=\footnotesize] (comando) {$\alert<4>{x = x + 1}$};
+\node[draw, minimum width=30mm, minimum height=6mm, below=-\pgflinewidth of comando, font=\footnotesize] (locales) {$x \mapsto 2$};
+\node[draw, minimum width=30mm, minimum height=6mm, below=-\pgflinewidth of locales, label=below:Pila, font=\footnotesize] (return) {$Invalid$};
+
+\node[draw, minimum width=5mm, minimum height=8mm, right=1cm of locales, label=below:Globales, font=\footnotesize] (globales) {$y \mapsto 3$};
+
+\node[draw, minimum width=5mm, minimum height=8mm, right=1cm of globales, label=below:Memoria] (memoria) {};
+\end{tikzpicture}
+\end{center}
+
+}
+
+\only<7>{
+\begin{center}
+\begin{tikzpicture}
+\node[draw, minimum width=30mm, minimum height=6mm, font=\footnotesize] (comando) {$\alert<7>{SKIP}$};
+\node[draw, minimum width=30mm, minimum height=6mm, below=-\pgflinewidth of comando, font=\footnotesize] (locales) {\alert<7>{$x \mapsto 3$}};
+\node[draw, minimum width=30mm, minimum height=6mm, below=-\pgflinewidth of locales, label=below:Pila, font=\footnotesize] (return) {$Invalid$};
+
+\node[draw, minimum width=5mm, minimum height=8mm, right=1cm of locales, label=below:Globales, font=\footnotesize] (globales) {$y \mapsto 3$};
+
+\node[draw, minimum width=5mm, minimum height=8mm, right=1cm of globales, label=below:Memoria] (memoria) {};
+\end{tikzpicture}
+\end{center}
+
+}
+
+\end{frame}
+
+
+
 \begin{frame}
 \frametitle{Semántica de pasos cortos}
 \framesubtitle{¿Cómo dar varios pasos cortos?}
 
+¿Qué pasa si quiero tomar mas de un paso corto?
+
+\bigskip
+
+$\overset{state}{s}$ $\rightarrow$ $\overset{state\ option}{s_2}$ y $\overset{state}{s_2}$ $\rightarrow$ $\overset{state\ option}{s_3}$
+
+\bigskip
+\pause
+
 Se lleva la definicón de small\_step a trabajar sobre state option:
 
 \bigskip
-\textbf{inductive} small\_step' :: state option $\Rightarrow$ state option $\Rightarrow$ bool
+\textbf{inductive} small\_step$'$ :: state option $\Rightarrow$ state option $\Rightarrow$ bool
 \bigskip
 
-s $\rightarrow$ $s_2$ $\Longrightarrow$ Some $s$ $\rightarrow$ $s_2$
+$s$ $\rightarrow$ $s_2$ $\Longrightarrow$ Some $s$ $\rightarrow'$ $s_2$
 \bigskip
 \pause
 
