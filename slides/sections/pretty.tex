@@ -5,9 +5,9 @@
 \framesubtitle{}
 
 \begin{itemize}
-\item{Permite dar una representación en forma de string}
-\item{Se utiliza para traducir el código en Chloe a código en C}
-\item{El proceso de traducción es de manera incremental}
+\item{Damos una representación en forma de string}
+\item{Traducimos el código en Chloe a código en C}
+\item{El proceso de traducción es inductivo}
 \end{itemize}
 
 \end{frame}
@@ -94,27 +94,27 @@ Se obtiene el siguiente código:
 \alert<3>{#endif}
 
 
-\alert<4>{intptr_t n;}
-\alert<4>{intptr_t r;}
+intptr_t n;
+intptr_t r;
 \end{semiverbatim}
 \column{.35\textwidth}
 \begin{semiverbatim}
-\alert<5>{intptr_t fact(intptr_t n) {}
-\alert<5>{  intptr_t r;}
-\alert<5>{  intptr_t i;}
-\alert<5>{  r = (1);}
-\alert<5>{  i = (1);}
-\alert<5>{  while ((i) < ((n) + (1))) {}
-\alert<5>{    r = ((r) * (i));}
-\alert<5>{    i = ((i) + (1));}
-\alert<5>{  }}
-\alert<5>{  return(r);}
-\alert<5>{}}
+intptr_t fact(intptr_t n) {
+  intptr_t r;
+  intptr_t i;
+  r = (1);
+  i = (1);
+  while ((i) < ((n) + (1))) {
+    r = ((r) * (i));
+    i = ((i) + (1));
+  }
+  return(r);
+}
 
-\alert<6>{intptr_t main() {}
-\alert<6>{  n = (5);}
-\alert<6>{  (r) = (fact(n));}
-\alert<6>{}}
+intptr_t main() {
+  n = (5);
+  (r) = (fact(n));
+}
 \end{semiverbatim}
 \end{columns}
 
@@ -174,6 +174,7 @@ Esta función abortará la ejecución del programa si encuentra un error de memo
 \end{frame}
 
 
+\begin{comment}
 \begin{frame}
 \frametitle{Exportando Código C}
 \framesubtitle{Exportar a un archivo}
@@ -182,3 +183,4 @@ Se provee con un mecanismo que permite exportar el programa generado en código 
 
 
 \end{frame}
+\end{comment}

@@ -1077,7 +1077,6 @@ Cuando hay una ejecución errónea, se da un paso desde $s$ a None:
 
 \begin{frame}
 \frametitle{Semántica de pasos cortos}
-\framesubtitle{¿Cómo dar varios pasos cortos?}
 
 ¿Qué pasa si quiero tomar mas de un paso corto?
 
@@ -1088,7 +1087,7 @@ $\overset{state}{s}$ $\rightarrow$ $\overset{state\ option}{s_2}$ y $\overset{st
 \bigskip
 \pause
 
-Se lleva la definicón de small\_step a trabajar sobre state option:
+Se lleva la definición de small\_step a trabajar sobre state option:
 
 \bigskip
 \textbf{inductive} small\_step$'$ :: state option $\Rightarrow$ state option $\Rightarrow$ bool
@@ -1223,9 +1222,9 @@ Para demostrar este teorema fue necesario demostrar 9 lemas previos.
 
 
 \begin{block}{Teorema: El interpretador es consistente con respecto a la semántica}
-$\mathtt{terminates}\ cs\ \Longrightarrow\ $
+$\mathtt{terminates}\ s\ \Longrightarrow\ $
 \\
-$\mathtt{yields}\ cs\ cs'\ \longleftrightarrow\ (cs'\ =\ \mathtt{interp}\ \mathtt{proc\_table}\ cs)$
+$\mathtt{yields}\ s\ s'\ \longleftrightarrow\ (s'\ =\ \mathtt{interp}\ \mathtt{proc\_table}\ s)$
 \end{block}
 
 Para demostrar este teorema fue necesario demostrar 6 lemas previos.
