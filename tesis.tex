@@ -52,6 +52,9 @@
 \usepackage{subcaption}
 \usepackage{drawstack}
 
+% para incluir el acta
+\usepackage{pdfpages}
+
 % Paquetes locales
 % Puedes agregar paquetes locales (archivos .sty) en un subdirectorio % 'paquetes'.
 % Utiliza la sintaxis \usepackage{paquetes/nombrePaquete}
@@ -67,6 +70,7 @@
 
 % Interpárrafo
 \setlength{\parskip}{1.4pt}
+
 
 \topmargin 2cm
 
@@ -97,7 +101,9 @@ Ingeniero de Computación}
 
 % Se incluye el acta de evaluación, verificar que se corresponda
 % con el formato aceptado actualmente por el Decanato.
-% \input{./partes/acta} 
+\begin{titlepage}
+\includegraphics[width=\textwidth]{acta.pdf}
+\end{titlepage}
 
 % El resumen debe ser de una sola página
 \addtotoc{Resumen}
